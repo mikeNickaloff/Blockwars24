@@ -8,6 +8,10 @@ Item {
     property url sparkSource: "qrc:///images/particles/spark.png"
     property url flashSource: "qrc:///images/particles/flash.png"
 
+    property alias system: particleSystem
+    property alias flashEmitterItem: flashEmitter
+    property alias sparkEmitterItem: sparkEmitter
+
     ParticleSystem { id: particleSystem }
 
     ImageParticle {
@@ -55,7 +59,7 @@ Item {
         velocity: CumulativeDirection {
             AngleDirection { angle: 270; angleVariation: 40; magnitude: 220; magnitudeVariation: 120 }
         }
-        acceleration: AngleDirection { angle: 90; magnitude: 140 } // gravity
+        acceleration: AngleDirection { angle: 90; magnitude: 140 }
         shape: RectangleShape { fill: true; }
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom
@@ -65,5 +69,12 @@ Item {
         system: particleSystem
         angle: 90
         magnitude: 160
+    }
+
+    function burstAll(flashCount, sparkCount) {
+        if (flashCount === undefined || flashCount > 0)
+            flashEmitter.pulse(flashCount !== undefined ? flashCount : 1)
+        if (sparkCount === undefined || sparkCount > 0)
+            sparkEmitter.pulse(sparkCount !== undefined ? sparkCount : 30)
     }
 }
