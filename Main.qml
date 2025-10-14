@@ -22,7 +22,7 @@ ApplicationWindow {
     Component {
         id: mainMenuComponent
         MainMenup {
-            onSinglePlayerClicked: stackView.push(singlePlayerPlaceholderComponent)
+            onSinglePlayerClicked: stackView.push(selectPowerupGameSceneComponent)
             onMultiplayerClicked: stackView.push(multiplayerPlaceholderComponent)
             onPowerupEditorClicked: stackView.push(powerupEditorMainComponent, {
                                                    stackView: stackView,
@@ -43,11 +43,29 @@ ApplicationWindow {
     }
 
     Component {
-        id: singlePlayerPlaceholderComponent
-        PlaceholderPage {
-            title: qsTr("Single Player")
-            message: qsTr("Single player flow is under construction.")
+        id: selectPowerupGameSceneComponent
+        SelectPowerupGameScene {
+            stackView: window.stackView
             onBackRequested: stackView.pop()
+            onSelectionComplete: function(selectedPowerups) {
+                if (!stackView)
+                    return
+                stackView.replace(singlePlayerGameSceneComponent, {
+                                       stackView: stackView,
+                                       selectedPowerups: selectedPowerups
+                                   })
+            }
+        }
+    }
+
+    Component {
+        id: singlePlayerGameSceneComponent
+        SinglePlayerGameScene {
+            stackView: window.stackView
+            onExitToMenuRequested: stackView.pop()
+            onBeginMatchRequested: function(selection) {
+                console.log("Starting single player match with powerups:", JSON.stringify(selection))
+            }
         }
     }
 
