@@ -26,6 +26,7 @@ GameSpriteSheetElement {
     signal animationStart()
     signal animationDone()
     signal rowUpdated(int row)
+    signal blockDestroyed()
 
     onRowChanged: rowUpdated(row)
 

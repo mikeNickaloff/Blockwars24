@@ -17,7 +17,10 @@ Window {
          x: 100
          y: 100
 
-
+         GameGridElement {
+           anchors.fill: parent
+           id: grid
+         }
 
 
      }
@@ -30,12 +33,22 @@ Window {
      Button {
          text: "Click here"
          onClicked: function() {
+             for (var i=0; i<6; i++) {
             blk = blkComp.createObject(testElem);
-             expl = explodeSystem.createObject(testElem, { visible: true })
-            testElem.attachParticleSystem(expl);
+             grid.addBlockToColumn(blk, i)
+             blk = blkComp.createObject(testElem);
+             grid.addBlockToColumn(blk, i)
+             blk = blkComp.createObject(testElem);
+             grid.addBlockToColumn(blk, i)
+             blk = blkComp.createObject(testElem);
+             grid.addBlockToColumn(blk, i)
+             blk = blkComp.createObject(testElem);
+             grid.addBlockToColumn(blk, i)
+                 blk = blkComp.createObject(testElem);
+                 grid.addBlockToColumn(blk, i)
+             }
 
 
-             testElem.tweenPropertiesFrom({ x: 200, y: 200, height: 500, width: 550 }, 500, { easing: Easing.Linear }, function() { blk.launchAnimation(); expl.system.burst(50); }, function() { blk.explode(); });
 
          }
      }

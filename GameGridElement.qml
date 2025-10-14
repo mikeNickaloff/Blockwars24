@@ -130,13 +130,13 @@ GameScene {
     function _registerBlock(column, row, block) {
         const stack = _ensureColumnStack(column)
         stack.push({ block: block, row: row })
-        block.__gridColumn = column
-        block.__gridRow = row
+        block.column = column
+        block.row = row
         const cleanup = function() {
             _deregisterBlock(block)
         }
-        block.__gridCleanup = cleanup
-        block.destroyed.connect(cleanup)
+        //block.__gridCleanup = cleanup
+        block.blockDestroyed.connect(cleanup)
     }
 
     function _deregisterBlock(block) {
