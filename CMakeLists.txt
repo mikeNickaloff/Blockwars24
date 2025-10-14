@@ -21,6 +21,10 @@ qt_add_qml_module(appBlockwars24
         Main.qml
         SOURCES src/abstractgameelement.h src/abstractgameelement.cpp
         SOURCES src/gamespritesheetelement.h src/gamespritesheetelement.cpp
+        SOURCES src/gamescene.h src/gamescene.cpp
+        SOURCES src/gamesignal.h src/gamesignal.cpp
+        SOURCES src/gameelementstore.h src/gameelementstore.cpp
+        SOURCES src/gamedataobject.h src/gamedataobject.cpp
         RESOURCES resources.qrc
         QML_FILES Block.qml
         QML_FILES BlockLaunchParticle.qml
