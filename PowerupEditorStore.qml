@@ -7,6 +7,11 @@ QtObject {
 
     property alias createdPowerupsModel: root.createdPowerups
 
+    // Full powerup payloads are cached separately from the ListModel so we can
+    // preserve complex data (like the selected block coordinates) without
+    // violating ListModel's simple-role requirements.
+    property var powerupCache: ({})
+
     readonly property string databaseName: "BlockwarsPowerups"
     readonly property string tableName: "powerups"
 
@@ -29,9 +34,7 @@ QtObject {
     ]
 
     property var createdPowerups: ListModel {
-
-     dynamicRoles: true
-
+        dynamicRoles: true
     }
 
     Component.onCompleted: initialize()
@@ -54,6 +57,7 @@ QtObject {
 
     function loadPowerups() {
         createdPowerups.clear()
+        powerupCache = ({})
         var db = openDatabase()
         db.transaction(function(tx) {
             var result = tx.executeSql("SELECT id, data FROM " + root.tableName + " ORDER BY id DESC")
@@ -68,7 +72,8 @@ QtObject {
                 var normalized = normalizePowerup(payload)
                 normalized.powerupId = row.id
                 normalized.energy = energyForPowerup(normalized)
-                createdPowerups.append(normalized)
+                cachePowerup(normalized.powerupId, normalized)
+                createdPowerups.append(summarizePowerup(normalized))
             }
         })
     }
@@ -83,7 +88,8 @@ QtObject {
         })
         normalized.powerupId = insertedId
         normalized.energy = energyForPowerup(normalized)
-        createdPowerups.insert(0, normalized)
+        cachePowerup(normalized.powerupId, normalized)
+        createdPowerups.insert(0, summarizePowerup(normalized))
         return insertedId
     }
 
@@ -99,16 +105,36 @@ QtObject {
         if (index >= 0) {
             normalized.powerupId = id
             normalized.energy = energyForPowerup(normalized)
-            createdPowerups.set(index, normalized)
+            cachePowerup(id, normalized)
+            createdPowerups.set(index, summarizePowerup(normalized))
         }
     }
 
     function getPowerupById(id) {
-        var index = indexForId(id)
-        if (index < 0)
-            return null
-        var entry = createdPowerups.get(index)
-        return JSON.parse(JSON.stringify(entry))
+        var cached = powerupCache[id]
+        if (cached)
+            return deepCopyPowerup(cached)
+
+        var db = openDatabase()
+        var loaded = null
+        db.transaction(function(tx) {
+            var result = tx.executeSql("SELECT id, data FROM " + root.tableName + " WHERE id = ?", [id])
+            if (result.rows.length === 0)
+                return
+            var row = result.rows.item(0)
+            var payload = {}
+            try {
+                payload = JSON.parse(row.data)
+            } catch (error) {
+                payload = {}
+            }
+            var normalized = normalizePowerup(payload)
+            normalized.powerupId = row.id
+            normalized.energy = energyForPowerup(normalized)
+            cachePowerup(normalized.powerupId, normalized)
+            loaded = deepCopyPowerup(normalized)
+        })
+        return loaded
     }
 
     function indexForId(id) {
@@ -166,6 +192,35 @@ QtObject {
         if (!option && options.length > 0)
             option = options[0]
         return option || { key: "", label: "", color: "#94a3b8" }
+    }
+
+    function summarizePowerup(powerup) {
+        var energy = powerup.energy
+        if (energy === undefined || energy === null)
+            energy = energyForPowerup(powerup)
+        return {
+            powerupId: powerup.powerupId,
+            typeKey: powerup.typeKey,
+            typeLabel: powerup.typeLabel,
+            targetKey: powerup.targetKey,
+            targetLabel: powerup.targetLabel,
+            colorKey: powerup.colorKey,
+            colorLabel: powerup.colorLabel,
+            colorHex: powerup.colorHex,
+            hp: powerup.hp,
+            energy: energy,
+            blockCount: powerup.targetKey === "blocks" && powerup.blocks ? powerup.blocks.length : 0
+        }
+    }
+
+    function cachePowerup(id, powerup) {
+        if (id === undefined || id === null)
+            return
+        powerupCache[id] = deepCopyPowerup(powerup)
+    }
+
+    function deepCopyPowerup(powerup) {
+        return JSON.parse(JSON.stringify(powerup || {}))
     }
 
     function optionByKey(options, key) {
