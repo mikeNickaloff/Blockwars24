@@ -11,6 +11,9 @@ Item {
     property url smokeSource: "qrc:///images/particles/rocketbacklit.png"
     property url flashSource: "qrc:///images/particles/particleA.png"
     property alias system: particleSystem
+    property alias boomEmitterItem: boomEmitter
+    property alias emberEmitterItem: emberEmitter
+    property alias smokeEmitterItem: smokeEmitter
     ParticleSystem { id: particleSystem }
 
     // Painters
@@ -98,5 +101,14 @@ Item {
         system: particleSystem
         angle: 90
         magnitude: 160
+    }
+
+    function burstAll(boomCount, emberCount, smokeCount) {
+        if (boomCount === undefined || boomCount > 0)
+            boomEmitter.pulse(boomCount !== undefined ? boomCount : 1)
+        if (emberCount === undefined || emberCount > 0)
+            emberEmitter.pulse(emberCount !== undefined ? emberCount : 48)
+        if (smokeCount === undefined || smokeCount > 0)
+            smokeEmitter.pulse(smokeCount !== undefined ? smokeCount : 24)
     }
 }
