@@ -1,84 +1,56 @@
-// MainMenu.qml
-// This file defines a simple main menu for the Block Wars game. It presents
-// a title and five buttons. Each button emits a signal that can be
-// connected externally to handle navigation or other logic.
-
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Layouts
 
 Item {
     id: root
-    // This item fills its parent when used in an ApplicationWindow or similar.
     anchors.fill: parent
 
-    // Signals emitted when each menu button is clicked.  External components
-    // should connect to these to trigger navigation.
     signal singlePlayerClicked
     signal multiplayerClicked
     signal powerupEditorClicked
     signal optionsClicked
     signal exitClicked
 
-    // A column that vertically arranges the title and buttons.  We center
-    // the column horizontally and offset it slightly down from the top to
-    // approximate the title occupying the top 20 % of the window.
-    Column {
-        id: column
+    Rectangle {
+        anchors.fill: parent
+        color: "#101421"
+    }
+
+    ColumnLayout {
+        id: layout
         anchors.horizontalCenter: parent.horizontalCenter
-        // Position the column roughly one fifth down from the top of the view.
         anchors.top: parent.top
-        anchors.topMargin: height * 0.1
-        spacing: 24
+        anchors.topMargin: parent.height * 0.1
+        spacing: 32
 
-        // Game title
-        Text {
-            id: title
+        Label {
+            id: titleLabel
             text: qsTr("Block Wars")
-            anchors.horizontalCenter: parent.horizontalCenter
-            font.pixelSize: 36
+            Layout.alignment: Qt.AlignHCenter
+            font.pixelSize: 48
             font.bold: true
-            // Give the title a bit more spacing below
-            anchors.bottomMargin: 16
+            color: "#f3f4f6"
         }
 
-        // Single player button
-        Button {
-            id: singlePlayerButton
-            text: qsTr("Single Player")
-            anchors.horizontalCenter: parent.horizontalCenter
-            onClicked: root.singlePlayerClicked()
-        }
+        Repeater {
+            model: [
+                { text: qsTr("Single Player"), handler: function() { root.singlePlayerClicked(); } },
+                { text: qsTr("Multiplayer"), handler: function() { root.multiplayerClicked(); } },
+                { text: qsTr("Powerup Editor"), handler: function() { root.powerupEditorClicked(); } },
+                { text: qsTr("Options"), handler: function() { root.optionsClicked(); } },
+                { text: qsTr("Exit"), handler: function() { root.exitClicked(); } }
+            ]
 
-        // Multiplayer button
-        Button {
-            id: multiplayerButton
-            text: qsTr("Multiplayer")
-            anchors.horizontalCenter: parent.horizontalCenter
-            onClicked: root.multiplayerClicked()
-        }
-
-        // Powerup Editor button
-        Button {
-            id: powerupEditorButton
-            text: qsTr("Powerup Editor")
-            anchors.horizontalCenter: parent.horizontalCenter
-            onClicked: root.powerupEditorClicked()
-        }
-
-        // Options button
-        Button {
-            id: optionsButton
-            text: qsTr("Options")
-            anchors.horizontalCenter: parent.horizontalCenter
-            onClicked: root.optionsClicked()
-        }
-
-        // Exit button
-        Button {
-            id: exitButton
-            text: qsTr("Exit")
-            anchors.horizontalCenter: parent.horizontalCenter
-            onClicked: root.exitClicked()
+            delegate: Button {
+                readonly property var option: modelData
+                Layout.alignment: Qt.AlignHCenter
+                Layout.preferredWidth: Math.min(root.width * 0.4, 320)
+                text: option.text
+                font.pixelSize: 20
+                padding: 12
+                onClicked: option.handler()
+            }
         }
     }
 }
