@@ -62,7 +62,7 @@ Item {
             Layout.alignment: Qt.AlignHCenter
         }
 
-        FormLayout {
+        GridLayout {
             Layout.fillWidth: true
 
             Label { text: qsTr("Type") }

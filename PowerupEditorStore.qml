@@ -1,10 +1,11 @@
 import QtQuick
 import QtQuick.LocalStorage
+import QtQml.Models
 
 QtObject {
     id: root
 
-    property alias createdPowerupsModel: createdPowerups
+    property alias createdPowerupsModel: root.createdPowerups
 
     readonly property string databaseName: "BlockwarsPowerups"
     readonly property string tableName: "powerups"
@@ -27,9 +28,10 @@ QtObject {
         { key: "yellow", label: qsTr("Yellow"), color: "#eab308" }
     ]
 
-    ListModel {
-        id: createdPowerups
-        dynamicRoles: true
+    property var createdPowerups: ListModel {
+
+     dynamicRoles: true
+
     }
 
     Component.onCompleted: initialize()

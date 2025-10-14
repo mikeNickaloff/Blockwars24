@@ -161,39 +161,40 @@ Keep nicely formatted and able to be understood by other agents (or people)
 When we have fully built up the Game Engine, and it has everything needed to create the Blockwars game by using a simple abstraction layer based design with useful API, then we will proceed to fulfill any requirements which are listed here in play-by-play format while ensuring that they adhere to all of the Gameplay "rules" and make full use of the Game Engine's API
 
 ## Play-by-play section
-1. The application opens revealing a Screen with the title Block Wars on the top 20% of the screen, centered on the X axis with the application
-2. Beneath the Block Wars logo there are a few buttons: Single Player, Multiplayer, Powerup Editor, Options, and Exit.
+(DONE) 1. The application opens revealing a Screen with the title Block Wars on the top 20% of the screen, centered on the X axis with the application
+(DONE)  2. Beneath the Block Wars logo there are a few buttons: Single Player, Multiplayer, Powerup Editor, Options, and Exit.
 
 ### Powerup Editor
-3. The player clicks on Powerup Editor which changes the entire screen (stackview) to the PowerupEditor scene which starts
+(DONE) 3. The player clicks on Powerup Editor which changes the entire screen (stackview) to the PowerupEditor scene which starts
    by showning a List View that displays the following choices: Create New, Edit Existing, Back to Main Menu
-4. The player clicks on Create New which changes the page to the "Create Powerup" page which has a red button with an "X" on the 
+(DONE) 4. The player clicks on Create New which changes the page to the "Create Powerup" page which has a red button with an "X" on the 
    top-right which would essentially pop the stackview back one page. while the majority of the page is made of a few options to choose from in a form-like layout:
    "Type" which has a Combobox and the options "Enemy" and "Self"
    "Target" which is a combobox with "Blocks", "Hero(s)", and " Player Health"
    "Color" which is a combobox with "Red", "Green", "Blue" and "Yellow"
    "Next" which is a button at the bottom centered and larger than the rest of the page's components slightly.
-5. Player chooses "Enemy", "Blocks" and "Green" then clicks "Next"
-6. Next, another page transitions in which has the title "Select Blocks" because "Blocks" was chosen as the powerup type.
+(DONE) 5. Player chooses "Enemy", "Blocks" and "Green" then clicks "Next"
+(BUG - block stored data is undefined always) 6. Next, another page transitions in which has the title "Select Blocks" because "Blocks" was chosen as the powerup type.
    The "Select Blocks" page contains a Game Grid (a 6x6 Grid Layout) with only Grey blocks, each one with clearly defined shadows for a simple 3d-ish effect.
    Clicking on any of the blocks in the Game Grid will cause that individual block to change from Grey into a block matching the color chosen on the previous page
    Clicking a colored blockw will change it back to Grey. 
-7. Below the grid, there is a slider which goes from 1 to 20 idicating the amount of HP to add or remove to each block when the powerup is activated while in a game.
+(DONE) 7. Below the grid, there is a slider which goes from 1 to 20 idicating the amount of HP to add or remove to each block when the powerup is activated while in a game.
    Under the slider is a "Finish"
-8. The player clicks "Finish" and the page returns to the Powerup Editor main scene. 
-9. Clicking on "Edit Existing" Opens the "Choose Powerup" page to transition into view which contains a scrollable listview where each item is a card which has: a block
+(DONE) 8. The player clicks "Finish" and the page returns to the Powerup Editor main scene. 
+(DONE) 9. Clicking on "Edit Existing" Opens the "Choose Powerup" page to transition into view which contains a scrollable listview where each item is a card which has: a block
    matching that powerup's block color chosen during create powerup, the Type, the Target, the amount of damage, and if "Blocks" is chosen, the number of blocks selected.
    There s also a final, separate box but still connected to the same card on the right-side which says: "Energy: <energy>"  where energy is the 
    amount calculated by a special algorithm (number of targets * amount of HP * 0.5).
-10. Clicking on any of the Powerup "Cards" will push the stackview to transition to a page identical to the "Create Powerup" page, only it will have all the values filled in 
+(DONE) 10. Clicking on any of the Powerup "Cards" will push the stackview to transition to a page identical to the "Create Powerup" page, only it will have all the values filled in 
    so that they match the selected Powerup card.  Clicking Next will take to the same page as the "Select Blocks" page if "Blocks" is chosen 
    or just a slider from 0 to 100 if "Hero" or "Player/Enemy" is chosen instead of blocks for amount of damage / health to give/take
    At the bottom is a "Save" button which overwrites the chosen powerup with the new values chosen from the two pages.
-11. All powerup data is stored in the LocalStorage SQL Database feature that QML has built-in in JSON format and must contain all of the Player's Powerups in a table in a form that
+(BUG - Block Data always undefined not array) 11. All powerup data is stored in the LocalStorage SQL Database feature that QML has built-in in JSON format and must contain all of the Player's Powerups in a table in a form that
    can be read by other parts of the same program.  
-12. The player's Powerup is saved afte they click Save which returns them to the Powerup Editor main menu.
-13. The player clicks on "Back to Main Menu" which transitions back to the Main Menu (title screen)
+(BUG - does not update colors or targets when editing) 12. The player's Powerup is saved afte they click Save which returns them to the Powerup Editor main menu.
+(DONE) 13. The player clicks on "Back to Main Menu" which transitions back to the Main Menu (title screen)
 
+(STOP HERE DO NOT CREATE CODE BELOW THIS LINE BUT USE AS REFERENCE WILL GENERATE NEXT)
 ###	 Single Player (Player Vs. CPU)
 14. The player clicks on Single player which transitions to the "Select Powerups" screen which is a screen containing four "Powerup Cards" arranged
   in a spaced column. each powerup card should have  with a mini layout within containing the details of the powerup chosen. 
