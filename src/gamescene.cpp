@@ -173,13 +173,13 @@ bool GameScene::queueEvents(GameElementStore* elementAndSignals)
         if (entry.element.isNull())
             continue;
 
-        QueuedEvent event;
+        GameSceneQueuedEvent event;
         event.element = entry.element;
 
         for (const QPointer<GameSignal>& signal : entry.signals) {
             if (signal.isNull() || signal->name().isEmpty())
                 continue;
-            QueuedSignal queuedSignal;
+            GameSceneQueuedSignal queuedSignal;
             queuedSignal.name = signal->name();
             queuedSignal.arguments = signal->arguments();
             event.signals.append(queuedSignal);
@@ -212,7 +212,7 @@ bool GameScene::dispatchQueuedEvents()
     bool dispatchedAny = false;
 
     while (true) {
-        QueuedEvent event;
+        GameSceneQueuedEvent event;
         {
             QMutexLocker locker(&m_eventMutex);
             if (m_eventQueue.isEmpty())
@@ -224,7 +224,7 @@ bool GameScene::dispatchQueuedEvents()
         if (!element)
             continue;
 
-        for (const QueuedSignal& signal : event.signals) {
+        for (const GameSceneQueuedSignal& signal : event.signals) {
             if (signal.name.isEmpty())
                 continue;
 

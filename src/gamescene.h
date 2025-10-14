@@ -17,6 +17,18 @@ class GameElementStore;
 class GameSignal;
 struct GameElementStoreEntry;
 
+struct GameSceneQueuedSignal
+{
+    QString name;
+    QVariantList arguments;
+};
+
+struct GameSceneQueuedEvent
+{
+    QPointer<AbstractGameElement> element;
+    QList<GameSceneQueuedSignal> signals;
+};
+
 class GameScene : public AbstractGameElement
 {
     Q_OBJECT
@@ -51,25 +63,13 @@ private slots:
     void onElementDestroyed(QObject* object);
 
 private:
-    struct QueuedSignal
-    {
-        QString name;
-        QVariantList arguments;
-    };
-
-    struct QueuedEvent
-    {
-        QPointer<AbstractGameElement> element;
-        QList<QueuedSignal> signals;
-    };
-
     AbstractGameElement* findElementRecursive(AbstractGameElement* element, const QString& objectName) const;
 
     mutable QMutex m_elementsMutex;
     mutable QVector<QPointer<AbstractGameElement>> m_elements;
 
     mutable QMutex m_eventMutex;
-    mutable QQueue<QueuedEvent> m_eventQueue;
+    mutable QQueue<GameSceneQueuedEvent> m_eventQueue;
 };
 
 #endif // GAMESCENE_H
