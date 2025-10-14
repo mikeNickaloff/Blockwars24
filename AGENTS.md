@@ -1,8 +1,90 @@
+# system prompt for agents (YOU)
+You are the ultimate parameter creating, method implmenting, error catching, bug avoiding, vulnerability preventing, algorithm implementing, math-first, production-level, procedural abstracting, OOP polymorphing, inline abstracting, performance enhancing world's smartest agent!
+
+Fulfill programming requests by first analyzing the requirements then building a framework to support the functionality (business logic), and finally utilize the tools which are now provided by that framework to create the final deliverable. 
+
+Its always better to abstract procedures into multiple levels of abstraction than to lump them together into one type.
+
+Try to limit procedural or hard-coded strings, and if they are necessary, optimize any procedural programming as much as can be done without adding more than 2 additional functions or methods unless adding more than 2 would have an optimization effect that would decrease the complexity from On to O+1 or from O^n to On or On to O^1/n, then its okay.  also repeated function calls should try to be abstracted into simpler components.  Bonus points for bells and whistles.
+
+## example of how to abstract code:
+
+### BAD CODE 
+
+/* NO!!!! */
+SpriteSheetAnimation {
+      id: sheetLoader
+      anchors.fill: parent
+      
+   }
+   GameSpriteSheetElement {
+         id: launcherElement
+   }
+function launch() {
+   var sheetSize = 64
+   var sheetFrames = 31
+   var duration = 500
+   launcherElement.loadSpriteSheet("launcher.png")
+   launcherElement.frameWidth = 25
+   launcherElement.frameHeight = 64
+   launcherElement.interpolate(25, 64, 150, { }, function() { /* prelaunch */ }, function() { /* callback */ } )
+    
+}
+
+#### Why is the above code BAD??
+  procedural logic 
+
+### GOOD CODE 
+
+AbstractGameElement  {
+   id: rootElement 
+
+   Component {
+    id: launchComponent
+    property alias source: launchComponentSpriteSheetElement.source
+    property alias frameStart: launchComponentSpriteSheetElement.frameStart
+    property alias frameEnd: launchComponentSpriteSheetElement.frameEnd
+    Component.onCompleted: { loadSpriteSheet(source) }
+    
+    GameSpriteSheetElement {
+         id: launchComponentSpriteSheetElement
+    }
+
+    function launch(duration, prelaunch, callback) { 
+        launchComponentSpriteSheetElement.interpolate(frameStart, frameEnd, duration, { type: Easing.OutCubic }, prelaunch, callback)  
+    }
+    
+}
+
+GameScene {
+  id: scene
+}
+
+function launchBlock(x, y) {
+     var launchedBlockElement = launchComponent.create(rootElement, { frameStart: 0, frameEnd: 31, source: "launcher.png");
+    scene.addElement(launchedBlockElement)
+    launchedBlockElement.setGlobalPos(x, y)
+    launchedBlockElement.launch(50, function() { launchBlockElement.burstLaunchParticles(150) ), function() { launchBlockElement.burstExplosionParticles(150) })
+
+   
+}
+
+#### Why is it better?
+ nice abstraction by compartmentalizing and creating abstraction layer to hide the implementation details separate from the public API -- makes our code look like this in the end:
+ 
+   rootElement.launchBlock(50, 25)
+   rootElement.launchBlock(150, 225) ...
+
+
+
 # QML API Reference
 
-This document summarizes the QML-facing API for the engine classes that inherit
+This section the QML-facing API for the engine classes that inherit
 `AbstractGameElement`. Use it as a quick reference while wiring up gameplay
 from QML.
+
+This file should reflect any changes to Game* types when changing any QML-invokable  methods, signals, or functionality. 
+Keep nicely formatted and able to be understood by other agents (or people)
 
 ## GameScene
 - `addElement(element: AbstractGameElement) -> bool`
@@ -68,3 +150,17 @@ from QML.
   object (e.g. `{ type: Easing.OutCubic }`) or a string name. Optional callback
   functions run at the start and end—handy for chaining effects or toggling
   flags. Returns `true` if the animation was created successfully.
+
+
+# Actual Blockwars Gameplay Details
+
+## Intro
+When we have fully built up the Game Engine, and it has everything needed to create the Blockwars game by using a simple abstraction layer based design with useful API, then we will proceed to fulfill any requirements which are listed here in play-by-play format while ensuring that they adhere to all of the Gameplay "rules" and make full use of the Game Engine's API
+
+## Play-by-play section
+  1. Create a simple GameScene that fills the window.
+  2. in the GameScene spawn 6 rows of 6 blocks in grid form then tween them from above the window's top down to their position in the grid using GameElement APIs.
+ 
+
+## Rules
+ 1. Blocks must each have a random color "red", "green", "blue", or "yellow" before they are added to the a GameScene.
