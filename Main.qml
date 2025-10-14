@@ -1,70 +1,71 @@
 import QtQuick
-import Blockwars24 1.0
 import QtQuick.Controls
 import "."
-Window {
-    width: 640
-    height: 480
+
+ApplicationWindow {
+    id: window
+    width: 1024
+    height: 768
     visible: true
-    title: qsTr("Hello World")
-    Item {
+    title: qsTr("Block Wars")
+
+    PowerupEditorStore {
+        id: powerupEditorStore
+    }
+
+    StackView {
+        id: stackView
         anchors.fill: parent
-
-     AbstractGameElement {
-         id: testElem
-         width: 180
-         height: 180
-         x: 100
-         y: 100
-
-         GameGridElement {
-           anchors.fill: parent
-           id: grid
-         }
-
-
-     }
-     Component {
-         id: explodeSystem
-     BlockExplodeParticle {
-
-     }
-     }
-     Button {
-         text: "Click here"
-         onClicked: function() {
-             for (var i=0; i<6; i++) {
-            blk = blkComp.createObject(testElem);
-             grid.addBlockToColumn(blk, i)
-             blk = blkComp.createObject(testElem);
-             grid.addBlockToColumn(blk, i)
-             blk = blkComp.createObject(testElem);
-             grid.addBlockToColumn(blk, i)
-             blk = blkComp.createObject(testElem);
-             grid.addBlockToColumn(blk, i)
-             blk = blkComp.createObject(testElem);
-             grid.addBlockToColumn(blk, i)
-                 blk = blkComp.createObject(testElem);
-                 grid.addBlockToColumn(blk, i)
-             }
-
-
-
-         }
-     }
+        initialItem: mainMenuComponent
     }
-    property var blk
-    property var expl
+
     Component {
-     id: blkComp
-     Block {
-      blockColor: "blue"
-      width: 64
-      height: 64
-
-     }
+        id: mainMenuComponent
+        MainMenup {
+            onSinglePlayerClicked: stackView.push(singlePlayerPlaceholderComponent)
+            onMultiplayerClicked: stackView.push(multiplayerPlaceholderComponent)
+            onPowerupEditorClicked: stackView.push(powerupEditorMainComponent, {
+                                                   stackView: stackView,
+                                                   editorStore: powerupEditorStore
+                                               })
+            onOptionsClicked: stackView.push(optionsPlaceholderComponent)
+            onExitClicked: Qt.quit()
+        }
     }
 
-
+    Component {
+        id: powerupEditorMainComponent
+        PowerupEditorMainPage {
+            id: powerupEditorPage
+            stackView: window.stackView
+            editorStore: powerupEditorStore
+        }
     }
 
+    Component {
+        id: singlePlayerPlaceholderComponent
+        PlaceholderPage {
+            title: qsTr("Single Player")
+            message: qsTr("Single player flow is under construction.")
+            onBackRequested: stackView.pop()
+        }
+    }
+
+    Component {
+        id: multiplayerPlaceholderComponent
+        PlaceholderPage {
+            title: qsTr("Multiplayer")
+            message: qsTr("Multiplayer flow is under construction.")
+            onBackRequested: stackView.pop()
+        }
+    }
+
+    Component {
+        id: optionsPlaceholderComponent
+        PlaceholderPage {
+            title: qsTr("Options")
+            message: qsTr("Options are under construction.")
+            onBackRequested: stackView.pop()
+        }
+    }
+}
