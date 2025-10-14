@@ -13,7 +13,7 @@ GameSpriteSheetElement {
     property int row: 0
     property int grid_id: 0
     property string block_color: "blue"
-    property alias blockColor: block_color
+    property alias blockColor: blockRoot.block_color
     property bool isAttacking: false
     property bool isMoving: true
     property bool hasBeenLaunched: false

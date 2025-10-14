@@ -34,6 +34,8 @@ qt_add_qml_module(appBlockwars24
         QML_FILES
         QML_FILES
         QML_FILES
+RESOURCES AGENTS.md
+QML_FILES GameGridElement.qml
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
