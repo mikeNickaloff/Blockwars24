@@ -5,14 +5,14 @@
 #include <QVariant>
 #include <QVariantList>
 
-#include <QtQml/qqmlregistration.h>
+//#include <QtQml/qqmlregistration.h>
 
 class GameDataObject : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QVariant data READ data WRITE setData NOTIFY dataChanged)
 
-    QML_ELEMENT
+
 
 public:
     explicit GameDataObject(QObject* parent = nullptr);

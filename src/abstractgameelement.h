@@ -8,9 +8,9 @@
 #include <QTimer>
 #include <QStringList>
 
-#include <QtQml/qqmlregistration.h>
+/* #include <QtQml/qqmlregistration.h> */
 
-QML_ELEMENT
+
 
 class QParallelAnimationGroup;
 

@@ -18,7 +18,7 @@ void GameElementStore::addElement(AbstractGameElement* element, GameSignal* sign
 
     for (auto& entry : m_entries) {
         if (entry.element == element) {
-            entry.signals.append(signal);
+            entry.gsignals.append(signal);
             emit changed();
             return;
         }
@@ -26,17 +26,17 @@ void GameElementStore::addElement(AbstractGameElement* element, GameSignal* sign
 
     GameElementStoreEntry entry;
     entry.element = element;
-    entry.signals.append(signal);
+    entry.gsignals.append(signal);
     m_entries.append(entry);
     emit changed();
 }
 
-void GameElementStore::addSignals(AbstractGameElement* element, const QList<GameSignal*>& signals)
+void GameElementStore::addSignals(AbstractGameElement* element, const QList<GameSignal*>& gsignals)
 {
-    if (!element || signals.isEmpty())
+    if (!element || gsignals.isEmpty())
         return;
 
-    for (GameSignal* signal : signals) {
+    for (GameSignal* signal : gsignals) {
         addElement(element, signal);
     }
 }

@@ -9,7 +9,7 @@
 #include <QPropertyAnimation>
 #include <QSGTexture>
 #include <QSGSimpleTextureNode>
-#include <QtQml/qqmlregistration.h>
+//#include <QtQml/qqmlregistration.h>
 
 class GameSpriteSheetElement : public AbstractGameElement
 {

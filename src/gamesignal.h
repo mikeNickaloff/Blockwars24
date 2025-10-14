@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QVariantList>
 
-#include <QtQml/qqmlregistration.h>
+/* #include <QtQml/qqmlregistration.h> */
 
 class GameSignal : public QObject
 {
@@ -12,7 +12,7 @@ class GameSignal : public QObject
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
     Q_PROPERTY(QVariantList arguments READ arguments WRITE setArguments NOTIFY argumentsChanged)
 
-    QML_ELEMENT
+
 
 public:
     explicit GameSignal(QObject* parent = nullptr);

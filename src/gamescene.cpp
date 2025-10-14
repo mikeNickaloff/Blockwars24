@@ -176,16 +176,16 @@ bool GameScene::queueEvents(GameElementStore* elementAndSignals)
         GameSceneQueuedEvent event;
         event.element = entry.element;
 
-        for (const QPointer<GameSignal>& signal : entry.signals) {
+        for (const QPointer<GameSignal>& signal : entry.gsignals) {
             if (signal.isNull() || signal->name().isEmpty())
                 continue;
             GameSceneQueuedSignal queuedSignal;
             queuedSignal.name = signal->name();
             queuedSignal.arguments = signal->arguments();
-            event.signals.append(queuedSignal);
+            event.gsignals.append(queuedSignal);
         }
 
-        if (event.signals.isEmpty())
+        if (event.gsignals.isEmpty())
             continue;
 
         {
@@ -224,7 +224,7 @@ bool GameScene::dispatchQueuedEvents()
         if (!element)
             continue;
 
-        for (const GameSceneQueuedSignal& signal : event.signals) {
+        for (const GameSceneQueuedSignal& signal : event.gsignals) {
             if (signal.name.isEmpty())
                 continue;
 

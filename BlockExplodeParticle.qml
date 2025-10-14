@@ -10,7 +10,7 @@ Item {
     property url emberSource: "qrc:///images/particles/ember_mid.png"
     property url smokeSource: "qrc:///images/particles/rocketbacklit.png"
     property url flashSource: "qrc:///images/particles/particleA.png"
-
+    property alias system: particleSystem
     ParticleSystem { id: particleSystem }
 
     // Painters

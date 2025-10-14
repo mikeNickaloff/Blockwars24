@@ -6,7 +6,7 @@
 #include <QVector>
 #include <QList>
 
-#include <QtQml/qqmlregistration.h>
+//#include <QtQml/qqmlregistration.h>
 
 class AbstractGameElement;
 class GameSignal;
@@ -14,20 +14,20 @@ class GameSignal;
 struct GameElementStoreEntry
 {
     QPointer<AbstractGameElement> element;
-    QList<QPointer<GameSignal>> signals;
+    QList<QPointer<GameSignal>> gsignals;
 };
 
 class GameElementStore : public QObject
 {
     Q_OBJECT
 
-    QML_ELEMENT
+   // QML_ELEMENT
 
 public:
     explicit GameElementStore(QObject* parent = nullptr);
 
     Q_INVOKABLE void addElement(AbstractGameElement* element, GameSignal* signal);
-    Q_INVOKABLE void addSignals(AbstractGameElement* element, const QList<GameSignal*>& signals);
+    Q_INVOKABLE void addSignals(AbstractGameElement* element, const QList<GameSignal*>& gsignals);
     Q_INVOKABLE void clear();
 
     QList<GameElementStoreEntry> entries() const;

@@ -10,7 +10,7 @@
 #include <QVariantList>
 #include <QVector>
 
-#include <QtQml/qqmlregistration.h>
+//#include <QtQml/qqmlregistration.h>
 
 class GameDataObject;
 class GameElementStore;
@@ -26,14 +26,14 @@ struct GameSceneQueuedSignal
 struct GameSceneQueuedEvent
 {
     QPointer<AbstractGameElement> element;
-    QList<GameSceneQueuedSignal> signals;
+    QList<GameSceneQueuedSignal> gsignals;
 };
 
 class GameScene : public AbstractGameElement
 {
     Q_OBJECT
 
-    QML_ELEMENT
+   // QML_ELEMENT
 
 public:
     explicit GameScene(QQuickItem* parent = nullptr);
