@@ -174,7 +174,7 @@ When we have fully built up the Game Engine, and it has everything needed to cre
    "Color" which is a combobox with "Red", "Green", "Blue" and "Yellow"
    "Next" which is a button at the bottom centered and larger than the rest of the page's components slightly.
 (DONE) 5. Player chooses "Enemy", "Blocks" and "Green" then clicks "Next"
-(BUG - block stored data is undefined always) 6. Next, another page transitions in which has the title "Select Blocks" because "Blocks" was chosen as the powerup type.
+(DONE) 6. Next, another page transitions in which has the title "Select Blocks" because "Blocks" was chosen as the powerup type.
    The "Select Blocks" page contains a Game Grid (a 6x6 Grid Layout) with only Grey blocks, each one with clearly defined shadows for a simple 3d-ish effect.
    Clicking on any of the blocks in the Game Grid will cause that individual block to change from Grey into a block matching the color chosen on the previous page
    Clicking a colored blockw will change it back to Grey. 
@@ -189,9 +189,9 @@ When we have fully built up the Game Engine, and it has everything needed to cre
    so that they match the selected Powerup card.  Clicking Next will take to the same page as the "Select Blocks" page if "Blocks" is chosen 
    or just a slider from 0 to 100 if "Hero" or "Player/Enemy" is chosen instead of blocks for amount of damage / health to give/take
    At the bottom is a "Save" button which overwrites the chosen powerup with the new values chosen from the two pages.
-(BUG - Block Data always undefined not array) 11. All powerup data is stored in the LocalStorage SQL Database feature that QML has built-in in JSON format and must contain all of the Player's Powerups in a table in a form that
+(DONE) 11. All powerup data is stored in the LocalStorage SQL Database feature that QML has built-in in JSON format and must contain all of the Player's Powerups in a table in a form that
    can be read by other parts of the same program.  
-(BUG - does not update colors or targets when editing) 12. The player's Powerup is saved afte they click Save which returns them to the Powerup Editor main menu.
+(DONE) 12. The player's Powerup is saved afte they click Save which returns them to the Powerup Editor main menu.
 (DONE) 13. The player clicks on "Back to Main Menu" which transitions back to the Main Menu (title screen)
 
 (STOP HERE DO NOT CREATE CODE BELOW THIS LINE BUT USE AS REFERENCE WILL GENERATE NEXT)
@@ -206,7 +206,7 @@ When we have fully built up the Game Engine, and it has everything needed to cre
   instead of the "Blank card". 
 16.  Clicking on the chosen card re-opens the Modal Box to choose a powerup (different or the same is ok) which updates that powerup.
 17. on the Right side (arranged as a sort of sidebar next to the 4 Powerup cards) there should be a Large button (~15-20% of width) that is green and says "Ready!"
-18. Clcking on "Ready" transitions to the Game Board screen.
+18. Clcking on "Ready" transitions to the Game Board screen. Chosen Powerups should be persisted and automatically update / load every time with last selected powerups
 
 #### Game Board
 19. The Game Board screen starts off with two identical Layouts, one on the top half, the other on the bottom half of the page. The top layout is the "CPU Player"'s Dashboard
