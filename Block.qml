@@ -21,6 +21,7 @@ GameSpriteSheetElement {
     property bool inAnimation: false
     property bool isBeingAttacked: false
     property int launchDirection: 1
+    property bool dropBehaviorEnabled: true
 
     signal animationStart()
     signal animationDone()
@@ -29,6 +30,8 @@ GameSpriteSheetElement {
     onRowChanged: rowUpdated(row)
 
     Behavior on y {
+        id: verticalDropBehavior
+        enabled: blockRoot.dropBehaviorEnabled
         SequentialAnimation {
             ScriptAction {
                 script: {
