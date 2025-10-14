@@ -458,3 +458,44 @@ void AbstractGameElement::clearExecutionQueue()
 {
     m_executionQueue.clear();
 }
+
+QVariantMap AbstractGameElement::serialize() const
+{
+    QVariantMap serialized;
+    serialized.insert(QStringLiteral("objectName"), objectName());
+    serialized.insert(QStringLiteral("className"), QString::fromLatin1(metaObject()->className()));
+    serialized.insert(QStringLiteral("propertyList"), m_propertyList);
+
+    QVariantMap properties;
+    for (const QString& propName : m_propertyList) {
+        const QByteArray propKey = propName.toUtf8();
+        if (!hasWritableProperty(const_cast<AbstractGameElement*>(this), propKey))
+            continue;
+        const QVariant value = this->property(propKey.constData());
+        if (value.isValid())
+            properties.insert(propName, value);
+    }
+
+    serialized.insert(QStringLiteral("properties"), properties);
+
+    return serialized;
+}
+
+bool AbstractGameElement::unserialize(const QVariantMap& data)
+{
+    if (data.contains(QStringLiteral("objectName")))
+        setObjectName(data.value(QStringLiteral("objectName")).toString());
+
+    if (data.contains(QStringLiteral("propertyList")))
+        setPropertyList(data.value(QStringLiteral("propertyList")).toStringList());
+
+    const QVariantMap properties = data.value(QStringLiteral("properties")).toMap();
+    for (auto it = properties.constBegin(); it != properties.constEnd(); ++it) {
+        const QByteArray propKey = it.key().toUtf8();
+        if (!hasWritableProperty(this, propKey))
+            continue;
+        setProperty(propKey.constData(), it.value());
+    }
+
+    return true;
+}
