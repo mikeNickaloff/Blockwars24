@@ -127,7 +127,7 @@ Item {
                             }
                             Label {
                                 visible: targetKey === "blocks"
-                                text: qsTr("Blocks Selected: %1").arg(blocks ? blocks.length : 0)
+                                text: qsTr("Blocks Selected: %1").arg(blockCount || 0)
                                 color: "#64748b"
                                 font.pixelSize: 12
                             }
