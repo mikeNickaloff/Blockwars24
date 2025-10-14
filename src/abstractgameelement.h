@@ -67,6 +67,9 @@ public:
     Q_INVOKABLE void beginProcessExecutionQueueAsync();
     Q_INVOKABLE void clearExecutionQueue();
 
+    Q_INVOKABLE virtual QVariantMap serialize() const;
+    Q_INVOKABLE virtual bool unserialize(const QVariantMap& data);
+
 signals:
     void propertyListChanged();
     void loaderChanged();
