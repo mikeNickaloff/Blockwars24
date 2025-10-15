@@ -9,6 +9,10 @@
 
 int main(int argc, char *argv[])
 {
+    QGuiApplication::setOrganizationName("Blockwars");
+    QGuiApplication::setOrganizationDomain("blockwars.example");
+    QGuiApplication::setApplicationName("Blockwars24");
+
     QGuiApplication app(argc, argv);
     const QString rccPath = QDir(QCoreApplication::applicationDirPath()).filePath("resources.rcc");
     QResource::registerResource(rccPath);

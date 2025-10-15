@@ -6,13 +6,23 @@ Item {
 
     property int rows: 6
     property int columns: 6
-    property real cellSize: 56
+    property real baseCellSize: 56
+    property real minCellSize: 32
     property real cellSpacing: 8
     property color cellColor: "#1f2937"
     property color cellHighlight: "#334155"
 
-    implicitWidth: (columns * cellSize) + ((columns + 1) * cellSpacing)
-    implicitHeight: (rows * cellSize) + ((rows + 1) * cellSpacing)
+    readonly property real computedCellSize: {
+        const availableWidth = Math.max(0, width - ((columns + 1) * cellSpacing))
+        const availableHeight = Math.max(0, height - ((rows + 1) * cellSpacing))
+        const sizeFromWidth = columns > 0 ? availableWidth / columns : baseCellSize
+        const sizeFromHeight = rows > 0 ? availableHeight / rows : baseCellSize
+        const candidate = Math.min(baseCellSize, sizeFromWidth, sizeFromHeight)
+        return Math.max(minCellSize, candidate)
+    }
+
+    implicitWidth: (columns * baseCellSize) + ((columns + 1) * cellSpacing)
+    implicitHeight: (rows * baseCellSize) + ((rows + 1) * cellSpacing)
 
     Rectangle {
         anchors.fill: parent
@@ -33,8 +43,8 @@ Item {
             Repeater {
                 model: root.rows * root.columns
                 delegate: Rectangle {
-                    width: root.cellSize
-                    height: root.cellSize
+                    width: root.computedCellSize
+                    height: root.computedCellSize
                     radius: 10
                     color: root.cellColor
                     border.color: "#0f172a"

@@ -175,16 +175,16 @@ GameScene {
                 spacing: 32
 
                 Rectangle {
-                    width: Math.max(260, parent ? parent.width * 0.28 : 260)
+                    Layout.preferredWidth: Math.max(260, parent ? parent.width * 0.28 : 260)
+                    Layout.maximumWidth: parent ? parent.width * 0.4 : implicitWidth
+                    Layout.alignment: Qt.AlignTop
                     radius: 18
                     color: "#0b1220"
                     border.color: "#1f2937"
                     border.width: 1
-                    anchors.top: parent.top
 
                     ColumnLayout {
-                        Layout.fillHeight: false
-                        Layout.fillWidth: true
+                        anchors.fill: parent
                         anchors.margins: 24
                         spacing: 16
 
