@@ -22,13 +22,13 @@ ApplicationWindow {
     Component {
         id: mainMenuComponent
         MainMenup {
-            onSinglePlayerClicked: stackView.push(selectPowerupGameSceneComponent)
-            onMultiplayerClicked: stackView.push(multiplayerPlaceholderComponent)
-            onPowerupEditorClicked: stackView.push(powerupEditorMainComponent, {
-                                                   stackView: stackView,
+            onSinglePlayerClicked: window.stackView.push(selectPowerupGameSceneComponent)
+            onMultiplayerClicked: window.stackView.push(multiplayerPlaceholderComponent)
+            onPowerupEditorClicked: window.stackView.push(powerupEditorMainComponent, {
+                                                   stackView: window.stackView,
                                                    editorStore: powerupEditorStore
                                                })
-            onOptionsClicked: stackView.push(optionsPlaceholderComponent)
+            onOptionsClicked: window.stackView.push(optionsPlaceholderComponent)
             onExitClicked: Qt.quit()
         }
     }
@@ -46,12 +46,12 @@ ApplicationWindow {
         id: selectPowerupGameSceneComponent
         SelectPowerupGameScene {
             stackView: window.stackView
-            onBackRequested: stackView.pop()
+            onBackRequested: window.stackView && window.stackView.pop()
             onSelectionComplete: function(selectedPowerups) {
-                if (!stackView)
+                if (!window.stackView)
                     return
-                stackView.replace(singlePlayerGameSceneComponent, {
-                                       stackView: stackView,
+                window.stackView.replace(singlePlayerGameSceneComponent, {
+                                       stackView: window.stackView,
                                        selectedPowerups: selectedPowerups
                                    })
             }
@@ -62,7 +62,7 @@ ApplicationWindow {
         id: singlePlayerGameSceneComponent
         SinglePlayerGameScene {
             stackView: window.stackView
-            onExitToMenuRequested: stackView.pop()
+            onExitToMenuRequested: window.stackView && window.stackView.pop()
             onBeginMatchRequested: function(selection) {
                 console.log("Starting single player match with powerups:", JSON.stringify(selection))
             }
@@ -74,7 +74,7 @@ ApplicationWindow {
         PlaceholderPage {
             title: qsTr("Multiplayer")
             message: qsTr("Multiplayer flow is under construction.")
-            onBackRequested: stackView.pop()
+            onBackRequested: window.stackView && window.stackView.pop()
         }
     }
 
@@ -83,7 +83,7 @@ ApplicationWindow {
         PlaceholderPage {
             title: qsTr("Options")
             message: qsTr("Options are under construction.")
-            onBackRequested: stackView.pop()
+            onBackRequested: window.stackView && window.stackView.pop()
         }
     }
 }

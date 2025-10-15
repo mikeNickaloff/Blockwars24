@@ -5,7 +5,8 @@ import Blockwars24
 
 GameScene {
     id: root
-    anchors.fill: parent
+    implicitWidth: 1024
+    implicitHeight: 768
 
     property var stackView
     property int selectionLimit: 3
@@ -108,7 +109,7 @@ GameScene {
                 Repeater {
                     model: root.powerupOptions
 
-                    delegate: powerupOptionDelegate.createObject(optionColumn, { option: modelData })
+                    delegate: powerupOptionDelegate
                 }
             }
         }
@@ -141,7 +142,7 @@ GameScene {
 
         Rectangle {
             id: card
-            property var option: ({})
+            property var option: modelData || ({})
             property bool selected: root.isSelected(option.id)
 
             color: selected ? "#1f2937" : "#111827"
