@@ -269,7 +269,7 @@ GameScene {
                     chargeProgress: 0
                     dashboardIndex: 0
                     commandBus: root
-                    onDashboardCommandIssued: handleDashboardCommand(dashboardIndex, command, payload)
+                    onDashboardCommandIssued: function(dashboardIndex, command,payload) { handleDashboardCommand(dashboardIndex, command, payload) }
                 }
 
                 Label {
@@ -291,7 +291,7 @@ GameScene {
                     chargeProgress: 0
                     dashboardIndex: 1
                     commandBus: root
-                    onDashboardCommandIssued: handleDashboardCommand(dashboardIndex, command, payload)
+                    onDashboardCommandIssued: function(dashboardIndex, command,payload) { handleDashboardCommand(dashboardIndex, command, payload) }
                 }
             }
         }

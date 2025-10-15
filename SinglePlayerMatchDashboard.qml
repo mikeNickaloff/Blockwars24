@@ -15,7 +15,7 @@ Item {
     property var loadoutEntries: []
     property int assignedSeed: 0
 
-    signal dashboardCommandIssued(int dashboardIndex, string command, var payload)
+    signal dashboardCommandIssued(var dashboardIndex, var command, var payload)
 
     readonly property real clampedProgress: Math.max(0, Math.min(1, chargeProgress))
 
