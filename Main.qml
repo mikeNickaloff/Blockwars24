@@ -34,12 +34,11 @@ ApplicationWindow {
                 const optionsProvider = function() { return powerupCatalog.availableOptions() }
                 const options = optionsProvider() || []
 
-                stackView.push(selectPowerupGameSceneComponent, {
+                stackView.push(singlePlayerGameSceneComponent, {
                     stackView: stackView,
-                    slotCount: 4,
+                    powerupSlotCount: 4,
                     powerupOptions: options,
-                    powerupOptionsProvider: optionsProvider,
-
+                    powerupOptionsProvider: optionsProvider
                 })
             }
             onMultiplayerClicked: stackView.push(multiplayerPlaceholderComponent)

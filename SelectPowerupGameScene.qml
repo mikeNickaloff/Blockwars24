@@ -20,24 +20,6 @@ GameScene {
     signal backRequested()
     signal selectionComplete(var selectedPowerups)
 
-    onBackRequested: function() {
-        if (stackView)
-            stackView.pop()
-    }
-    onSelectionComplete: function(loadout) {
-        if (!stackView)
-            return
-        const latestOptions = optionsProvider() || options
-        stackView.replace(singlePlayerGameSceneComponent, {
-            stackView: stackView,
-            powerupSlotCount: 4,
-            powerupSelectionComponent: selectPowerupGameSceneComponent,
-            powerupOptions: latestOptions,
-            powerupOptionsProvider: optionsProvider,
-            selectedPowerups: loadout
-        })
-    }
-
     readonly property bool selectionAvailable: slotCount > 0 && filledSlotCount() === slotCount
 
     PowerupLoadoutHelper {
@@ -50,26 +32,24 @@ GameScene {
     }
 
     function ensureLoadout(source) {
-        commitLoadout(source || loadout)
+        commitLoadout(source !== undefined ? source : loadout)
     }
 
     function syncActiveSlot() {
         const count = loadout.length
-        if (count === 0) {
+        if (count <= 0) {
             activeSlotIndex = -1
             return
         }
-
-        if (activeSlotIndex < 0 || activeSlotIndex >= count)
-            activeSlotIndex = Math.max(0, Math.min(activeSlotIndex, count - 1))
+        const clamped = Math.max(0, Math.min(activeSlotIndex, count - 1))
+        activeSlotIndex = clamped
     }
 
     function setActiveSlot(index) {
-        if (loadout.length === 0) {
+        if (loadout.length <= 0) {
             activeSlotIndex = -1
             return
         }
-
         const clamped = Math.max(0, Math.min(index, loadout.length - 1))
         activeSlotIndex = clamped
     }
@@ -130,18 +110,7 @@ GameScene {
         if (wrapIndex !== -1) {
             activeSlotIndex = wrapIndex
             return
-
-        const sanitizedId = option.id || ""
-        const next = loadout.slice()
-        for (let i = 0; i < next.length; ++i) {
-            const entry = next[i]
-            if (entry && entry.id === sanitizedId)
-                next[i] = null
         }
-        next[activeSlotIndex] = option
-        commitLoadout(next)
-        advanceActiveSlot(activeSlotIndex)
-    }
 
         if (loadout.length > 0)
             activeSlotIndex = Math.max(0, Math.min(fromIndex, loadout.length - 1))
@@ -150,11 +119,6 @@ GameScene {
     function assignOptionToActive(option) {
         if (!option || activeSlotIndex < 0 || activeSlotIndex >= loadout.length)
             return
-     /*   const next = loadout.slice()
-        next[index] = null
-        commitLoadout(next)
-        setActiveSlot(index)
-    } */
 
         const sanitized = loadoutHelper.createLoadoutEntry(option, activeSlotIndex)
         if (!sanitized)
@@ -211,35 +175,45 @@ GameScene {
     }
 
     function finalizeSelection() {
+        if (!selectionAvailable)
+            return
         selectionComplete(loadoutSnapshot())
+    }
+
+    function resolvePowerupOptions() {
+        if (powerupOptionsProvider) {
+            const supplied = powerupOptionsProvider()
+            if (supplied)
+                return supplied
+        }
+        return powerupOptions
+    }
+
+    function refreshPowerupOptions() {
+        const resolved = resolvePowerupOptions()
+        if (resolved)
+            powerupOptions = resolved
     }
 
     Component.onCompleted: {
         refreshPowerupOptions()
         commitLoadout(initialSelection)
         if (loadout.length > 0) {
-            const candidate = startSlotIndex >= 0 ? startSlotIndex : firstEmptySlot()
-            setActiveSlot(candidate >= 0 ? candidate : 0)
+            let candidate = startSlotIndex >= 0 ? startSlotIndex : firstEmptySlot()
+            if (candidate < 0)
+                candidate = 0
+            setActiveSlot(candidate)
         }
     }
 
-    onSlotCountChanged: ensureLoadout(initialSelection)
-    onInitialSelectionChanged: ensureLoadout(initialSelection)
+    onSlotCountChanged: commitLoadout(initialSelection)
+    onInitialSelectionChanged: commitLoadout(initialSelection)
     onStartSlotIndexChanged: {
         if (startSlotIndex >= 0)
             setActiveSlot(startSlotIndex)
     }
-
     onPowerupOptionsProviderChanged: refreshPowerupOptions()
     onPowerupOptionsChanged: ensureLoadout(loadout)
-
-    function refreshPowerupOptions() {
-        if (powerupOptionsProvider) {
-            const supplied = powerupOptionsProvider()
-            if (supplied)
-                powerupOptions = supplied
-        }
-    }
 
     Rectangle {
         anchors.fill: parent
@@ -401,31 +375,32 @@ GameScene {
             property var option: modelData || ({})
             property int assignedSlot: root.slotIndexForOptionId(option.id)
 
-            implicitWidth: optionGrid.columns > 1 ? (optionGrid.width - optionGrid.columnSpacing) / optionGrid.columns : optionGrid.width
-            implicitHeight: 196
+            implicitWidth: optionGrid.columns > 1
+                           ? (optionGrid.width - optionGrid.columnSpacing) / optionGrid.columns
+                           : optionGrid.width
+            implicitHeight: 216
             radius: 16
-            color: assignedSlot !== -1 ? Qt.lighter(option.powerup.colorHex || "#1f2937", 1.25) : "#111827"
+            color: assignedSlot !== -1 ? Qt.lighter(option.powerup && option.powerup.colorHex ? option.powerup.colorHex : "#1f2937", 1.25)
+                                       : "#111827"
             border.width: assignedSlot === root.activeSlotIndex ? 2 : 1
-            border.color: assignedSlot === root.activeSlotIndex ? "#38bdf8" : (option.powerup.colorHex || "#1f2937")
+            border.color: assignedSlot === root.activeSlotIndex
+                          ? "#38bdf8"
+                          : (option.powerup && option.powerup.colorHex ? option.powerup.colorHex : "#1f2937")
 
             ColumnLayout {
                 anchors.fill: parent
                 anchors.margins: 18
-                spacing: 10
+                spacing: 12
 
-                Label {
-                    text: option.name
-                    font.pixelSize: 20
-                    font.bold: true
-                    color: "#f8fafc"
+                RowLayout {
                     Layout.fillWidth: true
-                    //spacing: 10
+                    spacing: 12
 
                     Rectangle {
-                        width: 36
-                        height: 36
-                        radius: 10
-                        color: option.powerup.colorHex || "#1f2937"
+                        width: 40
+                        height: 40
+                        radius: 12
+                        color: option.powerup && option.powerup.colorHex ? option.powerup.colorHex : "#1f2937"
                         border.width: 0
                     }
 
@@ -434,7 +409,7 @@ GameScene {
                         spacing: 4
 
                         Label {
-                            text: option.name
+                            text: option.name || qsTr("Powerup")
                             font.pixelSize: 20
                             font.bold: true
                             color: "#f8fafc"
@@ -443,7 +418,8 @@ GameScene {
                         }
 
                         Label {
-                            text: option.powerup.effectSummary
+                            text: option.powerup && option.powerup.effectSummary ? option.powerup.effectSummary : ""
+                            visible: option.powerup && option.powerup.effectSummary
                             color: "#cbd5f5"
                             wrapMode: Text.WordWrap
                             Layout.fillWidth: true
@@ -454,6 +430,7 @@ GameScene {
                 Flow {
                     Layout.fillWidth: true
                     spacing: 8
+                    visible: option.tags && option.tags.length > 0
 
                     Repeater {
                         model: option.tags || []
@@ -476,7 +453,8 @@ GameScene {
                 }
 
                 Label {
-                    text: option.description
+                    text: option.description || ""
+                    visible: !!option.description
                     wrapMode: Text.WordWrap
                     color: "#9ca3af"
                     Layout.fillWidth: true
@@ -487,7 +465,9 @@ GameScene {
                 }
 
                 Label {
-                    text: assignedSlot !== -1 ? qsTr("Assigned to Slot %1").arg(assignedSlot + 1) : qsTr("Available")
+                    text: assignedSlot !== -1
+                          ? qsTr("Assigned to Slot %1").arg(assignedSlot + 1)
+                          : qsTr("Available")
                     color: assignedSlot !== -1 ? "#38bdf8" : "#64748b"
                     font.pixelSize: 12
                     Layout.fillWidth: true

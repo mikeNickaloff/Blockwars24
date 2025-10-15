@@ -44,35 +44,6 @@ GameScene {
         return count
     }
 
-   /* function normalizedSelection(source) {
-        const count = Math.max(0, powerupSlotCount)
-        const normalized = []
-        for (let i = 0; i < count; ++i) {
-            let entry = null
-            if (source && source.length > i)
-                entry = source[i]
-            normalized.push(entry ? sanitizedEntry(entry, i) : null)
-        }
-        return normalized
-    } */
-
-/*    function updateLoadout() {
-        loadout = normalizedSelection(selectedPowerups)
-    }
-
-    function applySelection(selection) {
-        selectedPowerups = normalizedSelection(selection)
-    } */
-
-  /*  function filledSlotCount() {
-        let count = 0
-        for (let i = 0; i < loadout.length; ++i) {
-            if (loadout[i])
-                ++count
-        }
-        return count
-    } */
-
     function selectionHeading() {
         const filled = filledSlotCount()
         if (powerupSlotCount <= 0)
@@ -103,6 +74,12 @@ GameScene {
                 return supplied
         }
         return powerupOptions
+    }
+
+    function refreshPowerupOptions() {
+        const resolved = resolvePowerupOptions()
+        if (resolved)
+            powerupOptions = resolved
     }
 
     function openPowerupSelection(slotIndex) {
@@ -138,9 +115,14 @@ GameScene {
         beginMatchRequested(loadoutSnapshot())
     }
 
-    Component.onCompleted: updateLoadout()
+    Component.onCompleted: {
+        refreshPowerupOptions()
+        updateLoadout()
+    }
     onPowerupSlotCountChanged: updateLoadout()
     onSelectedPowerupsChanged: updateLoadout()
+    onPowerupOptionsChanged: updateLoadout()
+    onPowerupOptionsProviderChanged: refreshPowerupOptions()
 
     Rectangle {
         anchors.fill: parent
