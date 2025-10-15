@@ -28,15 +28,15 @@ qt_add_qml_module(appBlockwars24
         PowerupGridBlock.qml
         PowerupEditorStore.qml
         PowerupEditorMainPage.qml
-        PowerupCard.qml
-        PowerupLoadoutCard.qml
-        PowerupCatalog.qml
-        PowerupLoadoutHelper.qml
         PlaceholderPage.qml
         CreatePowerupPage.qml
         EditPowerupListPage.qml
         MainMenup.qml
-        SelectPowerupGameScene.qml
+        SinglePlayerPowerupOptionCard.qml
+        SinglePlayerPowerupRepository.qml
+        SinglePlayerPowerupSelectionModal.qml
+        SinglePlayerSelectPowerupSlot.qml
+        SinglePlayerSelectPowerupsScene.qml
         SinglePlayerGameScene.qml
     RESOURCES
         resources.qrc
