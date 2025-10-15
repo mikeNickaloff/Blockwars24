@@ -142,14 +142,18 @@ GameScene {
         }
     }
     ScrollView {
-
-       width: parent.implicitWidth
-       height: parent.implicitHeight * 0.8
-    ColumnLayout {
+        id: contentScrollView
         anchors.fill: parent
-        anchors.margins: 36
+        anchors.margins: 32
+        clip: true
+        ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+        ScrollBar.vertical.policy: ScrollBar.AsNeeded
+        contentWidth: availableWidth
 
-        spacing: 28
+        ColumnLayout {
+            id: pageContent
+            width: contentScrollView.availableWidth
+            spacing: 28
 
             RowLayout {
                 Layout.fillWidth: true
@@ -169,15 +173,19 @@ GameScene {
                 }
             }
 
-            RowLayout {
+            GridLayout {
+                id: responsiveLayout
                 Layout.fillWidth: true
-                Layout.fillHeight: true
-                spacing: 32
+                columnSpacing: 28
+                rowSpacing: 28
+                columns: pageContent.width > 920 ? 2 : 1
 
                 Rectangle {
-                    Layout.preferredWidth: Math.max(260, parent ? parent.width * 0.28 : 260)
-                    Layout.maximumWidth: parent ? parent.width * 0.4 : implicitWidth
+                    Layout.fillWidth: true
                     Layout.alignment: Qt.AlignTop
+                    Layout.columnSpan: responsiveLayout.columns > 1 ? 1 : responsiveLayout.columns
+                    Layout.preferredWidth: responsiveLayout.columns > 1 ? Math.max(280, pageContent.width * 0.32) : pageContent.width
+                    Layout.maximumWidth: responsiveLayout.columns > 1 ? Math.max(360, pageContent.width * 0.4) : pageContent.width
                     radius: 18
                     color: "#0b1220"
                     border.color: "#1f2937"
@@ -220,7 +228,8 @@ GameScene {
 
                 ColumnLayout {
                     Layout.fillWidth: true
-                    Layout.fillHeight: true
+                    Layout.column: responsiveLayout.columns > 1 ? 1 : 0
+                    Layout.columnSpan: responsiveLayout.columns > 1 ? 1 : responsiveLayout.columns
                     spacing: 18
 
                     Label {
@@ -247,13 +256,8 @@ GameScene {
                             }
                         }
                     }
-                    Rectangle {
-                        /* spacing rectangle */
 
-                        opacity: 0
-                        height: 200
-                        width: 200
-                    }
+                    Item { Layout.fillHeight: true }
                 }
             }
         }
