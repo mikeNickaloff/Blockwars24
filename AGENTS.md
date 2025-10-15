@@ -199,117 +199,52 @@ Keep nicely formatted and able to be understood by other agents (or people)
  (DONE) 13. The player clicks on "Back to Main Menu" which transitions back to the Main Menu (title screen)
 
 
-### (REDO -- WRONG CODING STYLE)	 Single Player (Player Vs. CPU)
-  14. The player clicks on Single player which transitions to the "Select Powerups" screen which is a screen containing four "Powerup Cards" arranged
-  in a spaced column. each powerup card should have  with a mini layout within containing the details of the powerup chosen. 
-  In the case where no powerup has been chosen for any card, a default "Blank" card will show that says "Select Powerup..." in a large button in the 
-  center of the blank card. 
- 15. Clicking on "Select Powerup" button (which each PowerupCard will have such button) will create an overlay Modal Box which has a scrollable list view of all the user's created powerups made from the Powerup Editor.
-   There should also be a separator and beneath it should be 10 default powerups which will come shipped with he Game that players can choose from.
-   Clicking on any of the Powerup cards from the "Select Powerup" modal will hide the Modal Box and make the chosen Powerup Card's details shown in the chosen box
-  instead of the "Blank card". 
- 16.  Clicking on the chosen card re-opens the Modal Box to choose a powerup (different or the same is ok) which updates that powerup.
- 17. on the Right side (arranged as a sort of sidebar next to the 4 Powerup cards) there should be a Large button (~15-20% of width) that is green and says "Ready!"
- 18. Clcking on "Ready" transitions to the Game Board screen. Chosen Powerups should be persisted and automatically update / load every time with last selected powerups
+### Single Player (Player Vs. CPU)
+14. Selecting **Single Player** pushes `SinglePlayerSelectPowerupsScene.qml` onto the navigation stack. The scene owns a single `GameScene` root that wires a `PlayerPowerupLoadoutStore` to four `SinglePlayerSelectPowerupSlot` children laid out with a `ColumnLayout` (spaced evenly and centered). Each slot exposes `powerupSummary` data and renders either a populated `SinglePlayerPowerupOptionCard` or the branded "Select Powerup…" placeholder when no loadout entry is stored.
+15. Each slot routes its `requestSelection` signal into a shared `SinglePlayerPowerupSelectionModal`. The modal is implemented as an `Overlay.modal` item that nests two data sources: the player's persisted `PowerupEditorStore` entries first, then a `DefaultPowerupRepository` for the shipped presets. Choosing an option commits the JSON payload back into the `PlayerPowerupLoadoutStore`, which in turn updates the originating slot via a model binding—no slot ever mutates its own content directly.
+16. Opening a slot that already has data simply rehydrates the modal with the current selection highlighted. Confirming the same entry leaves the loadout untouched; picking a new entry replaces that slot's JSON atomically so the UI remains in sync with LocalStorage.
+17. A dedicated `ReadyForMatchButton` lives in the same scene as the slots but is composed as a separate reusable QML type. It anchors to the right edge, consumes ~18 % of the available width, and binds its `enabled` flag to `PlayerPowerupLoadoutStore.ready` so it only lights up when every slot references a valid powerup. The button's visual state uses the game's standard success palette rather than an ad-hoc color constant.
+18. Triggering the button emits `beginMatch(loadoutSnapshot)`; the scene forwards this payload to the application controller, which immediately persists the snapshot and transitions into `SinglePlayerMatchScene.qml`. Because the data lives inside the store, the most recent loadout is always restored when the player returns to this screen.
 
-#### (REDO - WRONG CODING STYLE) Game Board
- 19. The Game Board screen starts off with two identical Layouts, one on the top half, the other on the bottom half of the page. The top layout is the "CPU Player"'s Dashboard
-    The bottom layout is the "Player"'s Dashboard. 
+#### Game Board
+19. `SinglePlayerMatchScene.qml` uses a `GameScene` root that vertically stacks two `SinglePlayerMatchDashboard` instances inside a `SplitView`. The upper dashboard hosts the CPU, the lower hosts the human player; both share an identical component tree so layout changes stay symmetrical.
 
-##### (REDO - WRONG CODING STYLE) Dashboard
- 20. A dashboard contains a progress bar at the top if on the top half of the screen or at the bottom if on the bottom half of the screen (essentially reflected about the X-axis)
- 21. Each dashboard also contains 4 rectangular cards oriented with spacing between them in a column along the ride side going from the top of the dashboard to the bottom spaced evenly.
-    Each card also has a small horizontal progress bar (very tiny like only 8%-10% of the height of the card) with no letters or labels and the 
-    background color of the progressbar should be black when empty and should be whatever color was chosen for the specific card which is directly above the bar. 
-    This will represent the Energy which a player has accumulated thus far in the game (more on this in the Game Grid)
- 22. Each dashboard should have a large "Game Grid" which is where the match-3 game will be played. which is situated to the left of the Powerup Cards and should use about 80% of the available width and height of the dashboard
+##### Dashboard
+20. Each `SinglePlayerMatchDashboard` composes three child regions: a `MatchMomentumBar` hugging the outer edge (top-aligned for the CPU, bottom-aligned for the human), a central `SinglePlayerMatchGrid`, and a right-aligned `PowerupColumn`. Geometry relies on anchors and fixed spacing constants so the grid consumes ~80 % of the width while the powerup column remains visually detached.
+21. `PowerupColumn` renders four `SinglePlayerMatchPowerupCard` elements stacked with uniform spacing. Every card binds to a `PowerupChargeMeter` subcomponent whose fill color is driven by the powerup metadata rather than inline RGB strings. The meters surface raw charge progress without textual clutter, matching the minimalist HUD style.
+22. The `SinglePlayerMatchGrid` exposes the `GameGridElement` it wraps through a property alias, enabling the dashboard to forward controller signals without re-implementing gameplay logic inside the view.
 
-#### (REDO - WRONG CODING STYLE) Game Board
-23. When the Game Board first opens, it will say "Waiting for Opponent" in the center space between the two DashBoards (~7% of total height of Game Board)
-24. in a Single Player game, the opponent is the CPU. 
-25. Behind the scenes, the Javascript logic instantiates a new "CPU Player" object which will be able to send and receive information about the game via connected signals and slots both on the Game Board and the CPU Player
-   which will be connected when needed. The CPU Player will choose 4 random powerups from the "default powerups" shipped with the game internally and save the powerup data into memory.
-   Once saved into memory, it will send a signal to the Game Board that essentially says "Set Powerup Data for Dashboard 0 (aka top)" to the followng: "<JSON object or array with powerup data for each of the four AI-chosen powerups>".
-   When the Game Board receives the signal to setup the Powerup Data from the CPU, it will send a signal with the: Dashboard #, the command "SetPowerupData", and the JSON data as the three args
-   The dashboard will receive this signal and update the four powerups shown on the Dashboard if the signal's Dashboard # matches with the Dashboard # of the receiving Dashboard. 
+#### Game Board Flow
+23. When the match scene becomes active it shows a centered `WaitingForOpponentBanner` between the dashboards. The banner hides itself once both dashboards report readiness.
+24. `SinglePlayerMatchScene` constructs a `CpuPlayerController` the first time the scene is entered. The controller is an `AbstractGameElement` derivative that owns its own `PowerupLoadoutStore`. It immediately requests four entries from the built-in `DefaultPowerupRepository` and caches them in memory.
+25. After the CPU finishes seeding its repository, it emits `loadoutPrepared(dashboardIndex, loadoutPayload)`. The match scene relays that payload to the top dashboard through its `applyPowerupLoadout` invokable so the cards populate strictly via data binding.
+26. In parallel, the scene instantiates a `HumanPlayerController` bound to the bottom dashboard. The controller pulls the persisted `PlayerPowerupLoadoutStore` snapshot and issues the same `loadoutPrepared` signal so both dashboards hydrate through identical pathways.
+27. Dashboards confirm their UI is ready by firing `powerupDataLoaded(dashboardIndex)` once their `Repeater` (or ListView equivalent) finishes binding. The scene tracks those acknowledgements in two booleans (`powerupsLoaded0`, `powerupsLoaded1`) that default to `false` until explicitly set.
+28. When both booleans are `true`, the scene generates independent deterministic seeds (range 1–500) via its `SeedRngHelper`. Each dashboard exposes a `setBlockSeed(seedValue)` invokable that stores the seed and acknowledges completion by emitting `seedConfirmed(dashboardIndex, seedValue)`.
+29. The scene waits until both dashboards emit `seedConfirmed` before invoking `initializeGame()`. Initialization connects every high-level signal (`setSwitchingEnabled`, `setFillingEnabled`, `beginFilling`, `beginTurn`, `turnEnded`, `setLaunchOnMatchEnabled`, `activatePowerup`) through the scene so dashboards never talk to each other directly.
+30. With wiring complete, the scene broadcasts `requestInitiativeRoll()` to both player controllers. Each controller responds with `initiativeRolled(dashboardIndex, rollValue)` using a random range of 1–5 000 000. Ties trigger another roll until one dashboard wins; the scene records the winner and sets `activeDashboardIndex` accordingly.
+31. The scene clears the waiting banner, tells the active dashboard to `beginTurn()`, and notifies the opposing dashboard that it is observing. From this point forward all game state changes flow strictly through queued signals so order of operations remains deterministic.
 
-26. The CPU's powerup cards are now visible ont he right side of the top Dashboard (Dashboard 0) and at the same time, a new instance of "Human Player" is instantiated and is connected to Dashboard 1 (bottom Dashboard)
-    Human Player uses LocalStorage to lookup which Powerus were chosen by the Player ontehe "Select Powerups" page and then sends the same "SetPowerupData" signal with the Dashboard #, the command "SetPowerupData", and the JSON data for the Player's Powerups cards.
-27. The Dashboard for the Player's cards are populated once the signal is received
-28. Each Dashboard emits their own signal stating that "Powerups are Loaded" once they have fully parsed the JSON data and made it visible in alll four Powerup card slots. This signal should include the Dashboard # aand the Command "PowerDataLoaded". 
-29. When the Game Grid receives the "PowerupDataLoaded" signal, it updates one of two hard coded properties:  powerupsLoaded0 and powerupsLoaded1 depending on Dashboard # it will set one of those to true.  By default both powerupsLoadedX properties of Game Board should be false.
-30. After both dashboards emit PowerDataLoaded, the Game Board generates independent seeds (1–500) for each dashboard, applies them through each dashboard’s setSeed helper, and waits for the dashboards to acknowledge by emitting an indexSet command with the selected seed.
-    with a random number between 1 and 500 which will define the index with which  block colors are chosen from out of a predefined pool of blocks included in a resource file loaded on startup and stored as a context property to allow quick and global access. The pool is a large dictionary of { <index>: <color> } pairs that pulls the block at an index each time a new block is needed
-    so that blocks will have deterministic ordering every time to avoid issues with desyncing blocks and cheating and to minimize network traffic.  
-31. Once each Dashboard gets the signal to set their pool index, the Dashboard sends a signal with Dashboard #, command "indexSet".
-32. The Game Board receives the "indexSet" signal and updates the properties "indexSet0 or indexSet1" and runs the "checkIndexSet()" function 
-33. If the checkIndexset() function returns both indexSetN are true, then runs the "initializeGame()" function. 
-34. Game Board's "intiailizeGame()" function connects the the "setSwitchingEnabled" signal to go to each dashboard with the Dashboard # and true/false for the two params.
-    It also connects the Game Board's "setFillingEnabled", "beginFilling", "turnEnded", "beginTurn", "setLaunchOnMatchEnabled" and "activatePowerup" signals to both Dashboards, each one having parameters for Dashboard # and either true/false or slot # for powerups oor other parameters if relevant
-35. Once the connections are made, the game can begin. To start the game, the signal "chooseRandomNumber" will be connected to both the CPU player's instance and the "Human player"'s insance created earlier.
-36. Game Board wills send the chooseRandomNumber signal which will be received by both players, and each player (whether CPU, human, or network player) will respond to that signal with a random number between 1 and 5000000. 
-    The player with the highest number response is first. If both players have the same number, another signal is sent out.  The player's responses are in the form of a signal "randomNumberChoice" which will have the Dashboard # and the number as arguments and be handled by a function on GameBoard that checks to see if two properties are set and
-    compares them once they are both not -1 (the default). Property names are randomNumber0 and randomNumber1.
-37. At the start of each turn, the active dashboard receives "setFillingEnabled" true and "setLaunchOnMatchEnabled" true (plus a fresh "beginFilling" command), while the defending dashboard is told "setFillingEnabled" false and "setLaunchOnMatchEnabled" false so its blocks remain frozen until the attacker finishes cascading.
-38. GameBoard will have a queue system where every command will need to be enqueued and sent in order to both players, each command having a UUID generated.
-39. Launching blocks of any color will add energy to the attacker's powerup cards that share the launched block color equal to the launched block's HP; fully destroyed defender blocks also donate their remaining HP as energy to any of the attacker's powerups matching the destroyed block colors. (Example: launching three red blocks with 5 HP each that destroy two green blocks and one yellow block—each 5 HP—grants +15 red energy, +10 green energy, and +5 yellow energy to the corresponding powerup cards.)
-40. When a Powerup card reaches 100% of its required energy, its border flashes on a slow interval to indicate it is fully charged; while flashing it no longer accumulates additional energy until the player activates that powerup.
+##### Blocks
+32. `GameGridElement` never spawns raw rectangles. Instead, it instantiates `Block.qml` entities through a `Component` factory so every block inherits the same behavior tree. Each block owns a `BlockAnimationStateMachine` helper that maps logical states (idle, matched, preparingLaunch, launching, airborne, colliding, exploding, filling, waiting, defeated) to sprite-sheet frame ranges and transitions.
+33. The sprite system loads atlases once through `BlockSpriteRepository`. Individual blocks request their sequence by logical action; the repository hands back a `SpriteSequence` object so blocks never hardcode URLs. Launch-to-impact flows reuse a single sheet, while explosions trigger `BlockExplodeParticle` emitters routed through the grid's particle overlay layer.
+34. Blocks expose `interactionEnabled` and `inAnimation` flags. The grid toggles `interactionEnabled` when swaps are legal; the animation state machine is responsible for toggling `inAnimation` whenever an animation begins or ends so timers can make safe decisions.
 
+##### Game Board Simulation
+35. Receiving `beginFilling` places the grid into the `fill` state and arms `fillTimer`. The timer inspects row 0 for null entries. For each empty column it requests a new `Block` from `BlockFactory`, seeds it at virtual row -1, and pushes it into the grid matrix.
+36. After populating row -1, the grid calls `settleSpawnedBlocks()` which steps each newcomer to its real row while marking `inAnimation = true`. Blocks animate downward via a `SequentialAnimation` on `y` that begins with `ScriptAction { inAnimation = true }`, runs the `NumberAnimation`, and ends with `ScriptAction { inAnimation = false }`.
+37. `fillTimer` first checks whether any block still reports `inAnimation = true`. If so, it defers work until animations finish. When the entire grid is stable and row 0 contains no gaps, the grid flips to the `compact` state.
+38. `compactTimer` runs while the state is `compact`. It skips processing whenever a block is mid-animation. Otherwise it scans from the interior toward the opposing player (row 5→0 for the top grid, 0→5 for the bottom grid) and moves blocks one cell per tick using `compressColumnStep()` so motion stays orderly. Once every column is compacted the grid re-enters `fill`.
+39. When `fill` and `compact` no longer discover work, the grid transitions to `match`. `matchTimer` again guards on `inAnimation`, then searches for horizontal and vertical runs using the grid's helper algorithms. Matching blocks populate `matchList`; a non-empty list pushes the state to `launch`, otherwise the grid enters `idle` and emits `cascadeEnded` to signal that the turn may end.
+40. `launchTimer` dequeues blocks from `matchList`, calls their `launch()` method, and increments `launchCount`. Once every match has launched, the timer waits until `launchCount` returns to zero (blocks decrement the counter when they finish colliding) before swapping the state back to `compact`.
 
-##### (REDO - WRONG CODING STYLE) Game Grid / Game Board / (Human/CPU/Network) Player interaction
-43. When one of the players receives the signal to queue a command, it will send a signal back with the UUID stating that the signal has been received and queued. 
-44. Game Board will track via multi-dimensional array of queue objects that contains UUID and whether or not each player has ACK'd the queue object and whether or not each Player has executed the command given (which will be executed in order one event at a time and then an EXEC signal willl be sent as that queued event completes from the Player instance)
-45. Once an event in the queue has been ACK'd, the Game Board is free to enqueue / proceed to the next event in the game play for certain commands, while others will require that the Player has executed the entire command before queueing another event. 
-46. Events like setFillingEnabled, turnEnded, etc all have various different timing requirements and must fully execute in order to prevent issues with Multiplayer "Network Players" who will have latency as a constant factor and trouble spot for synchronization failures
-47. Once both Players have successfully executed beginFilling, then GameBoard will send a different signal the Dashboard which will instruct it to "BeginFilling" or "setLaunchOnMatchEnabled" etc along with the Dashboard #
-48. There must be an association between the Player instance and the Dashboad in order to properly keep the games in sync and the messages to the right places. The two objects are separate, but must work together with the Game Board and stay coordinated across all for both players but cannot be simultanous, they must communicate in specific order when it comes to high level commands.
-49. When a Dashboard gets a signal to "beginFilling" it will first drop any blocks already in the grid all the way to the side closest to the center of the entire Application window (GameBoard) -- for the Top Dashboard that would be the lowest cells on the Game Grid, for the bottom Dashboard that would be the top cells on the Game Grid. 
-50. Blocks can only have one block per cell in the 6x6 Game Grid which each Dashboard has. Once all blocks have completely filled in the Game Grid so that no floating gaps exist between the end of the grid closest to the other player and all blocks currently on that Game Grid, then by going one row at a time, from left to right, one block at a time, create a new block by increasing (or resetting to 0 when at max) the POOL index for this Dashboard and then grabbing the color at the new index
-    and instantiated a new Block.qml instance one cell bbefore the closest cell to the "player health" (we will call this cell -1) and it will be positioned in the current column being iterated. When blocks have been created in each column which still has an empty space, then the GameGrid will internally execute the "compressBlocks" function which sets the block's Y position to be at the target cell it will end up being when compressed.
-
-##### (REDO - WRONG CODING STYLE) Blocks
-51. Blocks have Behavior attachments that will control their animations that execute "processAnimation" functions which determine the block's state (matched, powering up, taking damage, colliding, launching, airborn, exploding, filling, waiting, or dead, maybe others later?) and load sprite sheets depending on what action they are doing.
-52. Spritesheets exist already which show blocks powering up for launch and transforming into projectiles so that they can load one spritesheet for the entire process of matching, launching, airborn,and colliding.  exploding is a separate animation that uses particles which have to be fed to a ParticleSystem overlay via signals and clever mapping of positions. an example Block.qml is included in this file for reference from an older version of the same game.
-53. Blocks also must detect mouse events for switching when enabled, so they must be updated as to whether they are allowed to be interacted wth or not by the Game Grid
-
-##### (REDO - WRONG CODING STYLE) Game Board
-54. Once the BeginFilling signal has been received by the GameGrid, then it will change the GameGrid's current state to "fill". 
-55. Whenever the GameGrid's state changes into "fill", it will activate the "fillTimer"
-56. The fillTimer's job is to periodically check to see if Row 0 has any cells which are null or undefined in the array that stores the Block instances for the GameGrid.
-57. When a column in row 0 has an empty or undefined position, create a new Block instance at position Row -1 in the column that was checked. 
-58. Once all columns have been checked and all columns with empty cells in row 0 have been identified and a new Block spawned, set all Block instances in row -1 to be in row 0 (which should update their y value as well to initiate the animation)
-
-##### (REDO - WRONG CODING STYLE) Block
-59. Block should have a Behavior on y { SequentialAnimation } Behavior which executes a ScriptAction { } first that sets the "inAnimation" property to true for the Block instance and a ScriptAction { } after the NumberAnimation {} which sets the inAnimation to false.
-
-##### (REDO - WRONG CODING STYLE) Game Board
-60. Whenever fillTimer should also have an early exit condition where it checks all Block instances for this GameGrid instance to see if any of them have "inAnimation" set to true
-57. If any Blocks have inAnimation which are set to true, then return and do not continue to process until all Blocks which are not null have inAnimation set to false.
-58. Once All Block instances for GameGrid have inAnimaton == false, change this GameGrid's state to "compact"
-59. Compact mode will activate the "compactTimer" which checks for any blocks with inAnimaton == true and returns if  it finds any, othewise it will check each column for each row starting at the 5th row and then check to see if the 6th row in that same column has a Block or if it is null/unidefined.
-60. If the row directly below a cell with a Block in it exists, then assign that Block to have occupy the empty cell.
-61. The CompactTimer only moves down one cell per interval to keep things neat.
-62. Once all Blocks are either at the last row or have another Block beneath them and no Block have inAnimation == true on this GameGrid, then change state to "fill"
-63. Changing to fill state activates the fillTimer and steps 51-63 are repeated until the fillTimer does not have any cells in row 0 which are null or undefined and no Blocks have inAnimation == true. Once the loop ends, change the GameGrid state to "match"
-64. When in match state, the matchTimer will first check for any blocks with inAnimation == true and return early if it finds any. Next it will search for any rows which have empty cells (null or undefined instead of Block instance), if so then change GameGrid state to "compact". 
-65. After the preliminary checks pass, matchTimer's function will scan the rows for any row containing 3 or more of the same color all connected without any other colors in between them. Each of these Blocks will be added to the "matchList".
-65. Next it will do the same for each column and add those blocks to the "matchList" should they not already be in the list.
-66. If matchList is not empty, matchTimer will change the Game Grid state to "launch" and disable matchTimer.  If matchList is empty, change Game Grid state to "idle" and then send signal "cascadeEnded" which will be used to determine when a player's turn has ended after they make a move and when to enable swaps / powerups etc.
-67. When the state is "launch" for Game Grid, the launchTimer will take the first Block from matchList if the list is not empty and call the .launch() function which will activate the launch process.  This function will also add 1 to the launchCount property of GameGrid
-68. Once matchList is empty, check to see if launchCount > 0. If lauchCount > 0, return. If launchCount =< 0 change Game Grid state to "compact"
-
-69. Whenever the signal to switch blocks occurs (qml: game grid got event request {"event_type":"swapBlocks","row1":2,"row2":2,"column1":5,"column2":4,"grid_id":1}), the grid where the blocks are switched on will always change the GameGrid state to "match"
-70. The standard match, launch, compact, fill, match, launch, compact, fill infinite loop will occur where the GameGrid is changed from state to state using the aready defined timers.
-71. When the GameGrid is in "match" state and does not find any matches, it will check to see if the GameGrid has  any swaps left to make from their allotment of 3 swaps per turn.  
-72. If match has no matches, and the GameGrid blocks are not animating, then  this point the swaps remaining is 0 issue a signal to the other Game Grid stating that the turn has been ended for this Game Grid which in turn results in Cascading being disabled for this Game Grid as well as swapping being disabled. 
-73. once the signal is sent informing that a Game Grid has finished their turn, the other Game Grid instance should detect that signal and enable cascades. 
-74. After enabling cascades on the opponent Game Grid, the opponent Game Grid state should be set to compact which will trigger the infite loop system of compact, fill, match, launch, compact, fill, match, launch, and on and on.
-75. Also, the opponent Game Grid should be given 3 swaps that they can make, and enable swapping once the Game Grid is in match state and has no mathes and no animations happening, which will be available to be used by the CPU (or remote player) depending on who the other player is. 
-76. Once its the opponent's turn and their grid has completed at least one full cascade (or more depending on if any matches come up during the match state), but once the cascade is completed, then the CPU's Game Grid should be set to allow swaps to happen. 
-77. The CPU Player will be sent a signal to make one move, which will cause the CPU player object to request the block data from the Game Grid, which will show all the available blocks on Game Grid 1 to the CPU by sending a signal containing the block data (row, col, color) for all blocks.
-78. The CPU player will iterate through each grid position, searching each possible direction that the block can swap (up down left or right) and then check to see if there are any 3+ in a row or column when making that switch.  Once it finds a valid swap, it sends a signal to GameGrid 1 to make that swap then waits until cascading finishes (using timers) from that move and decrease moves remaining by 1 
-79. Once cascading finished and sends the cascade finished signal, then the CPU will check to see if it has any moves remaining (out of its 3 moves), it will proceed to find a swap and make it 
-80. After all 3 CPU swaps are made and all cascades are fully completed, then endTurn signal is sent which is picked up by Game Grid 0, which then cascades its blocks starting with comact and continuing on matching and launching etc (using timers) until no matches exist when the state changes to "match" at which point Game Grid 0 unlocks and swaps are allowed for Game Grid 0. 
+##### Turn Management and CPU Behavior
+41. Swaps arrive via `swapBlocks(row1, column1, row2, column2)`. The grid only executes the swap if its state is `match` and no block is animating; successful swaps immediately push the state back into `match` so the standard fill/compact/match loop resumes.
+42. When `match` completes without finding additional matches, the grid checks remaining swaps. If the active player has no swaps left, the grid emits `turnEnded(dashboardIndex)` and disables cascading on itself until the opponent finishes their cascade chain.
+43. The opposing grid, upon receiving `turnEnded`, enables cascading, resets its available swaps to three, and begins compacting/filling until its board stabilizes in the `match` state.
+44. Once the opponent's first cascade completes, the scene enables swapping for that dashboard and tells the corresponding controller (CPU or remote player) to make a move.
+45. `CpuPlayerController` responds by requesting a serialized snapshot of its grid (`serializeElements()` restricted to blocks). It evaluates every legal adjacent swap, scoring each outcome for potential matches. When it finds the highest-value move it issues `requestSwap(row1, column1, row2, column2)` and waits for the grid to finish cascading before consuming another swap.
+46. After each cascade the CPU decrements its internal `swapsRemaining`. When the counter hits zero—or no legal swaps remain—it emits `turnComplete(dashboardIndex)`. The scene relays that to the opposing dashboard, restarting the state machine described above so play alternates cleanly.
 
 #####  Game Board / Powerups
 81. When the active player still has swaps remaining, both grids are idle, and at least one of their four powerup cards is fully charged, that player may drag a charged card from the Powerup HUD onto any empty-friendly cell (never onto the opponent's grid) to deploy the powerup instead of performing a swap.
