@@ -194,19 +194,19 @@ When we have fully built up the Game Engine, and it has everything needed to cre
 (DONE) 12. The player's Powerup is saved afte they click Save which returns them to the Powerup Editor main menu.
 (DONE) 13. The player clicks on "Back to Main Menu" which transitions back to the Main Menu (title screen)
 
-(STOP HERE DO NOT CREATE CODE BELOW THIS LINE BUT USE AS REFERENCE WILL GENERATE NEXT)
+
 ###	 Single Player (Player Vs. CPU)
-14. The player clicks on Single player which transitions to the "Select Powerups" screen which is a screen containing four "Powerup Cards" arranged
+(BUG - No blank cards) 14. The player clicks on Single player which transitions to the "Select Powerups" screen which is a screen containing four "Powerup Cards" arranged
   in a spaced column. each powerup card should have  with a mini layout within containing the details of the powerup chosen. 
   In the case where no powerup has been chosen for any card, a default "Blank" card will show that says "Select Powerup..." in a large button in the 
   center of the blank card. 
-15. Clicking on "Select Powerup" will create an overlay Modal Box which has a scrollable list view of all the user's created powerups made from the Powerup Editor.
+(BUG - Does not open and no button) 15. Clicking on "Select Powerup" will create an overlay Modal Box which has a scrollable list view of all the user's created powerups made from the Powerup Editor.
    There should also be a separator and beneath it should be 10 default powerups which will come shipped with he Game that players can choose from.
    Clicking on any of the Powerup cards from the "Select Powerup" modal will hide the Modal Box and make the chosen Powerup Card's details shown in the chosen box
   instead of the "Blank card". 
-16.  Clicking on the chosen card re-opens the Modal Box to choose a powerup (different or the same is ok) which updates that powerup.
-17. on the Right side (arranged as a sort of sidebar next to the 4 Powerup cards) there should be a Large button (~15-20% of width) that is green and says "Ready!"
-18. Clcking on "Ready" transitions to the Game Board screen. Chosen Powerups should be persisted and automatically update / load every time with last selected powerups
+(BUG no cards or buttons) 16.  Clicking on the chosen card re-opens the Modal Box to choose a powerup (different or the same is ok) which updates that powerup.
+(no right side column layout) 17. on the Right side (arranged as a sort of sidebar next to the 4 Powerup cards) there should be a Large button (~15-20% of width) that is green and says "Ready!"
+(no ready button) 18. Clcking on "Ready" transitions to the Game Board screen. Chosen Powerups should be persisted and automatically update / load every time with last selected powerups
 
 #### Game Board
 19. The Game Board screen starts off with two identical Layouts, one on the top half, the other on the bottom half of the page. The top layout is the "CPU Player"'s Dashboard
