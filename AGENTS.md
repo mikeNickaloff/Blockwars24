@@ -1,84 +1,41 @@
-# system prompt for agents (YOU)
-You are the ultimate parameter creating, method implmenting, error catching, bug avoiding, vulnerability preventing, algorithm implementing, math-first, production-level, procedural abstracting, OOP polymorphing, inline abstracting, performance enhancing world's smartest agent!
+# CODING STYLE EXAMPLE
 
-Fulfill programming requests by first analyzing the requirements then building a framework to support the functionality (business logic), and finally utilize the tools which are now provided by that framework to create the final deliverable. 
+SelectPowerupscene.qml
 
-Its always better to abstract procedures into multiple levels of abstraction than to lump them together into one type.
+    GameScene {
+        id: selectPowerupSceneRootItem
+        
+        PowerupDataStore { 
+            id: singlePlayerPowerupSelectedDataStore
+            table:  "singlePlayerSelectedPowerupsForPlayer"
 
-Try to limit procedural or hard-coded strings, and if they are necessary, optimize any procedural programming as much as can be done without adding more than 2 additional functions or methods unless adding more than 2 would have an optimization effect that would decrease the complexity from On to O+1 or from O^n to On or On to O^1/n, then its okay.  also repeated function calls should try to be abstracted into simpler components.  Bonus points for bells and whistles.
+       }
 
-## example of how to abstract code:
-
-### BAD CODE 
-
-/* NO!!!! */
-
-      SpriteSheetAnimation {
-           id: sheetLoader
-           anchors.fill: parent
-      
-      }
-      GameSpriteSheetElement {
-          id: launcherElement
-      }
-      function launch() {
-         var sheetSize = 64
-         var sheetFrames = 31
-         var duration = 500
-         launcherElement.loadSpriteSheet("launcher.png")
-         launcherElement.frameWidth = 25
-         launcherElement.frameHeight = 64
-         launcherElement.interpolate(25, 64, 150, { }, function() { /* prelaunch */ }, function() { /* callback */ } )
+        SelectPowerupSlotView {
+            id: selectPowerupSlotViewer
+            
+            selectedPowerupDataStore: singlePlayerPowerupSelectedDataStore
+            
+            onOpenSelectionModal: function (slotIdx) {
+            
+                // call function from Powercatalog.qml
+                powerupCatalog.openCatalogForSlot(slotIdx)
+               
+                // connect to function in PowerupCatalog.qml
+               powerupCatalog.powerupChosen.connect(singlePlayerPowerupSelectedDataStore.updateSelectedPowerupData) 
+            }
+            
+        }
+        
+        PowerupCatalog {
+           id: powerupCatalog
           
-      
-      
-      
+       }
+     }
 
-#### Why is the above code BAD??
-  procedural logic 
-
-### GOOD CODE 
-
-      AbstractGameElement  {
-         id: rootElement 
-      
-         Component {
-          id: launchComponent
-          property alias source: launchComponentSpriteSheetElement.source
-          property alias frameStart: launchComponentSpriteSheetElement.frameStart
-          property alias frameEnd: launchComponentSpriteSheetElement.frameEnd
-          Component.onCompleted: { loadSpriteSheet(source) }
-          
-          GameSpriteSheetElement {
-               id: launchComponentSpriteSheetElement
-          }
-      
-          function launch(duration, prelaunch, callback) { 
-              launchComponentSpriteSheetElement.interpolate(frameStart, frameEnd, duration, { type: Easing.OutCubic }, prelaunch, callback)  
-          }
-          
-      }
-
-      GameScene {
-        id: scene
-      }
-
-      function launchBlock(x, y) {
-           var launchedBlockElement = launchComponent.create(rootElement, { frameStart: 0, frameEnd: 31, source: "launcher.png");
-          scene.addElement(launchedBlockElement)
-          launchedBlockElement.setGlobalPos(x, y)
-          launchedBlockElement.launch(50, function() { launchBlockElement.burstLaunchParticles(150) ), function() { launchBlockElement.burstExplosionParticles(150) })
-      
-   
-      }
-
-#### Why is it better?
- nice abstraction by compartmentalizing and creating abstraction layer to hide the implementation details separate from the public API -- makes our code look like this in the end:
- 
-   rootElement.launchBlock(50, 25)
-   rootElement.launchBlock(150, 225) ...
-
-
+The example code is how the entire file should be (with imports etc at the top too) for everything.
+No cramming or functional hellscapes. 
+C++ style abstractio OOP only when coding with QML.
 
 # QML API Reference
 
@@ -162,7 +119,7 @@ Keep nicely formatted and able to be understood by other agents (or people)
 - Create new interactive elements by creating QML files that are of type AbstractGameElement (or any class derived from AbstractGameElement)
 - Avoid re-inventing the wheel. Instead, utilize the QML API to build new QML types with functions and properties. 
 - Its better to have 100 files starting with SinglePlayerSelectPowerup<various Elements>.qml than it is to have one file called SelectPowerupGameScene.qml with 100 different elements in it.
-- Try to limit what I call spaghetti code (dumping all code into a single QML file) and instead, logically separate elements into separate QML files and pass properties along and encapsulate functions within those separate files to wire them up
+- Try to avoid what I call spaghetti code (dumping all code into a single QML file) and instead, logically separate elements into separate QML files and pass properties along and encapsulate functions within those separate files to wire them up
 
 ## Example
 
@@ -206,64 +163,64 @@ Keep nicely formatted and able to be understood by other agents (or people)
  - Create robust and varied suite of simple QML files that when combined together offer the full functionality of the requirements.
 
 ## Play-by-play section
-(DONE) 1. The application opens revealing a Screen with the title Block Wars on the top 20% of the screen, centered on the X axis with the application
-(DONE)  2. Beneath the Block Wars logo there are a few buttons: Single Player, Multiplayer, Powerup Editor, Options, and Exit.
+ 1. The application opens revealing a Screen with the title Block Wars on the top 20% of the screen, centered on the X axis with the application
+  2. Beneath the Block Wars logo there are a few buttons: Single Player, Multiplayer, Powerup Editor, Options, and Exit.
 
 ### Powerup Editor
-(DONE) 3. The player clicks on Powerup Editor which changes the entire screen (stackview) to the PowerupEditor scene which starts
+ 3. The player clicks on Powerup Editor which changes the entire screen (stackview) to the PowerupEditor scene which starts
    by showning a List View that displays the following choices: Create New, Edit Existing, Back to Main Menu
-(DONE) 4. The player clicks on Create New which changes the page to the "Create Powerup" page which has a red button with an "X" on the 
+ 4. The player clicks on Create New which changes the page to the "Create Powerup" page which has a red button with an "X" on the 
    top-right which would essentially pop the stackview back one page. while the majority of the page is made of a few options to choose from in a form-like layout:
    "Type" which has a Combobox and the options "Enemy" and "Self"
    "Target" which is a combobox with "Blocks", "Hero(s)", and " Player Health"
    "Color" which is a combobox with "Red", "Green", "Blue" and "Yellow"
    "Next" which is a button at the bottom centered and larger than the rest of the page's components slightly.
-(DONE) 5. Player chooses "Enemy", "Blocks" and "Green" then clicks "Next"
-(DONE) 6. Next, another page transitions in which has the title "Select Blocks" because "Blocks" was chosen as the powerup type.
+ 5. Player chooses "Enemy", "Blocks" and "Green" then clicks "Next"
+ 6. Next, another page transitions in which has the title "Select Blocks" because "Blocks" was chosen as the powerup type.
    The "Select Blocks" page contains a Game Grid (a 6x6 Grid Layout) with only Grey blocks, each one with clearly defined shadows for a simple 3d-ish effect.
    Clicking on any of the blocks in the Game Grid will cause that individual block to change from Grey into a block matching the color chosen on the previous page
    Clicking a colored blockw will change it back to Grey. 
-(DONE) 7. Below the grid, there is a slider which goes from 1 to 20 idicating the amount of HP to add or remove to each block when the powerup is activated while in a game.
+ 7. Below the grid, there is a slider which goes from 1 to 20 idicating the amount of HP to add or remove to each block when the powerup is activated while in a game.
    Under the slider is a "Finish"
-(DONE) 8. The player clicks "Finish" and the page returns to the Powerup Editor main scene. 
-(DONE) 9. Clicking on "Edit Existing" Opens the "Choose Powerup" page to transition into view which contains a scrollable listview where each item is a card which has: a block
+ 8. The player clicks "Finish" and the page returns to the Powerup Editor main scene. 
+ 9. Clicking on "Edit Existing" Opens the "Choose Powerup" page to transition into view which contains a scrollable listview where each item is a card which has: a block
    matching that powerup's block color chosen during create powerup, the Type, the Target, the amount of damage, and if "Blocks" is chosen, the number of blocks selected.
    There s also a final, separate box but still connected to the same card on the right-side which says: "Energy: <energy>"  where energy is the 
    amount calculated by a special algorithm (number of targets * amount of HP * 0.5).
-(DONE) 10. Clicking on any of the Powerup "Cards" will push the stackview to transition to a page identical to the "Create Powerup" page, only it will have all the values filled in 
+ 10. Clicking on any of the Powerup "Cards" will push the stackview to transition to a page identical to the "Create Powerup" page, only it will have all the values filled in 
    so that they match the selected Powerup card.  Clicking Next will take to the same page as the "Select Blocks" page if "Blocks" is chosen 
    or just a slider from 0 to 100 if "Hero" or "Player/Enemy" is chosen instead of blocks for amount of damage / health to give/take
    At the bottom is a "Save" button which overwrites the chosen powerup with the new values chosen from the two pages.
-(DONE) 11. All powerup data is stored in the LocalStorage SQL Database feature that QML has built-in in JSON format and must contain all of the Player's Powerups in a table in a form that
+ 11. All powerup data is stored in the LocalStorage SQL Database feature that QML has built-in in JSON format and must contain all of the Player's Powerups in a table in a form that
    can be read by other parts of the same program.  
-(DONE) 12. The player's Powerup is saved afte they click Save which returns them to the Powerup Editor main menu.
-(DONE) 13. The player clicks on "Back to Main Menu" which transitions back to the Main Menu (title screen)
+ 12. The player's Powerup is saved afte they click Save which returns them to the Powerup Editor main menu.
+ 13. The player clicks on "Back to Main Menu" which transitions back to the Main Menu (title screen)
 
 
 ###	 Single Player (Player Vs. CPU)
-(DONE) 14. The player clicks on Single player which transitions to the "Select Powerups" screen which is a screen containing four "Powerup Cards" arranged
+ 14. The player clicks on Single player which transitions to the "Select Powerups" screen which is a screen containing four "Powerup Cards" arranged
   in a spaced column. each powerup card should have  with a mini layout within containing the details of the powerup chosen. 
   In the case where no powerup has been chosen for any card, a default "Blank" card will show that says "Select Powerup..." in a large button in the 
   center of the blank card. 
-(DONE) 15. Clicking on "Select Powerup" button (which each PowerupCard will have such button) will create an overlay Modal Box which has a scrollable list view of all the user's created powerups made from the Powerup Editor.
+ 15. Clicking on "Select Powerup" button (which each PowerupCard will have such button) will create an overlay Modal Box which has a scrollable list view of all the user's created powerups made from the Powerup Editor.
    There should also be a separator and beneath it should be 10 default powerups which will come shipped with he Game that players can choose from.
    Clicking on any of the Powerup cards from the "Select Powerup" modal will hide the Modal Box and make the chosen Powerup Card's details shown in the chosen box
   instead of the "Blank card". 
-(DONE) 16.  Clicking on the chosen card re-opens the Modal Box to choose a powerup (different or the same is ok) which updates that powerup.
-(DONE) 17. on the Right side (arranged as a sort of sidebar next to the 4 Powerup cards) there should be a Large button (~15-20% of width) that is green and says "Ready!"
-(DONE) 18. Clcking on "Ready" transitions to the Game Board screen. Chosen Powerups should be persisted and automatically update / load every time with last selected powerups
+ 16.  Clicking on the chosen card re-opens the Modal Box to choose a powerup (different or the same is ok) which updates that powerup.
+ 17. on the Right side (arranged as a sort of sidebar next to the 4 Powerup cards) there should be a Large button (~15-20% of width) that is green and says "Ready!"
+ 18. Clcking on "Ready" transitions to the Game Board screen. Chosen Powerups should be persisted and automatically update / load every time with last selected powerups
 
 #### Game Board
-(DONE) 19. The Game Board screen starts off with two identical Layouts, one on the top half, the other on the bottom half of the page. The top layout is the "CPU Player"'s Dashboard
+ 19. The Game Board screen starts off with two identical Layouts, one on the top half, the other on the bottom half of the page. The top layout is the "CPU Player"'s Dashboard
     The bottom layout is the "Player"'s Dashboard. 
 
 ##### Dashboard
-(DONE) 20. A dashboard contains a progress bar at the top if on the top half of the screen or at the bottom if on the bottom half of the screen (essentially reflected about the X-axis)
-(DONE) 21. Each dashboard also contains 4 rectangular cards oriented with spacing between them in a column along the ride side going from the top of the dashboard to the bottom spaced evenly.
+ 20. A dashboard contains a progress bar at the top if on the top half of the screen or at the bottom if on the bottom half of the screen (essentially reflected about the X-axis)
+ 21. Each dashboard also contains 4 rectangular cards oriented with spacing between them in a column along the ride side going from the top of the dashboard to the bottom spaced evenly.
     Each card also has a small horizontal progress bar (very tiny like only 8%-10% of the height of the card) with no letters or labels and the 
     background color of the progressbar should be black when empty and should be whatever color was chosen for the specific card which is directly above the bar. 
     This will represent the Energy which a player has accumulated thus far in the game (more on this in the Game Grid)
-(DONE) 22. Each dashboard should have a large "Game Grid" which is where the match-3 game will be played. which is situated to the left of the Powerup Cards and should use about 80% of the available width and height of the dashboard
+ 22. Each dashboard should have a large "Game Grid" which is where the match-3 game will be played. which is situated to the left of the Powerup Cards and should use about 80% of the available width and height of the dashboard
 
 #### Game Board
 23. When the Game Board first opens, it will say "Waiting for Opponent" in the center space between the two DashBoards (~7% of total height of Game Board)
