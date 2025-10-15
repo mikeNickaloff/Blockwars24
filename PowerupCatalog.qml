@@ -1,6 +1,7 @@
 import QtQuick
-
-QtObject {
+import Blockwars24
+import "."
+GameScene {
     id: root
 
     property var editorStore
