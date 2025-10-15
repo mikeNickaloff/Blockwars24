@@ -12,33 +12,27 @@ GameScene {
     property Component powerupSelectionComponent
     property int powerupSlotCount: 4
     property var selectedPowerups: []
-    property var loadout: []
-    property var powerupOptions: []
-    property var powerupOptionsProvider: null
+    property var editorStore
 
     signal exitToMenuRequested()
     signal beginMatchRequested(var selectedPowerups)
 
-    PowerupLoadoutHelper {
-        id: loadoutHelper
-    }
-
     function normalizedSelection(source) {
-        return loadoutHelper.normalizeSelection(source, powerupSlotCount)
+        const count = Math.max(0, powerupSlotCount)
+        const normalized = []
+        for (let i = 0; i < count; ++i)
+            normalized.push(source && source[i] ? source[i] : null)
+        return normalized
     }
 
-    function updateLoadout() {
-        loadout = normalizedSelection(selectedPowerups)
-    }
-
-    function applySelection(selection) {
-        selectedPowerups = normalizedSelection(selection)
+    function updateLoadout(selection) {
+        selectedPowerups = normalizedSelection(selection || selectedPowerups)
     }
 
     function filledSlotCount() {
         let count = 0
-        for (let i = 0; i < loadout.length; ++i) {
-            if (loadout[i])
+        for (let i = 0; i < selectedPowerups.length; ++i) {
+            if (selectedPowerups[i])
                 ++count
         }
         return count
@@ -56,57 +50,48 @@ GameScene {
     }
 
     function loadoutSnapshot() {
-        return loadoutHelper.normalizeSelection(loadout, loadout.length)
+        return normalizedSelection(selectedPowerups)
     }
 
     function firstEditableSlot() {
-        for (let i = 0; i < loadout.length; ++i) {
-            if (!loadout[i])
+        for (let i = 0; i < selectedPowerups.length; ++i) {
+            if (!selectedPowerups[i])
                 return i
         }
-        return loadout.length > 0 ? 0 : -1
-    }
-
-    function resolvePowerupOptions() {
-        if (powerupOptionsProvider) {
-            const supplied = powerupOptionsProvider()
-            if (supplied)
-                return supplied
-        }
-        return powerupOptions
-    }
-
-    function refreshPowerupOptions() {
-        const resolved = resolvePowerupOptions()
-        if (resolved)
-            powerupOptions = resolved
+        return selectedPowerups.length > 0 ? 0 : -1
     }
 
     function openPowerupSelection(slotIndex) {
         if (!stackView || !powerupSelectionComponent)
             return
 
-        const targetIndex = slotIndex >= 0 ? slotIndex : firstEditableSlot()
-        const initialSelection = loadoutSnapshot()
-        const options = resolvePowerupOptions()
+        const ids = []
+        for (let i = 0; i < selectedPowerups.length; ++i) {
+            const entry = selectedPowerups[i]
+            ids.push(entry ? entry.id : null)
+        }
 
         stackView.push(powerupSelectionComponent, {
             stackView: stackView,
             slotCount: powerupSlotCount,
-            powerupOptions: options,
-            powerupOptionsProvider: powerupOptionsProvider,
-            initialSelection: initialSelection,
-            startSlotIndex: targetIndex,
+            editorStore: editorStore,
+            initialSelectionIds: ids,
             onBackRequested: function() {
                 if (stackView)
                     stackView.pop()
             },
-            onSelectionComplete: function(newSelection) {
+            onSelectionConfirmed: function(newSelection) {
                 root.applySelection(newSelection)
                 if (stackView)
                     stackView.pop()
             }
         })
+    }
+
+    function applySelection(selection) {
+        if (!selection)
+            return
+        selectedPowerups = normalizedSelection(selection)
     }
 
     function startMatch() {
@@ -115,14 +100,9 @@ GameScene {
         beginMatchRequested(loadoutSnapshot())
     }
 
-    Component.onCompleted: {
-        refreshPowerupOptions()
-        updateLoadout()
-    }
-    onPowerupSlotCountChanged: updateLoadout()
-    onSelectedPowerupsChanged: updateLoadout()
-    onPowerupOptionsChanged: updateLoadout()
-    onPowerupOptionsProviderChanged: refreshPowerupOptions()
+    Component.onCompleted: updateLoadout(selectedPowerups)
+    onPowerupSlotCountChanged: updateLoadout(selectedPowerups)
+    onSelectedPowerupsChanged: updateLoadout(selectedPowerups)
 
     Rectangle {
         anchors.fill: parent
@@ -162,7 +142,6 @@ GameScene {
         }
 
         GridLayout {
-            id: loadoutGrid
             columns: Math.max(1, Math.min(2, powerupSlotCount))
             columnSpacing: 20
             rowSpacing: 20
@@ -170,15 +149,18 @@ GameScene {
             Layout.fillHeight: true
 
             Repeater {
-                model: loadout.length
-
-                delegate: PowerupLoadoutCard {
+                model: powerupSlotCount
+                delegate: SinglePlayerSelectPowerupSlot {
+                    Layout.fillWidth: true
                     slotIndex: index
-                    powerup: loadout[index]
-                    active: false
-                    interactive: true
-                    emptyDescription: qsTr("Tap to assign a powerup to this slot.")
-                    onClicked: root.openPowerupSelection(index)
+                    powerupOption: selectedPowerups[index]
+                    onSelectRequested: function(slot) { root.openPowerupSelection(slot) }
+                    onClearRequested: function(slot) {
+                        const next = selectedPowerups.slice()
+                        if (slot >= 0 && slot < next.length)
+                            next[slot] = null
+                        root.updateLoadout(next)
+                    }
                 }
             }
         }

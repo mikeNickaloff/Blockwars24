@@ -13,11 +13,6 @@ ApplicationWindow {
         id: powerupEditorStore
     }
 
-    PowerupCatalog {
-        id: powerupCatalog
-        editorStore: powerupEditorStore
-    }
-
     StackView {
         id: stackView
         anchors.fill: parent
@@ -27,20 +22,11 @@ ApplicationWindow {
     Component {
         id: mainMenuComponent
         MainMenup {
-            onSinglePlayerClicked: {
-                if (!stackView)
-                    return
-
-                const optionsProvider = function() { return powerupCatalog.availableOptions() }
-                const options = optionsProvider() || []
-
-                stackView.push(singlePlayerGameSceneComponent, {
-                    stackView: stackView,
-                    powerupSlotCount: 4,
-                    powerupOptions: options,
-                    powerupOptionsProvider: optionsProvider
-                })
-            }
+            onSinglePlayerClicked: stackView.push(singlePlayerSelectPowerupsComponent, {
+                stackView: stackView,
+                editorStore: powerupEditorStore,
+                slotCount: 4
+            })
             onMultiplayerClicked: stackView.push(multiplayerPlaceholderComponent)
             onPowerupEditorClicked: stackView.push(powerupEditorMainComponent, {
                                                    stackView: stackView,
@@ -61,23 +47,38 @@ ApplicationWindow {
     }
 
     Component {
-        id: selectPowerupGameSceneComponent
-        SelectPowerupGameScene {
+        id: singlePlayerGameSceneComponent
+        SinglePlayerGameScene {
             stackView: stackView
+            powerupSelectionComponent: singlePlayerSelectPowerupsComponent
+            powerupSlotCount: 4
+            editorStore: powerupEditorStore
+            onExitToMenuRequested: stackView && stackView.pop()
+            onBeginMatchRequested: function(selection) {
+                console.log("Starting single player match with powerups:", JSON.stringify(selection))
+            }
         }
     }
 
     Component {
-        id: singlePlayerGameSceneComponent
-        SinglePlayerGameScene {
-            stackView: stackView
-            powerupSelectionComponent: selectPowerupGameSceneComponent
-            powerupSlotCount: 4
-            powerupOptions: powerupCatalog.availableOptions()
-            powerupOptionsProvider: function() { return powerupCatalog.availableOptions() }
-            onExitToMenuRequested: stackView && stackView.pop()
-            onBeginMatchRequested: function(selection) {
-                console.log("Starting single player match with powerups:", JSON.stringify(selection))
+        id: singlePlayerSelectPowerupsComponent
+        SinglePlayerSelectPowerupsScene {
+            onBackRequested: {
+                if (stackView)
+                    stackView.pop()
+            }
+
+            onSelectionConfirmed: function(selection) {
+                if (!stackView)
+                    return
+                stackView.pop()
+                stackView.push(singlePlayerGameSceneComponent, {
+                    stackView: stackView,
+                    editorStore: editorStore,
+                    powerupSelectionComponent: singlePlayerSelectPowerupsComponent,
+                    powerupSlotCount: slotCount,
+                    selectedPowerups: selection
+                })
             }
         }
     }
