@@ -8,7 +8,8 @@ Item {
     property string message: ""
     signal backRequested
 
-    anchors.fill: parent
+    implicitWidth: 1024
+    implicitHeight: 768
 
     Rectangle {
         anchors.fill: parent

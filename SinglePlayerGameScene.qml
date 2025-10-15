@@ -5,7 +5,8 @@ import Blockwars24
 
 GameScene {
     id: root
-    anchors.fill: parent
+    implicitWidth: 1024
+    implicitHeight: 768
 
     property var stackView
     property var selectedPowerups: []
@@ -74,9 +75,7 @@ GameScene {
                     id: powerupRepeater
                     model: selectedPowerups ? selectedPowerups.length : 0
 
-                    delegate: powerupSummaryDelegate.createObject(selectionColumn, {
-                        powerup: selectedPowerups[index]
-                    })
+                    delegate: powerupSummaryDelegate
                 }
 
                 Label {
@@ -118,7 +117,9 @@ GameScene {
 
         Rectangle {
             id: summaryCard
-            property var powerup: ({})
+            property var powerup: (root.selectedPowerups && index >= 0 && index < root.selectedPowerups.length)
+                                  ? root.selectedPowerups[index]
+                                  : ({})
 
             color: "#111827"
             border.color: "#1f2937"

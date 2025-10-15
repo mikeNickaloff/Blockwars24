@@ -4,7 +4,8 @@ import QtQuick.Layouts
 
 Item {
     id: root
-    anchors.fill: parent
+    implicitWidth: 1024
+    implicitHeight: 768
 
     signal singlePlayerClicked
     signal multiplayerClicked
