@@ -112,7 +112,18 @@ GameScene {
         if (wrapIndex !== -1) {
             activeSlotIndex = wrapIndex
             return
+
+        const sanitizedId = option.id || ""
+        const next = loadout.slice()
+        for (let i = 0; i < next.length; ++i) {
+            const entry = next[i]
+            if (entry && entry.id === sanitizedId)
+                next[i] = null
         }
+        next[activeSlotIndex] = option
+        commitLoadout(next)
+        advanceActiveSlot(activeSlotIndex)
+    }
 
         if (loadout.length > 0)
             activeSlotIndex = Math.max(0, Math.min(fromIndex, loadout.length - 1))
@@ -121,6 +132,11 @@ GameScene {
     function assignOptionToActive(option) {
         if (!option || activeSlotIndex < 0 || activeSlotIndex >= loadout.length)
             return
+        const next = loadout.slice()
+        next[index] = null
+        commitLoadout(next)
+        setActiveSlot(index)
+    }
 
         const sanitized = loadoutHelper.createLoadoutEntry(option, activeSlotIndex)
         if (!sanitized)
@@ -378,7 +394,11 @@ GameScene {
                 anchors.margins: 18
                 spacing: 10
 
-                RowLayout {
+                Label {
+                    text: option.name
+                    font.pixelSize: 20
+                    font.bold: true
+                    color: "#f8fafc"
                     Layout.fillWidth: true
                     spacing: 10
 
