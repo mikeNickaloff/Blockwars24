@@ -13,25 +13,35 @@ GameScene {
     property int powerupSlotCount: 4
     property var selectedPowerups: []
     property var loadout: []
+    property var powerupOptions: []
+    property var powerupOptionsProvider: null
 
     signal exitToMenuRequested()
     signal beginMatchRequested(var selectedPowerups)
 
-    function sanitizedEntry(entry, slotIndex) {
-        if (!entry)
-            return null
+    PowerupLoadoutHelper {
+        id: loadoutHelper
+    }
 
-        const base = entry.powerup ? entry.powerup : entry
-        const id = base.id || ""
-        const name = base.name || entry.name || qsTr("Unnamed Powerup")
-        const description = base.description || entry.description || qsTr("Configure this powerup in the editor to see its full description.")
+    function normalizedSelection(source) {
+        return loadoutHelper.normalizeSelection(source, powerupSlotCount)
+    }
 
-        return ({
-            slotIndex: slotIndex,
-            id: id,
-            name: name,
-            description: description
-        })
+    function updateLoadout() {
+        loadout = normalizedSelection(selectedPowerups)
+    }
+
+    function applySelection(selection) {
+        selectedPowerups = normalizedSelection(selection)
+    }
+
+    function filledSlotCount() {
+        let count = 0
+        for (let i = 0; i < loadout.length; ++i) {
+            if (loadout[i])
+                ++count
+        }
+        return count
     }
 
     function normalizedSelection(source) {
@@ -75,10 +85,7 @@ GameScene {
     }
 
     function loadoutSnapshot() {
-        const snapshot = []
-        for (let i = 0; i < loadout.length; ++i)
-            snapshot.push(loadout[i] ? sanitizedEntry(loadout[i], i) : null)
-        return snapshot
+        return loadoutHelper.normalizeSelection(loadout, loadout.length)
     }
 
     function firstEditableSlot() {
@@ -89,16 +96,28 @@ GameScene {
         return loadout.length > 0 ? 0 : -1
     }
 
+    function resolvePowerupOptions() {
+        if (powerupOptionsProvider) {
+            const supplied = powerupOptionsProvider()
+            if (supplied)
+                return supplied
+        }
+        return powerupOptions
+    }
+
     function openPowerupSelection(slotIndex) {
         if (!stackView || !powerupSelectionComponent)
             return
 
         const targetIndex = slotIndex >= 0 ? slotIndex : firstEditableSlot()
         const initialSelection = loadoutSnapshot()
+        const options = resolvePowerupOptions()
 
         stackView.push(powerupSelectionComponent, {
             stackView: stackView,
             slotCount: powerupSlotCount,
+            powerupOptions: options,
+            powerupOptionsProvider: powerupOptionsProvider,
             initialSelection: initialSelection,
             startSlotIndex: targetIndex,
             onBackRequested: function() {
@@ -114,6 +133,8 @@ GameScene {
     }
 
     function startMatch() {
+        if (filledSlotCount() < powerupSlotCount)
+            return
         beginMatchRequested(loadoutSnapshot())
     }
 
@@ -181,7 +202,7 @@ GameScene {
         }
 
         Label {
-            text: qsTr("Tap any slot to customize the equipped powerup. You can revisit the selection screen at any time before starting the match.")
+            text: qsTr("Tap a slot to refine it, or use Adjust Loadout to revisit the full catalog. Fill every slot before launching the match.")
             wrapMode: Text.WordWrap
             color: "#64748b"
             Layout.fillWidth: true
@@ -203,7 +224,7 @@ GameScene {
 
             Button {
                 text: qsTr("Start Match")
-                enabled: filledSlotCount() > 0
+                enabled: powerupSlotCount > 0 && filledSlotCount() === powerupSlotCount
                 Layout.preferredWidth: 200
                 onClicked: root.startMatch()
             }

@@ -19,25 +19,35 @@ qt_add_qml_module(appBlockwars24
     VERSION 1.0
     QML_FILES
         Main.qml
-        SOURCES src/abstractgameelement.h src/abstractgameelement.cpp
-        SOURCES src/gamespritesheetelement.h src/gamespritesheetelement.cpp
-        SOURCES src/gamescene.h src/gamescene.cpp
-        SOURCES src/gamesignal.h src/gamesignal.cpp
-        SOURCES src/gameelementstore.h src/gameelementstore.cpp
-        SOURCES src/gamedataobject.h src/gamedataobject.cpp
-        RESOURCES resources.qrc
-        QML_FILES Block.qml
-        QML_FILES BlockLaunchParticle.qml
-        QML_FILES BlockExplodeParticle.qml
-        QML_FILES
-        QML_FILES
-        QML_FILES
-        QML_FILES
-        QML_FILES
-RESOURCES AGENTS.md
-QML_FILES GameGridElement.qml
-QML_FILES AdjustPowerValuePage.qml SelectBlocksPage.qml PowerupGridBlock.qml PowerupEditorStore.qml PowerupEditorMainPage.qml PowerupCard.qml PowerupLoadoutCard.qml PlaceholderPage.qml CreatePowerupPage.qml EditPowerupListPage.qml
-QML_FILES MainMenup.qml SelectPowerupGameScene.qml SinglePlayerGameScene.qml
+        Block.qml
+        BlockLaunchParticle.qml
+        BlockExplodeParticle.qml
+        GameGridElement.qml
+        AdjustPowerValuePage.qml
+        SelectBlocksPage.qml
+        PowerupGridBlock.qml
+        PowerupEditorStore.qml
+        PowerupEditorMainPage.qml
+        PowerupCard.qml
+        PowerupLoadoutCard.qml
+        PowerupCatalog.qml
+        PowerupLoadoutHelper.qml
+        PlaceholderPage.qml
+        CreatePowerupPage.qml
+        EditPowerupListPage.qml
+        MainMenup.qml
+        SelectPowerupGameScene.qml
+        SinglePlayerGameScene.qml
+    RESOURCES
+        resources.qrc
+        AGENTS.md
+    SOURCES
+        src/abstractgameelement.h src/abstractgameelement.cpp
+        src/gamespritesheetelement.h src/gamespritesheetelement.cpp
+        src/gamescene.h src/gamescene.cpp
+        src/gamesignal.h src/gamesignal.cpp
+        src/gameelementstore.h src/gameelementstore.cpp
+        src/gamedataobject.h src/gamedataobject.cpp
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.

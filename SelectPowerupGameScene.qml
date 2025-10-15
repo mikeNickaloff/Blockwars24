@@ -14,45 +14,20 @@ GameScene {
     property var loadout: []
     property var initialSelection: []
     property int startSlotIndex: 0
-    property var powerupOptions: [
-        ({ id: "blazing_comet", name: qsTr("Blazing Comet"), description: qsTr("Launches a fiery barrage that scorches enemy blocks along a row.") }),
-        ({ id: "starlight_barrier", name: qsTr("Starlight Barrier"), description: qsTr("Fortifies allied blocks with a temporary shield of radiant light.") }),
-        ({ id: "tidal_surge", name: qsTr("Tidal Surge"), description: qsTr("Sweeps the lowest column, washing away weakened enemy defenses.") }),
-        ({ id: "aurora_burst", name: qsTr("Aurora Burst"), description: qsTr("Charges a column with prismatic energy that heals friendly powerups.") })
-    ]
+    property var powerupOptions: []
+    property var powerupOptionsProvider: null
 
     signal backRequested()
     signal selectionComplete(var selectedPowerups)
 
-    readonly property bool selectionAvailable: filledSlotCount() > 0
+    readonly property bool selectionAvailable: slotCount > 0 && filledSlotCount() === slotCount
 
-    function sanitizedPowerupEntry(entry, slotIndex) {
-        if (!entry)
-            return null
-
-        const base = entry.powerup ? entry.powerup : entry
-        const id = base.id || ""
-        const name = base.name || entry.name || qsTr("Unnamed Powerup")
-        const description = base.description || entry.description || qsTr("Configure this powerup in the editor to see its full description.")
-
-        return ({
-            slotIndex: slotIndex,
-            id: id,
-            name: name,
-            description: description
-        })
+    PowerupLoadoutHelper {
+        id: loadoutHelper
     }
 
     function commitLoadout(source) {
-        const count = Math.max(0, slotCount)
-        const normalized = []
-        for (let i = 0; i < count; ++i) {
-            let entry = null
-            if (source && source.length > i)
-                entry = source[i]
-            normalized.push(entry ? sanitizedPowerupEntry(entry, i) : null)
-        }
-        loadout = normalized
+        loadout = loadoutHelper.normalizeSelection(source, slotCount)
         syncActiveSlot()
     }
 
@@ -137,15 +112,6 @@ GameScene {
         if (wrapIndex !== -1) {
             activeSlotIndex = wrapIndex
             return
-        }
-
-        if (loadout.length > 0)
-            activeSlotIndex = Math.max(0, Math.min(fromIndex, loadout.length - 1))
-    }
-
-    function assignOptionToActive(option) {
-        if (!option || activeSlotIndex < 0 || activeSlotIndex >= loadout.length)
-            return
 
         const sanitizedId = option.id || ""
         const next = loadout.slice()
@@ -155,6 +121,34 @@ GameScene {
                 next[i] = null
         }
         next[activeSlotIndex] = option
+        commitLoadout(next)
+        advanceActiveSlot(activeSlotIndex)
+    }
+
+        if (loadout.length > 0)
+            activeSlotIndex = Math.max(0, Math.min(fromIndex, loadout.length - 1))
+    }
+
+    function assignOptionToActive(option) {
+        if (!option || activeSlotIndex < 0 || activeSlotIndex >= loadout.length)
+            return
+        const next = loadout.slice()
+        next[index] = null
+        commitLoadout(next)
+        setActiveSlot(index)
+    }
+
+        const sanitized = loadoutHelper.createLoadoutEntry(option, activeSlotIndex)
+        if (!sanitized)
+            return
+
+        const next = loadout.slice()
+        for (let i = 0; i < next.length; ++i) {
+            const entry = next[i]
+            if (entry && entry.id === sanitized.id)
+                next[i] = null
+        }
+        next[activeSlotIndex] = sanitized
         commitLoadout(next)
         advanceActiveSlot(activeSlotIndex)
     }
@@ -186,17 +180,16 @@ GameScene {
         if (filled === 0)
             return qsTr("Choose powerups to fill your %1-card loadout.").arg(slotCount)
 
-        if (filled === slotCount)
-            return qsTr("All %1 powerup slots are ready to go!").arg(slotCount)
-
-        return qsTr("%1 of %2 powerup slots prepared.").arg(filled).arg(slotCount)
+        const missing = slotCount - filled
+        return missing > 0
+                ? qsTr("Select %1 more powerup%2 to finish your loadout.")
+                      .arg(missing)
+                      .arg(missing === 1 ? "" : "s")
+                : qsTr("All %1 powerup slots are ready to go!").arg(slotCount)
     }
 
     function loadoutSnapshot() {
-        const snapshot = []
-        for (let i = 0; i < loadout.length; ++i)
-            snapshot.push(loadout[i] ? sanitizedPowerupEntry(loadout[i], i) : null)
-        return snapshot
+        return loadoutHelper.normalizeSelection(loadout, loadout.length)
     }
 
     function finalizeSelection() {
@@ -204,6 +197,7 @@ GameScene {
     }
 
     Component.onCompleted: {
+        refreshPowerupOptions()
         commitLoadout(initialSelection)
         if (loadout.length > 0) {
             const candidate = startSlotIndex >= 0 ? startSlotIndex : firstEmptySlot()
@@ -216,6 +210,17 @@ GameScene {
     onStartSlotIndexChanged: {
         if (startSlotIndex >= 0)
             setActiveSlot(startSlotIndex)
+    }
+
+    onPowerupOptionsProviderChanged: refreshPowerupOptions()
+    onPowerupOptionsChanged: ensureLoadout(loadout)
+
+    function refreshPowerupOptions() {
+        if (powerupOptionsProvider) {
+            const supplied = powerupOptionsProvider()
+            if (supplied)
+                powerupOptions = supplied
+        }
     }
 
     Rectangle {
@@ -315,18 +320,32 @@ GameScene {
                 Layout.fillHeight: true
                 clip: true
 
-                GridLayout {
-                    id: optionGrid
+                ColumnLayout {
                     width: optionScroll.availableWidth
-                    columns: width > 640 ? 2 : 1
-                    columnSpacing: 20
-                    rowSpacing: 20
-                    Layout.fillWidth: true
+                    spacing: 20
 
-                    Repeater {
-                        model: root.powerupOptions
+                    Label {
+                        visible: root.powerupOptions.length === 0
+                        Layout.fillWidth: true
+                        horizontalAlignment: Text.AlignHCenter
+                        wrapMode: Text.WordWrap
+                        color: "#cbd5f5"
+                        text: qsTr("Create a custom powerup in the editor or use the defaults to build your loadout.")
+                    }
 
-                        delegate: powerupOptionDelegate
+                    GridLayout {
+                        id: optionGrid
+                        columns: optionScroll.availableWidth > 640 ? 2 : 1
+                        columnSpacing: 20
+                        rowSpacing: 20
+                        Layout.fillWidth: true
+                        visible: root.powerupOptions.length > 0
+
+                        Repeater {
+                            model: root.powerupOptions
+
+                            delegate: powerupOptionDelegate
+                        }
                     }
                 }
             }
@@ -364,11 +383,11 @@ GameScene {
             property int assignedSlot: root.slotIndexForOptionId(option.id)
 
             implicitWidth: optionGrid.columns > 1 ? (optionGrid.width - optionGrid.columnSpacing) / optionGrid.columns : optionGrid.width
-            implicitHeight: 168
-            radius: 14
-            color: assignedSlot !== -1 ? "#1f2937" : "#111827"
+            implicitHeight: 196
+            radius: 16
+            color: assignedSlot !== -1 ? Qt.lighter(option.powerup.colorHex || "#1f2937", 1.25) : "#111827"
             border.width: assignedSlot === root.activeSlotIndex ? 2 : 1
-            border.color: assignedSlot !== -1 ? (assignedSlot === root.activeSlotIndex ? "#38bdf8" : "#334155") : "#1f2937"
+            border.color: assignedSlot === root.activeSlotIndex ? "#38bdf8" : (option.powerup.colorHex || "#1f2937")
 
             ColumnLayout {
                 anchors.fill: parent
@@ -381,7 +400,60 @@ GameScene {
                     font.bold: true
                     color: "#f8fafc"
                     Layout.fillWidth: true
-                    wrapMode: Text.WordWrap
+                    spacing: 10
+
+                    Rectangle {
+                        width: 36
+                        height: 36
+                        radius: 10
+                        color: option.powerup.colorHex || "#1f2937"
+                        border.width: 0
+                    }
+
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 4
+
+                        Label {
+                            text: option.name
+                            font.pixelSize: 20
+                            font.bold: true
+                            color: "#f8fafc"
+                            Layout.fillWidth: true
+                            wrapMode: Text.WordWrap
+                        }
+
+                        Label {
+                            text: option.powerup.effectSummary
+                            color: "#cbd5f5"
+                            wrapMode: Text.WordWrap
+                            Layout.fillWidth: true
+                        }
+                    }
+                }
+
+                Flow {
+                    Layout.fillWidth: true
+                    spacing: 8
+
+                    Repeater {
+                        model: option.tags || []
+
+                        delegate: Rectangle {
+                            radius: 8
+                            color: "#1f2937"
+                            border.width: 1
+                            border.color: "#334155"
+                            height: 24
+
+                            Label {
+                                anchors.centerIn: parent
+                                text: modelData
+                                font.pixelSize: 11
+                                color: "#94a3b8"
+                            }
+                        }
+                    }
                 }
 
                 Label {

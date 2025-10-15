@@ -13,6 +13,11 @@ ApplicationWindow {
         id: powerupEditorStore
     }
 
+    PowerupCatalog {
+        id: powerupCatalog
+        editorStore: powerupEditorStore
+    }
+
     StackView {
         id: stackView
         anchors.fill: parent
@@ -25,9 +30,15 @@ ApplicationWindow {
             onSinglePlayerClicked: {
                 if (!stackView)
                     return
+
+                const optionsProvider = function() { return powerupCatalog.availableOptions() }
+                const options = optionsProvider() || []
+
                 stackView.push(selectPowerupGameSceneComponent, {
                     stackView: stackView,
                     slotCount: 4,
+                    powerupOptions: options,
+                    powerupOptionsProvider: optionsProvider,
                     onBackRequested: function() {
                         if (stackView)
                             stackView.pop()
@@ -35,10 +46,13 @@ ApplicationWindow {
                     onSelectionComplete: function(loadout) {
                         if (!stackView)
                             return
+                        const latestOptions = optionsProvider() || options
                         stackView.replace(singlePlayerGameSceneComponent, {
                             stackView: stackView,
                             powerupSlotCount: 4,
                             powerupSelectionComponent: selectPowerupGameSceneComponent,
+                            powerupOptions: latestOptions,
+                            powerupOptionsProvider: optionsProvider,
                             selectedPowerups: loadout
                         })
                     }
@@ -76,6 +90,8 @@ ApplicationWindow {
             stackView: stackView
             powerupSelectionComponent: selectPowerupGameSceneComponent
             powerupSlotCount: 4
+            powerupOptions: powerupCatalog.availableOptions()
+            powerupOptionsProvider: function() { return powerupCatalog.availableOptions() }
             onExitToMenuRequested: stackView && stackView.pop()
             onBeginMatchRequested: function(selection) {
                 console.log("Starting single player match with powerups:", JSON.stringify(selection))
