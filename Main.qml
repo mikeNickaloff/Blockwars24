@@ -69,6 +69,8 @@ ApplicationWindow {
     Component {
         id: singlePlayerMatchSceneComponent
         SinglePlayerMatchScene {
+            stackView: stackView
+            editorStore: powerupEditorStore
         }
     }
 
