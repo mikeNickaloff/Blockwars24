@@ -245,13 +245,13 @@ Keep nicely formatted and able to be understood by other agents (or people)
   in a spaced column. each powerup card should have  with a mini layout within containing the details of the powerup chosen. 
   In the case where no powerup has been chosen for any card, a default "Blank" card will show that says "Select Powerup..." in a large button in the 
   center of the blank card. 
-(BUG - No button to select powerup -- cannot test modal) 15. Clicking on "Select Powerup" button (which each PowerupCard will have such button) will create an overlay Modal Box which has a scrollable list view of all the user's created powerups made from the Powerup Editor.
+(DONE) 15. Clicking on "Select Powerup" button (which each PowerupCard will have such button) will create an overlay Modal Box which has a scrollable list view of all the user's created powerups made from the Powerup Editor.
    There should also be a separator and beneath it should be 10 default powerups which will come shipped with he Game that players can choose from.
    Clicking on any of the Powerup cards from the "Select Powerup" modal will hide the Modal Box and make the chosen Powerup Card's details shown in the chosen box
   instead of the "Blank card". 
-(BUG - cannot select powerup -- button missing thus cannot test) 16.  Clicking on the chosen card re-opens the Modal Box to choose a powerup (different or the same is ok) which updates that powerup.
-(no right side column layout) 17. on the Right side (arranged as a sort of sidebar next to the 4 Powerup cards) there should be a Large button (~15-20% of width) that is green and says "Ready!"
-(no ready button) 18. Clcking on "Ready" transitions to the Game Board screen. Chosen Powerups should be persisted and automatically update / load every time with last selected powerups
+(DONE) 16.  Clicking on the chosen card re-opens the Modal Box to choose a powerup (different or the same is ok) which updates that powerup.
+(DONE) 17. on the Right side (arranged as a sort of sidebar next to the 4 Powerup cards) there should be a Large button (~15-20% of width) that is green and says "Ready!"
+(DONE) 18. Clcking on "Ready" transitions to the Game Board screen. Chosen Powerups should be persisted and automatically update / load every time with last selected powerups
 
 #### Game Board
 19. The Game Board screen starts off with two identical Layouts, one on the top half, the other on the bottom half of the page. The top layout is the "CPU Player"'s Dashboard

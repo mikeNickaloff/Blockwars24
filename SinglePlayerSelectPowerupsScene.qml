@@ -6,8 +6,8 @@ import Blockwars24
 
 GameScene {
     id: root
-    implicitWidth: 1024
-    implicitHeight: 768
+    implicitWidth: 768
+    implicitHeight: 600
 
     property var stackView
     property int slotCount: 4
@@ -141,109 +141,124 @@ GameScene {
             assignOption(slotIndex, option)
         }
     }
+    ScrollView {
 
+       width: parent.implicitWidth
+       height: parent.implicitHeight * 0.8
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: 36
+
         spacing: 28
 
-        RowLayout {
-            Layout.fillWidth: true
-            spacing: 12
-
-            Label {
-                text: qsTr("Select Powerups")
-                font.pixelSize: 38
-                font.bold: true
-                color: "#f0f4ff"
+            RowLayout {
                 Layout.fillWidth: true
-            }
-
-            Button {
-                text: qsTr("Back")
-                onClicked: backRequested()
-            }
-        }
-
-        RowLayout {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            spacing: 32
-
-            ColumnLayout {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                spacing: 18
+                spacing: 12
 
                 Label {
-                    text: selectionSummary()
-                    color: "#cbd5f5"
-                    wrapMode: Text.WordWrap
+                    text: qsTr("Select Powerups")
+                    font.pixelSize: 38
+                    font.bold: true
+                    color: "#f0f4ff"
                     Layout.fillWidth: true
                 }
 
-                Repeater {
-                    id: slotRepeater
-                    model: slotCount
-                    delegate: SinglePlayerSelectPowerupSlot {
-                        Layout.fillWidth: true
-                        slotIndex: index
-                        powerupOption: selectedOptions[index]
-                        onSelectRequested: function(slot) {
-                            selectionModal.slotIndex = slot
-                            selectionModal.options = availableOptions
-                            selectionModal.open()
-                        }
-                        onClearRequested: function(slot) {
-                            clearSlot(slot)
-                        }
-                    }
+                Button {
+                    text: qsTr("Back")
+                    onClicked: backRequested()
                 }
             }
 
-            Rectangle {
-                width: Math.max(260, parent ? parent.width * 0.28 : 260)
-                radius: 18
-                color: "#0b1220"
-                border.color: "#1f2937"
-                border.width: 1
+            RowLayout {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                spacing: 32
+
+                Rectangle {
+                    width: Math.max(260, parent ? parent.width * 0.28 : 260)
+                    radius: 18
+                    color: "#0b1220"
+                    border.color: "#1f2937"
+                    border.width: 1
+                    anchors.top: parent.top
+
+                    ColumnLayout {
+                        Layout.fillHeight: false
+                        Layout.fillWidth: true
+                        anchors.margins: 24
+                        spacing: 16
+
+                        Label {
+                            text: qsTr("Ready to play?")
+                            font.pixelSize: 26
+                            font.bold: true
+                            color: "#f8fafc"
+                            Layout.fillWidth: true
+                        }
+
+                        Label {
+                            text: qsTr("Fill each slot with a powerup. Once you are happy with your loadout, hit Ready!")
+                            color: "#9ca3af"
+                            wrapMode: Text.WordWrap
+                            Layout.fillWidth: true
+                        }
+
+                        Item { Layout.fillHeight: true }
+
+                        Button {
+                            text: qsTr("Ready!")
+                            enabled: readyToLaunch()
+                            Layout.fillWidth: true
+                            background: Rectangle {
+                                radius: 8
+                                color: enabled ? "#16a34a" : "#374151"
+                            }
+                            onClicked: selectionConfirmed(selectedOptions)
+                        }
+                    }
+                }
 
                 ColumnLayout {
-                    anchors.fill: parent
-                    anchors.margins: 24
-                    spacing: 16
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    spacing: 18
 
                     Label {
-                        text: qsTr("Ready to play?")
-                        font.pixelSize: 26
-                        font.bold: true
-                        color: "#f8fafc"
-                        Layout.fillWidth: true
-                    }
-
-                    Label {
-                        text: qsTr("Fill each slot with a powerup. Once you are happy with your loadout, hit Ready!")
-                        color: "#9ca3af"
+                        text: selectionSummary()
+                        color: "#cbd5f5"
                         wrapMode: Text.WordWrap
                         Layout.fillWidth: true
                     }
 
-                    Item { Layout.fillHeight: true }
-
-                    Button {
-                        text: qsTr("Ready!")
-                        enabled: readyToLaunch()
-                        Layout.fillWidth: true
-                        background: Rectangle {
-                            radius: 8
-                            color: enabled ? "#16a34a" : "#374151"
+                    Repeater {
+                        id: slotRepeater
+                        model: slotCount
+                        delegate: SinglePlayerSelectPowerupSlot {
+                            Layout.fillWidth: true
+                            slotIndex: index
+                            powerupOption: selectedOptions[index]
+                            onSelectRequested: function(slot) {
+                                selectionModal.slotIndex = slot
+                                selectionModal.options = availableOptions
+                                selectionModal.open()
+                            }
+                            onClearRequested: function(slot) {
+                                clearSlot(slot)
+                            }
                         }
-                        onClicked: selectionConfirmed(selectedOptions)
+                    }
+                    Rectangle {
+                        /* spacing rectangle */
+
+                        opacity: 0
+                        height: 200
+                        width: 200
                     }
                 }
             }
         }
     }
+
 
     Component.onCompleted: {
         refreshOptions()
