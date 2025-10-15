@@ -38,6 +38,10 @@ qt_add_qml_module(appBlockwars24
         SinglePlayerSelectPowerupSlot.qml
         SinglePlayerSelectPowerupsScene.qml
         SinglePlayerGameScene.qml
+        SinglePlayerMatchGrid.qml
+        SinglePlayerMatchDashboard.qml
+        SinglePlayerMatchPowerupCard.qml
+        SinglePlayerMatchScene.qml
     RESOURCES
         resources.qrc
         AGENTS.md
@@ -48,7 +52,6 @@ qt_add_qml_module(appBlockwars24
         src/gamesignal.h src/gamesignal.cpp
         src/gameelementstore.h src/gameelementstore.cpp
         src/gamedataobject.h src/gamedataobject.cpp
-        QML_FILES SinglePlayerMatchGrid.qml SinglePlayerMatchDashboard.qml SinglePlayerMatchPowerupCard.qml SinglePlayerMatchScene.qml
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.

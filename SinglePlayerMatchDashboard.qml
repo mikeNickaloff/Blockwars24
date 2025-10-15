@@ -13,7 +13,7 @@ Item {
 
     readonly property real clampedProgress: Math.max(0, Math.min(1, chargeProgress))
 
-    implicitWidth: 960
+    implicitWidth: 900
     implicitHeight: 320
 
     Rectangle {
@@ -67,21 +67,25 @@ Item {
 
         RowLayout {
             Layout.fillWidth: true
-            Layout.fillHeight: true
+            Layout.preferredHeight: implicitHeight
             spacing: 24
 
             SinglePlayerMatchGrid {
                 Layout.fillWidth: true
-                Layout.fillHeight: true
-                Layout.preferredWidth: parent ? parent.width * 0.8 : implicitWidth
-                Layout.preferredHeight: parent ? parent.height * 0.8 : implicitHeight
-                Layout.minimumWidth: implicitWidth
-                Layout.minimumHeight: implicitHeight
+                Layout.preferredWidth: parent ? parent.width * 0.65 : implicitWidth
+                Layout.preferredHeight: Math.max(280, implicitHeight)
+                Layout.minimumWidth: 320
+                Layout.minimumHeight: 280
+                Layout.maximumWidth: parent ? parent.width * 0.75 : implicitWidth
+                Layout.alignment: Qt.AlignTop
             }
 
             ColumnLayout {
                 Layout.fillHeight: true
-                Layout.preferredWidth: Math.max(220, parent ? parent.width * 0.22 : 220)
+                Layout.preferredWidth: Math.max(220, Math.min(300, parent ? parent.width * 0.32 : 240))
+                Layout.minimumWidth: 200
+                Layout.maximumWidth: 320
+                Layout.alignment: Qt.AlignTop
                 spacing: 14
 
                 Repeater {

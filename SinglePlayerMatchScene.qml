@@ -93,38 +93,48 @@ GameScene {
             }
         }
 
-        ColumnLayout {
+        ScrollView {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            spacing: 24
+            padding: 0
+            clip: true
+            contentWidth: availableWidth
+            ScrollBar.vertical.policy: ScrollBar.AsNeeded
 
-            SinglePlayerMatchDashboard {
+            ColumnLayout {
+                id: matchContent
+                width: parent ? parent.availableWidth : implicitWidth
+                spacing: 24
                 Layout.fillWidth: true
-                Layout.fillHeight: true
-                title: qsTr("CPU Player Dashboard")
-                mirrored: false
-                meterColor: "#38bdf8"
-                chargeProgress: 0
-                powerupSlots: cpuSlots
-            }
 
-            Label {
-                text: statusMessage
-                color: "#94a3b8"
-                font.pixelSize: 18
-                horizontalAlignment: Text.AlignHCenter
-                Layout.alignment: Qt.AlignHCenter
-                Layout.fillWidth: true
-            }
+                SinglePlayerMatchDashboard {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: implicitHeight
+                    title: qsTr("CPU Player Dashboard")
+                    mirrored: false
+                    meterColor: "#38bdf8"
+                    chargeProgress: 0
+                    powerupSlots: cpuSlots
+                }
 
-            SinglePlayerMatchDashboard {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                title: qsTr("Player Dashboard")
-                mirrored: true
-                meterColor: "#34d399"
-                chargeProgress: 0
-                powerupSlots: playerSlots
+                Label {
+                    text: statusMessage
+                    color: "#94a3b8"
+                    font.pixelSize: 18
+                    horizontalAlignment: Text.AlignHCenter
+                    Layout.alignment: Qt.AlignHCenter
+                    Layout.fillWidth: true
+                }
+
+                SinglePlayerMatchDashboard {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: implicitHeight
+                    title: qsTr("Player Dashboard")
+                    mirrored: true
+                    meterColor: "#34d399"
+                    chargeProgress: 0
+                    powerupSlots: playerSlots
+                }
             }
         }
     }
