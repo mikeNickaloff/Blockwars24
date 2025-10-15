@@ -254,16 +254,16 @@ Keep nicely formatted and able to be understood by other agents (or people)
 (DONE) 18. Clcking on "Ready" transitions to the Game Board screen. Chosen Powerups should be persisted and automatically update / load every time with last selected powerups
 
 #### Game Board
-19. The Game Board screen starts off with two identical Layouts, one on the top half, the other on the bottom half of the page. The top layout is the "CPU Player"'s Dashboard
+(DONE) 19. The Game Board screen starts off with two identical Layouts, one on the top half, the other on the bottom half of the page. The top layout is the "CPU Player"'s Dashboard
     The bottom layout is the "Player"'s Dashboard. 
 
 ##### Dashboard
-20. A dashboard contains a progress bar at the top if on the top half of the screen or at the bottom if on the bottom half of the screen (essentially reflected about the X-axis)
-21. Each dashboard also contains 4 rectangular cards oriented with spacing between them in a column along the ride side going from the top of the dashboard to the bottom spaced evenly.
+(DONE) 20. A dashboard contains a progress bar at the top if on the top half of the screen or at the bottom if on the bottom half of the screen (essentially reflected about the X-axis)
+(DONE) 21. Each dashboard also contains 4 rectangular cards oriented with spacing between them in a column along the ride side going from the top of the dashboard to the bottom spaced evenly.
     Each card also has a small horizontal progress bar (very tiny like only 8%-10% of the height of the card) with no letters or labels and the 
     background color of the progressbar should be black when empty and should be whatever color was chosen for the specific card which is directly above the bar. 
     This will represent the Energy which a player has accumulated thus far in the game (more on this in the Game Grid)
-22. Each dashboard should have a large "Game Grid" which is where the match-3 game will be played. which is situated to the left of the Powerup Cards and should use about 80% of the available width and height of the dashboard
+(DONE) 22. Each dashboard should have a large "Game Grid" which is where the match-3 game will be played. which is situated to the left of the Powerup Cards and should use about 80% of the available width and height of the dashboard
 
 #### Game Board
 23. When the Game Board first opens, it will say "Waiting for Opponent" in the center space between the two DashBoards (~7% of total height of Game Board)
