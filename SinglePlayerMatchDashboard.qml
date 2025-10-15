@@ -65,26 +65,31 @@ Item {
             }
         }
 
-        RowLayout {
+        GridLayout {
+            id: dashboardLayout
             Layout.fillWidth: true
-            Layout.preferredHeight: implicitHeight
-            spacing: 24
+            columnSpacing: 24
+            rowSpacing: 24
+            columns: root.width > 720 ? 2 : 1
 
             SinglePlayerMatchGrid {
                 Layout.fillWidth: true
-                Layout.preferredWidth: parent ? parent.width * 0.65 : implicitWidth
-                Layout.preferredHeight: Math.max(280, implicitHeight)
-                Layout.minimumWidth: 320
+                Layout.minimumWidth: 280
                 Layout.minimumHeight: 280
-                Layout.maximumWidth: parent ? parent.width * 0.75 : implicitWidth
-                Layout.alignment: Qt.AlignTop
+                Layout.preferredWidth: dashboardLayout.columns > 1 ? Math.min(520, root.width * 0.6) : root.width
+                Layout.preferredHeight: Math.max(280, implicitHeight)
+                Layout.columnSpan: 1
+                Layout.row: 0
+                Layout.column: 0
             }
 
             ColumnLayout {
-                Layout.fillHeight: true
-                Layout.preferredWidth: Math.max(220, Math.min(300, parent ? parent.width * 0.32 : 240))
+                Layout.fillWidth: true
+                Layout.preferredWidth: dashboardLayout.columns > 1 ? Math.max(220, root.width * 0.35) : root.width
                 Layout.minimumWidth: 200
-                Layout.maximumWidth: 320
+                Layout.maximumWidth: dashboardLayout.columns > 1 ? 360 : root.width
+                Layout.row: dashboardLayout.columns > 1 ? 0 : 1
+                Layout.column: dashboardLayout.columns > 1 ? 1 : 0
                 Layout.alignment: Qt.AlignTop
                 spacing: 14
 
@@ -96,7 +101,6 @@ Item {
                         accentColor: slotData(index).accentColor
                         energy: slotData(index).energy
                         Layout.fillWidth: true
-                        Layout.fillHeight: true
                     }
                 }
             }

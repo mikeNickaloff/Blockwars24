@@ -109,88 +109,101 @@ GameScene {
         color: "#070b16"
     }
 
-    ColumnLayout {
+    ScrollView {
+        id: loadoutScrollView
         anchors.fill: parent
         anchors.margins: 32
-        spacing: 28
+        clip: true
+        contentWidth: availableWidth
+        ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+        ScrollBar.vertical.policy: ScrollBar.AsNeeded
 
-        Label {
-            text: qsTr("Single Player Loadout")
-            font.pixelSize: 36
-            font.bold: true
-            color: "#f0f6fc"
-            Layout.fillWidth: true
-        }
-
-        RowLayout {
-            Layout.fillWidth: true
-            spacing: 16
+        ColumnLayout {
+            id: loadoutContent
+            width: loadoutScrollView.availableWidth
+            spacing: 28
 
             Label {
-                text: selectionHeading()
-                color: "#9ca3af"
-                wrapMode: Text.WordWrap
+                text: qsTr("Single Player Loadout")
+                font.pixelSize: 36
+                font.bold: true
+                color: "#f0f6fc"
                 Layout.fillWidth: true
             }
 
-            Button {
-                text: qsTr("Adjust Loadout")
-                enabled: powerupSlotCount > 0
-                Layout.preferredWidth: 180
-                onClicked: root.openPowerupSelection(root.firstEditableSlot())
-            }
-        }
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 16
 
-        GridLayout {
-            columns: Math.max(1, Math.min(2, powerupSlotCount))
-            columnSpacing: 20
-            rowSpacing: 20
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-
-            Repeater {
-                model: powerupSlotCount
-                delegate: SinglePlayerSelectPowerupSlot {
+                Label {
+                    text: selectionHeading()
+                    color: "#9ca3af"
+                    wrapMode: Text.WordWrap
                     Layout.fillWidth: true
-                    slotIndex: index
-                    powerupOption: selectedPowerups[index]
-                    onSelectRequested: function(slot) { root.openPowerupSelection(slot) }
-                    onClearRequested: function(slot) {
-                        const next = selectedPowerups.slice()
-                        if (slot >= 0 && slot < next.length)
-                            next[slot] = null
-                        root.updateLoadout(next)
+                }
+
+                Button {
+                    text: qsTr("Adjust Loadout")
+                    enabled: powerupSlotCount > 0
+                    Layout.preferredWidth: 180
+                    Layout.minimumWidth: 140
+                    onClicked: root.openPowerupSelection(root.firstEditableSlot())
+                }
+            }
+
+            GridLayout {
+                id: slotLayout
+                columns: powerupSlotCount <= 0 ? 1 : (loadoutContent.width > 960 ? Math.min(3, powerupSlotCount) : Math.max(1, Math.min(2, powerupSlotCount)))
+                columnSpacing: 20
+                rowSpacing: 20
+                Layout.fillWidth: true
+
+                Repeater {
+                    model: powerupSlotCount
+                    delegate: SinglePlayerSelectPowerupSlot {
+                        Layout.fillWidth: true
+                        slotIndex: index
+                        powerupOption: selectedPowerups[index]
+                        onSelectRequested: function(slot) { root.openPowerupSelection(slot) }
+                        onClearRequested: function(slot) {
+                            const next = selectedPowerups.slice()
+                            if (slot >= 0 && slot < next.length)
+                                next[slot] = null
+                            root.updateLoadout(next)
+                        }
                     }
                 }
             }
-        }
 
-        Label {
-            text: qsTr("Tap a slot to refine it, or use Adjust Loadout to revisit the full catalog. Fill every slot before launching the match.")
-            wrapMode: Text.WordWrap
-            color: "#64748b"
-            Layout.fillWidth: true
-        }
-
-        RowLayout {
-            Layout.fillWidth: true
-            spacing: 12
-
-            Button {
-                text: qsTr("Back to Main Menu")
-                Layout.preferredWidth: 200
-                onClicked: root.exitToMenuRequested()
-            }
-
-            Item {
+            Label {
+                text: qsTr("Tap a slot to refine it, or use Adjust Loadout to revisit the full catalog. Fill every slot before launching the match.")
+                wrapMode: Text.WordWrap
+                color: "#64748b"
                 Layout.fillWidth: true
             }
 
-            Button {
-                text: qsTr("Start Match")
-                enabled: powerupSlotCount > 0 && filledSlotCount() === powerupSlotCount
-                Layout.preferredWidth: 200
-                onClicked: root.startMatch()
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 12
+
+                Button {
+                    text: qsTr("Back to Main Menu")
+                    Layout.preferredWidth: 200
+                    Layout.minimumWidth: 140
+                    onClicked: root.exitToMenuRequested()
+                }
+
+                Item {
+                    Layout.fillWidth: true
+                }
+
+                Button {
+                    text: qsTr("Start Match")
+                    enabled: powerupSlotCount > 0 && filledSlotCount() === powerupSlotCount
+                    Layout.preferredWidth: 200
+                    Layout.minimumWidth: 140
+                    onClicked: root.startMatch()
+                }
             }
         }
     }
