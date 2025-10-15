@@ -163,42 +163,44 @@ Keep nicely formatted and able to be understood by other agents (or people)
  - Create robust and varied suite of simple QML files that when combined together offer the full functionality of the requirements.
 
 ## Play-by-play section
- 1. The application opens revealing a Screen with the title Block Wars on the top 20% of the screen, centered on the X axis with the application
-  2. Beneath the Block Wars logo there are a few buttons: Single Player, Multiplayer, Powerup Editor, Options, and Exit.
 
-### Powerup Editor
- 3. The player clicks on Powerup Editor which changes the entire screen (stackview) to the PowerupEditor scene which starts
+### (DONE)  Main Menu
+ (DONE) 1. The application opens revealing a Screen with the title Block Wars on the top 20% of the screen, centered on the X axis with the application
+  (DONE) 2. Beneath the Block Wars logo there are a few buttons: Single Player, Multiplayer, Powerup Editor, Options, and Exit.
+
+### (DONE) Powerup Editor
+ (DONE) 3. The player clicks on Powerup Editor which changes the entire screen (stackview) to the PowerupEditor scene which starts
    by showning a List View that displays the following choices: Create New, Edit Existing, Back to Main Menu
- 4. The player clicks on Create New which changes the page to the "Create Powerup" page which has a red button with an "X" on the 
+ (DONE) 4. The player clicks on Create New which changes the page to the "Create Powerup" page which has a red button with an "X" on the 
    top-right which would essentially pop the stackview back one page. while the majority of the page is made of a few options to choose from in a form-like layout:
    "Type" which has a Combobox and the options "Enemy" and "Self"
    "Target" which is a combobox with "Blocks", "Hero(s)", and " Player Health"
    "Color" which is a combobox with "Red", "Green", "Blue" and "Yellow"
    "Next" which is a button at the bottom centered and larger than the rest of the page's components slightly.
- 5. Player chooses "Enemy", "Blocks" and "Green" then clicks "Next"
- 6. Next, another page transitions in which has the title "Select Blocks" because "Blocks" was chosen as the powerup type.
+ (DONE) 5. Player chooses "Enemy", "Blocks" and "Green" then clicks "Next"
+ (DONE) 6. Next, another page transitions in which has the title "Select Blocks" because "Blocks" was chosen as the powerup type.
    The "Select Blocks" page contains a Game Grid (a 6x6 Grid Layout) with only Grey blocks, each one with clearly defined shadows for a simple 3d-ish effect.
    Clicking on any of the blocks in the Game Grid will cause that individual block to change from Grey into a block matching the color chosen on the previous page
    Clicking a colored blockw will change it back to Grey. 
- 7. Below the grid, there is a slider which goes from 1 to 20 idicating the amount of HP to add or remove to each block when the powerup is activated while in a game.
+ (DONE) 7. Below the grid, there is a slider which goes from 1 to 20 idicating the amount of HP to add or remove to each block when the powerup is activated while in a game.
    Under the slider is a "Finish"
- 8. The player clicks "Finish" and the page returns to the Powerup Editor main scene. 
- 9. Clicking on "Edit Existing" Opens the "Choose Powerup" page to transition into view which contains a scrollable listview where each item is a card which has: a block
+ (DONE) 8. The player clicks "Finish" and the page returns to the Powerup Editor main scene. 
+ (DONE) 9. Clicking on "Edit Existing" Opens the "Choose Powerup" page to transition into view which contains a scrollable listview where each item is a card which has: a block
    matching that powerup's block color chosen during create powerup, the Type, the Target, the amount of damage, and if "Blocks" is chosen, the number of blocks selected.
    There s also a final, separate box but still connected to the same card on the right-side which says: "Energy: <energy>"  where energy is the 
    amount calculated by a special algorithm (number of targets * amount of HP * 0.5).
- 10. Clicking on any of the Powerup "Cards" will push the stackview to transition to a page identical to the "Create Powerup" page, only it will have all the values filled in 
+ (DONE) 10. Clicking on any of the Powerup "Cards" will push the stackview to transition to a page identical to the "Create Powerup" page, only it will have all the values filled in 
    so that they match the selected Powerup card.  Clicking Next will take to the same page as the "Select Blocks" page if "Blocks" is chosen 
    or just a slider from 0 to 100 if "Hero" or "Player/Enemy" is chosen instead of blocks for amount of damage / health to give/take
    At the bottom is a "Save" button which overwrites the chosen powerup with the new values chosen from the two pages.
- 11. All powerup data is stored in the LocalStorage SQL Database feature that QML has built-in in JSON format and must contain all of the Player's Powerups in a table in a form that
+ (DONE) 11. All powerup data is stored in the LocalStorage SQL Database feature that QML has built-in in JSON format and must contain all of the Player's Powerups in a table in a form that
    can be read by other parts of the same program.  
- 12. The player's Powerup is saved afte they click Save which returns them to the Powerup Editor main menu.
- 13. The player clicks on "Back to Main Menu" which transitions back to the Main Menu (title screen)
+ (DONE) 12. The player's Powerup is saved afte they click Save which returns them to the Powerup Editor main menu.
+ (DONE) 13. The player clicks on "Back to Main Menu" which transitions back to the Main Menu (title screen)
 
 
-###	 Single Player (Player Vs. CPU)
- 14. The player clicks on Single player which transitions to the "Select Powerups" screen which is a screen containing four "Powerup Cards" arranged
+### (REDO -- WRONG CODING STYLE)	 Single Player (Player Vs. CPU)
+  14. The player clicks on Single player which transitions to the "Select Powerups" screen which is a screen containing four "Powerup Cards" arranged
   in a spaced column. each powerup card should have  with a mini layout within containing the details of the powerup chosen. 
   In the case where no powerup has been chosen for any card, a default "Blank" card will show that says "Select Powerup..." in a large button in the 
   center of the blank card. 
@@ -210,11 +212,11 @@ Keep nicely formatted and able to be understood by other agents (or people)
  17. on the Right side (arranged as a sort of sidebar next to the 4 Powerup cards) there should be a Large button (~15-20% of width) that is green and says "Ready!"
  18. Clcking on "Ready" transitions to the Game Board screen. Chosen Powerups should be persisted and automatically update / load every time with last selected powerups
 
-#### Game Board
+#### (REDO - WRONG CODING STYLE) Game Board
  19. The Game Board screen starts off with two identical Layouts, one on the top half, the other on the bottom half of the page. The top layout is the "CPU Player"'s Dashboard
     The bottom layout is the "Player"'s Dashboard. 
 
-##### Dashboard
+##### (REDO - WRONG CODING STYLE) Dashboard
  20. A dashboard contains a progress bar at the top if on the top half of the screen or at the bottom if on the bottom half of the screen (essentially reflected about the X-axis)
  21. Each dashboard also contains 4 rectangular cards oriented with spacing between them in a column along the ride side going from the top of the dashboard to the bottom spaced evenly.
     Each card also has a small horizontal progress bar (very tiny like only 8%-10% of the height of the card) with no letters or labels and the 
@@ -222,7 +224,7 @@ Keep nicely formatted and able to be understood by other agents (or people)
     This will represent the Energy which a player has accumulated thus far in the game (more on this in the Game Grid)
  22. Each dashboard should have a large "Game Grid" which is where the match-3 game will be played. which is situated to the left of the Powerup Cards and should use about 80% of the available width and height of the dashboard
 
-#### Game Board
+#### (REDO - WRONG CODING STYLE) Game Board
 23. When the Game Board first opens, it will say "Waiting for Opponent" in the center space between the two DashBoards (~7% of total height of Game Board)
 24. in a Single Player game, the opponent is the CPU. 
 25. Behind the scenes, the Javascript logic instantiates a new "CPU Player" object which will be able to send and receive information about the game via connected signals and slots both on the Game Board and the CPU Player
@@ -254,7 +256,7 @@ Keep nicely formatted and able to be understood by other agents (or people)
 40. When a Powerup card reaches 100% of its required energy, its border flashes on a slow interval to indicate it is fully charged; while flashing it no longer accumulates additional energy until the player activates that powerup.
 
 
-##### Game Grid / Game Board / (Human/CPU/Network) Player interaction
+##### (REDO - WRONG CODING STYLE) Game Grid / Game Board / (Human/CPU/Network) Player interaction
 43. When one of the players receives the signal to queue a command, it will send a signal back with the UUID stating that the signal has been received and queued. 
 44. Game Board will track via multi-dimensional array of queue objects that contains UUID and whether or not each player has ACK'd the queue object and whether or not each Player has executed the command given (which will be executed in order one event at a time and then an EXEC signal willl be sent as that queued event completes from the Player instance)
 45. Once an event in the queue has been ACK'd, the Game Board is free to enqueue / proceed to the next event in the game play for certain commands, while others will require that the Player has executed the entire command before queueing another event. 
@@ -265,22 +267,22 @@ Keep nicely formatted and able to be understood by other agents (or people)
 50. Blocks can only have one block per cell in the 6x6 Game Grid which each Dashboard has. Once all blocks have completely filled in the Game Grid so that no floating gaps exist between the end of the grid closest to the other player and all blocks currently on that Game Grid, then by going one row at a time, from left to right, one block at a time, create a new block by increasing (or resetting to 0 when at max) the POOL index for this Dashboard and then grabbing the color at the new index
     and instantiated a new Block.qml instance one cell bbefore the closest cell to the "player health" (we will call this cell -1) and it will be positioned in the current column being iterated. When blocks have been created in each column which still has an empty space, then the GameGrid will internally execute the "compressBlocks" function which sets the block's Y position to be at the target cell it will end up being when compressed.
 
-##### Blocks
+##### (REDO - WRONG CODING STYLE) Blocks
 51. Blocks have Behavior attachments that will control their animations that execute "processAnimation" functions which determine the block's state (matched, powering up, taking damage, colliding, launching, airborn, exploding, filling, waiting, or dead, maybe others later?) and load sprite sheets depending on what action they are doing.
 52. Spritesheets exist already which show blocks powering up for launch and transforming into projectiles so that they can load one spritesheet for the entire process of matching, launching, airborn,and colliding.  exploding is a separate animation that uses particles which have to be fed to a ParticleSystem overlay via signals and clever mapping of positions. an example Block.qml is included in this file for reference from an older version of the same game.
 53. Blocks also must detect mouse events for switching when enabled, so they must be updated as to whether they are allowed to be interacted wth or not by the Game Grid
 
-##### Game Board
+##### (REDO - WRONG CODING STYLE) Game Board
 54. Once the BeginFilling signal has been received by the GameGrid, then it will change the GameGrid's current state to "fill". 
 55. Whenever the GameGrid's state changes into "fill", it will activate the "fillTimer"
 56. The fillTimer's job is to periodically check to see if Row 0 has any cells which are null or undefined in the array that stores the Block instances for the GameGrid.
 57. When a column in row 0 has an empty or undefined position, create a new Block instance at position Row -1 in the column that was checked. 
 58. Once all columns have been checked and all columns with empty cells in row 0 have been identified and a new Block spawned, set all Block instances in row -1 to be in row 0 (which should update their y value as well to initiate the animation)
 
-##### Block
+##### (REDO - WRONG CODING STYLE) Block
 59. Block should have a Behavior on y { SequentialAnimation } Behavior which executes a ScriptAction { } first that sets the "inAnimation" property to true for the Block instance and a ScriptAction { } after the NumberAnimation {} which sets the inAnimation to false.
 
-##### Game Board
+##### (REDO - WRONG CODING STYLE) Game Board
 60. Whenever fillTimer should also have an early exit condition where it checks all Block instances for this GameGrid instance to see if any of them have "inAnimation" set to true
 57. If any Blocks have inAnimation which are set to true, then return and do not continue to process until all Blocks which are not null have inAnimation set to false.
 58. Once All Block instances for GameGrid have inAnimaton == false, change this GameGrid's state to "compact"
@@ -309,7 +311,7 @@ Keep nicely formatted and able to be understood by other agents (or people)
 79. Once cascading finished and sends the cascade finished signal, then the CPU will check to see if it has any moves remaining (out of its 3 moves), it will proceed to find a swap and make it 
 80. After all 3 CPU swaps are made and all cascades are fully completed, then endTurn signal is sent which is picked up by Game Grid 0, which then cascades its blocks starting with comact and continuing on matching and launching etc (using timers) until no matches exist when the state changes to "match" at which point Game Grid 0 unlocks and swaps are allowed for Game Grid 0. 
 
-##### Game Board / Powerups
+#####  Game Board / Powerups
 81. When the active player still has swaps remaining, both grids are idle, and at least one of their four powerup cards is fully charged, that player may drag a charged card from the Powerup HUD onto any empty-friendly cell (never onto the opponent's grid) to deploy the powerup instead of performing a swap.
 82. Dropping a powerup onto the board replaces the two horizontal blocks beneath it with the powerup entity; those cells are no longer considered matchable blocks for the purposes of the match-3 rules.
 83. Each powerup card may be dragged onto its owner's grid at most once per game; up to four powerups can be deployed sequentially provided no cascades are active, the player still has swaps remaining, and no other powerup ability is firing.
