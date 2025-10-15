@@ -158,7 +158,52 @@ Keep nicely formatted and able to be understood by other agents (or people)
 # Actual Blockwars Gameplay Details
 
 ## Intro
-When we have fully built up the Game Engine, and it has everything needed to create the Blockwars game by using a simple abstraction layer based design with useful API, then we will proceed to fulfill any requirements which are listed here in play-by-play format while ensuring that they adhere to all of the Gameplay "rules" and make full use of the Game Engine's API
+- When we have fully built up the Game Engine, and it has everything needed to create the Blockwars game by using a simple abstraction layer based design with useful API, then we will proceed to fulfill any requirements which are listed here in play-by-play format while ensuring that they adhere to all of the Gameplay "rules" and make full use of the Game Engine's API
+- Create new interactive elements by creating QML files that are of type AbstractGameElement (or any class derived from AbstractGameElement)
+- Avoid re-inventing the wheel. Instead, utilize the QML API to build new QML types with functions and properties. 
+- Its better to have 100 files starting with SinglePlayerSelectPowerup<various Elements>.qml than it is to have one file called SelectPowerupGameScene.qml with 100 different elements in it.
+- Try to limit what I call spaghetti code (dumping all code into a single QML file) and instead, logically separate elements into separate QML files and pass properties along and encapsulate functions within those separate files to wire them up
+
+## Example
+
+     SelectPowerupGameScene.qml
+     
+     GameScene {
+        id: selectPowerupSceneRootItem
+        
+        PowerupDataStore { 
+            id: singlePlayerPowerupSelectedDataStore
+            table:  "singlePlayerSelectedPowerupsForPlayer"
+
+       }
+
+        SelectPowerupSlotView {
+            id: selectPowerupSlotViewer
+            
+            selectedPowerupDataStore: singlePlayerPowerupSelectedDataStore
+            
+            onOpenSelectionModal: function (slotIdx) {
+            
+                // call function from Powercatalog.qml
+                powerupCatalog.openCatalogForSlot(slotIdx)
+               
+                // connect to function in PowerupCatalog.qml
+               powerupCatalog.powerupChosen.connect(singlePlayerPowerupSelectedDataStore.updateSelectedPowerupData) 
+            }
+            
+        }
+        
+        PowerupCatalog {
+           id: powerupCatalog
+          
+       }
+     }
+
+## Example comments
+ - Avoid cramming all the implementation steps into the exact place they are used.  
+ - Break up everything into the most simplified set of elements following an OOP design schema
+ - Use properties and functions with parameters within other QML files to safely pass data between multiple files without risking losing the data due to scoping or context changes.
+ - Create robust and varied suite of simple QML files that when combined together offer the full functionality of the requirements.
 
 ## Play-by-play section
 (DONE) 1. The application opens revealing a Screen with the title Block Wars on the top 20% of the screen, centered on the X axis with the application
@@ -204,7 +249,7 @@ When we have fully built up the Game Engine, and it has everything needed to cre
    There should also be a separator and beneath it should be 10 default powerups which will come shipped with he Game that players can choose from.
    Clicking on any of the Powerup cards from the "Select Powerup" modal will hide the Modal Box and make the chosen Powerup Card's details shown in the chosen box
   instead of the "Blank card". 
-(BUG - cannot select initially thus cannot test) 16.  Clicking on the chosen card re-opens the Modal Box to choose a powerup (different or the same is ok) which updates that powerup.
+(BUG - cannot select powerup -- button missing thus cannot test) 16.  Clicking on the chosen card re-opens the Modal Box to choose a powerup (different or the same is ok) which updates that powerup.
 (no right side column layout) 17. on the Right side (arranged as a sort of sidebar next to the 4 Powerup cards) there should be a Large button (~15-20% of width) that is green and says "Ready!"
 (no ready button) 18. Clcking on "Ready" transitions to the Game Board screen. Chosen Powerups should be persisted and automatically update / load every time with last selected powerups
 

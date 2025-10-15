@@ -397,6 +397,7 @@ GameScene {
 
         Rectangle {
             id: card
+            required property var modelData
             property var option: modelData || ({})
             property int assignedSlot: root.slotIndexForOptionId(option.id)
 
