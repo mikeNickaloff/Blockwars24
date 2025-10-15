@@ -20,6 +20,24 @@ GameScene {
     signal backRequested()
     signal selectionComplete(var selectedPowerups)
 
+    onBackRequested: function() {
+        if (stackView)
+            stackView.pop()
+    }
+    onSelectionComplete: function(loadout) {
+        if (!stackView)
+            return
+        const latestOptions = optionsProvider() || options
+        stackView.replace(singlePlayerGameSceneComponent, {
+            stackView: stackView,
+            powerupSlotCount: 4,
+            powerupSelectionComponent: selectPowerupGameSceneComponent,
+            powerupOptions: latestOptions,
+            powerupOptionsProvider: optionsProvider,
+            selectedPowerups: loadout
+        })
+    }
+
     readonly property bool selectionAvailable: slotCount > 0 && filledSlotCount() === slotCount
 
     PowerupLoadoutHelper {
@@ -132,11 +150,11 @@ GameScene {
     function assignOptionToActive(option) {
         if (!option || activeSlotIndex < 0 || activeSlotIndex >= loadout.length)
             return
-        const next = loadout.slice()
+     /*   const next = loadout.slice()
         next[index] = null
         commitLoadout(next)
         setActiveSlot(index)
-    }
+    } */
 
         const sanitized = loadoutHelper.createLoadoutEntry(option, activeSlotIndex)
         if (!sanitized)
@@ -400,7 +418,7 @@ GameScene {
                     font.bold: true
                     color: "#f8fafc"
                     Layout.fillWidth: true
-                    spacing: 10
+                    //spacing: 10
 
                     Rectangle {
                         width: 36

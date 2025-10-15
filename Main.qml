@@ -39,23 +39,7 @@ ApplicationWindow {
                     slotCount: 4,
                     powerupOptions: options,
                     powerupOptionsProvider: optionsProvider,
-                    onBackRequested: function() {
-                        if (stackView)
-                            stackView.pop()
-                    },
-                    onSelectionComplete: function(loadout) {
-                        if (!stackView)
-                            return
-                        const latestOptions = optionsProvider() || options
-                        stackView.replace(singlePlayerGameSceneComponent, {
-                            stackView: stackView,
-                            powerupSlotCount: 4,
-                            powerupSelectionComponent: selectPowerupGameSceneComponent,
-                            powerupOptions: latestOptions,
-                            powerupOptionsProvider: optionsProvider,
-                            selectedPowerups: loadout
-                        })
-                    }
+
                 })
             }
             onMultiplayerClicked: stackView.push(multiplayerPlaceholderComponent)

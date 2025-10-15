@@ -44,7 +44,7 @@ GameScene {
         return count
     }
 
-    function normalizedSelection(source) {
+   /* function normalizedSelection(source) {
         const count = Math.max(0, powerupSlotCount)
         const normalized = []
         for (let i = 0; i < count; ++i) {
@@ -54,24 +54,24 @@ GameScene {
             normalized.push(entry ? sanitizedEntry(entry, i) : null)
         }
         return normalized
-    }
+    } */
 
-    function updateLoadout() {
+/*    function updateLoadout() {
         loadout = normalizedSelection(selectedPowerups)
     }
 
     function applySelection(selection) {
         selectedPowerups = normalizedSelection(selection)
-    }
+    } */
 
-    function filledSlotCount() {
+  /*  function filledSlotCount() {
         let count = 0
         for (let i = 0; i < loadout.length; ++i) {
             if (loadout[i])
                 ++count
         }
         return count
-    }
+    } */
 
     function selectionHeading() {
         const filled = filledSlotCount()

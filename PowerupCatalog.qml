@@ -5,8 +5,8 @@ QtObject {
 
     property var editorStore
 
-    PowerupLoadoutHelper {
-        id: helper
+    property var helper: PowerupLoadoutHelper {
+
     }
 
     readonly property var defaultDefinitions: [
