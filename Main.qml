@@ -55,8 +55,20 @@ ApplicationWindow {
             editorStore: powerupEditorStore
             onExitToMenuRequested: stackView && stackView.pop()
             onBeginMatchRequested: function(selection) {
-                console.log("Starting single player match with powerups:", JSON.stringify(selection))
+                if (!stackView)
+                    return
+                stackView.push(singlePlayerMatchSceneComponent, {
+                                    stackView: stackView,
+                                    playerLoadout: selection,
+                                    cpuLoadout: []
+                                })
             }
+        }
+    }
+
+    Component {
+        id: singlePlayerMatchSceneComponent
+        SinglePlayerMatchScene {
         }
     }
 
