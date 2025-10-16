@@ -35,11 +35,11 @@ SelectPowerupscene.qml
 
 The example code is how the entire file should be (with imports etc at the top too) for everything.
 No cramming or functional hellscapes. 
-C++ style abstractio OOP only when coding with QML.
+C++ style abstraction OOP only when coding with QML.
 
 # QML API Reference
 
-This section the QML-facing API for the engine classes that inherit
+This section is the QML-facing API for the engine classes that inherit
 `AbstractGameElement`. Use it as a quick reference while wiring up gameplay
 from QML.
 
@@ -72,7 +72,7 @@ Keep nicely formatted and able to be understood by other agents (or people)
 - `unserializeElements(store: GameDataObject) -> bool`
   Reconstructs all elements from a `GameDataObject` container, typically the
   output of `serializeElements()`.
-- `queueEvents(entry: GameElementStore) -> bool`
+- `queueEvents(target: GameElement, signals: []) -> bool`
   Enqueues a batch of named signals destined for a particular element. Call
   `dispatchQueuedEvents()` afterward to deliver them in order.
 - `queuedEventCount() -> int`
@@ -165,38 +165,38 @@ Keep nicely formatted and able to be understood by other agents (or people)
 ## Play-by-play section
 
 ### (DONE)  Main Menu
- (DONE) 1. The application opens revealing a Screen with the title Block Wars on the top 20% of the screen, centered on the X axis with the application
-  (DONE) 2. Beneath the Block Wars logo there are a few buttons: Single Player, Multiplayer, Powerup Editor, Options, and Exit.
+ 1. The application opens revealing a Screen with the title Block Wars on the top 20% of the screen, centered on the X axis with the application
+ 2. Beneath the Block Wars logo there are a few buttons: Single Player, Multiplayer, Powerup Editor, Options, and Exit.
 
 ### (DONE) Powerup Editor
- (DONE) 3. The player clicks on Powerup Editor which changes the entire screen (stackview) to the PowerupEditor scene which starts
+  3. The player clicks on Powerup Editor which changes the entire screen (stackview) to the PowerupEditor scene which starts
    by showning a List View that displays the following choices: Create New, Edit Existing, Back to Main Menu
- (DONE) 4. The player clicks on Create New which changes the page to the "Create Powerup" page which has a red button with an "X" on the 
+ 4. The player clicks on Create New which changes the page to the "Create Powerup" page which has a red button with an "X" on the 
    top-right which would essentially pop the stackview back one page. while the majority of the page is made of a few options to choose from in a form-like layout:
    "Type" which has a Combobox and the options "Enemy" and "Self"
    "Target" which is a combobox with "Blocks", "Hero(s)", and " Player Health"
    "Color" which is a combobox with "Red", "Green", "Blue" and "Yellow"
    "Next" which is a button at the bottom centered and larger than the rest of the page's components slightly.
- (DONE) 5. Player chooses "Enemy", "Blocks" and "Green" then clicks "Next"
- (DONE) 6. Next, another page transitions in which has the title "Select Blocks" because "Blocks" was chosen as the powerup type.
+  5. Player chooses "Enemy", "Blocks" and "Green" then clicks "Next"
+  6. Next, another page transitions in which has the title "Select Blocks" because "Blocks" was chosen as the powerup type.
    The "Select Blocks" page contains a Game Grid (a 6x6 Grid Layout) with only Grey blocks, each one with clearly defined shadows for a simple 3d-ish effect.
    Clicking on any of the blocks in the Game Grid will cause that individual block to change from Grey into a block matching the color chosen on the previous page
    Clicking a colored blockw will change it back to Grey. 
- (DONE) 7. Below the grid, there is a slider which goes from 1 to 20 idicating the amount of HP to add or remove to each block when the powerup is activated while in a game.
+  7. Below the grid, there is a slider which goes from 1 to 20 idicating the amount of HP to add or remove to each block when the powerup is activated while in a game.
    Under the slider is a "Finish"
- (DONE) 8. The player clicks "Finish" and the page returns to the Powerup Editor main scene. 
- (DONE) 9. Clicking on "Edit Existing" Opens the "Choose Powerup" page to transition into view which contains a scrollable listview where each item is a card which has: a block
+  8. The player clicks "Finish" and the page returns to the Powerup Editor main scene. 
+  9. Clicking on "Edit Existing" Opens the "Choose Powerup" page to transition into view which contains a scrollable listview where each item is a card which has: a block
    matching that powerup's block color chosen during create powerup, the Type, the Target, the amount of damage, and if "Blocks" is chosen, the number of blocks selected.
    There s also a final, separate box but still connected to the same card on the right-side which says: "Energy: <energy>"  where energy is the 
    amount calculated by a special algorithm (number of targets * amount of HP * 0.5).
- (DONE) 10. Clicking on any of the Powerup "Cards" will push the stackview to transition to a page identical to the "Create Powerup" page, only it will have all the values filled in 
+ 10. Clicking on any of the Powerup "Cards" will push the stackview to transition to a page identical to the "Create Powerup" page, only it will have all the values filled in 
    so that they match the selected Powerup card.  Clicking Next will take to the same page as the "Select Blocks" page if "Blocks" is chosen 
    or just a slider from 0 to 100 if "Hero" or "Player/Enemy" is chosen instead of blocks for amount of damage / health to give/take
    At the bottom is a "Save" button which overwrites the chosen powerup with the new values chosen from the two pages.
- (DONE) 11. All powerup data is stored in the LocalStorage SQL Database feature that QML has built-in in JSON format and must contain all of the Player's Powerups in a table in a form that
+ 11. All powerup data is stored in the LocalStorage SQL Database feature that QML has built-in in JSON format and must contain all of the Player's Powerups in a table in a form that
    can be read by other parts of the same program.  
- (DONE) 12. The player's Powerup is saved afte they click Save which returns them to the Powerup Editor main menu.
- (DONE) 13. The player clicks on "Back to Main Menu" which transitions back to the Main Menu (title screen)
+ 12. The player's Powerup is saved afte they click Save which returns them to the Powerup Editor main menu.
+ 13. The player clicks on "Back to Main Menu" which transitions back to the Main Menu (title screen)
 
 
 ### Single Player (Player Vs. CPU)

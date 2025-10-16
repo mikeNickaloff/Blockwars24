@@ -4,12 +4,12 @@ import QtQuick.Layouts
 import "."
 import Blockwars24
 
-GameScene {
+Item {
     id: root
     // no implicit height or width due to stackView parent
     property var stackView
-    PowerupDataStore {
-        id: playerPowerupDataStore
+    property var playerPowerupDataStore: PowerupDataStore {
+
         table: "playerPowerups"
     }
 
@@ -40,7 +40,7 @@ GameScene {
     Column {
         SinglePlayerMatchDashboard {
             id: topPlayerDashboard
-         powerupDataStore: computerPowerupDataStore
+            powerupDataStore: computerPowerupDataStore
             enemyPowerupDataStore: playerPowerupDataStore
             playerBlockPool: computerBlockPool
             enemyBlockPool: playerBlockPool
