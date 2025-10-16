@@ -7,7 +7,7 @@ import Blockwars24
 GameScene {
     id: root
     // no implicit height or width due to stackView parent
-
+    property var stackView
     PowerupDataStore {
         id: playerPowerupDataStore
         table: "playerPowerups"
@@ -40,7 +40,7 @@ GameScene {
     Column {
         SinglePlayerMatchDashboard {
             id: topPlayerDashboard
-            powerupDataStore: computerPowerupDataStore
+         powerupDataStore: computerPowerupDataStore
             enemyPowerupDataStore: playerPowerupDataStore
             playerBlockPool: computerBlockPool
             enemyBlockPool: playerBlockPool

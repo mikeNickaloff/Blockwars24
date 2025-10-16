@@ -22,11 +22,9 @@ ApplicationWindow {
     Component {
         id: mainMenuComponent
         MainMenup {
-            onSinglePlayerClicked: stackView.push(singlePlayerSelectPowerupsComponent, {
+            onSinglePlayerClicked: stackView.push(singlePlayerGameSceneComponent, {
                 stackView: stackView,
-                editorStore: powerupEditorStore,
-                slotCount: 4
-            })
+                           })
             onMultiplayerClicked: stackView.push(multiplayerPlaceholderComponent)
             onPowerupEditorClicked: stackView.push(powerupEditorMainComponent, {
                                                    stackView: stackView,
@@ -55,9 +53,7 @@ ApplicationWindow {
 
     Component {
         id: singlePlayerMatchSceneComponent
-        SinglePlayerMatchScene {
-            stackView: stackView
-            editorStore: powerupEditorStore
+        Item {
         }
     }
 

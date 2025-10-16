@@ -55,7 +55,7 @@ qt_add_qml_module(appBlockwars24
         QML_FILES PowerupDataStore.qml
         QML_FILES DashboardGridElement.qml
         QML_FILES BlockPool.qml ChoosePowerupsModal.qml CreatePowerupPage.qml DashboardPlayerHealthHUD.qml DashboardPlayerPowerupSidebar.qml EditPowerupListPage.qml
-        QML_FILES SinglePlayerMatchScene.qml SinglePlayerSelectPowerupsScene.qml
+        QML_FILES  SinglePlayerSelectPowerupsScene.qml
         QML_FILES PowerupEditorMainPage.qml PowerupEditorScene.qml PowerupEditorStore.qml
         QML_FILES AdjustPowerValuePage.qml
         QML_FILES MessageArea.qml
