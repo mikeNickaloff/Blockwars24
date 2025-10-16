@@ -24,7 +24,7 @@ Item {
     implicitWidth: (columns * baseCellSize) + ((columns + 1) * cellSpacing)
     implicitHeight: (rows * baseCellSize) + ((rows + 1) * cellSpacing)
 
-    Rectangle {
+Rectangle {
         anchors.fill: parent
         radius: 18
         color: "#070d1b"
