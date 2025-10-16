@@ -87,7 +87,9 @@ Item {
             colorLabel: configuration.colorLabel,
             colorHex: configuration.colorHex,
             hp: Math.round(amountSlider.value),
-            blocks: []
+            energy: configuration.energy !== undefined ? configuration.energy : 0,
+            blockCount: configuration.blockCount !== undefined ? configuration.blockCount : 0,
+            blocks: configuration.blocks && configuration.blocks.length ? configuration.blocks.slice() : []
         }
 
         if (root.editMode && root.existingId >= 0)
