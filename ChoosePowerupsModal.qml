@@ -23,7 +23,7 @@ Popup {
     contentItem: ColumnLayout {
         width: 360
         spacing: 16
-        padding: 24
+
 
         Label {
             text: qsTr("Choose Powerups")

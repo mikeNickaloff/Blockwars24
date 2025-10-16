@@ -1,7 +1,7 @@
 import QtQuick
 import "."
 
-AdjustPowerValuePage {
+Item {
     id: page
-    editMode: false
+
 }

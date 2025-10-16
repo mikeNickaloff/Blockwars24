@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import "."
 import Blockwars24
 
 GameScene {
@@ -44,6 +45,7 @@ GameScene {
             playerBlockPool: computerBlockPool
             enemyBlockPool: playerBlockPool
             onCommunicationSent: function(commData) { bottomPlayerDashboard.processCommunicationFromOpponent(commData) }
+            isBottomGrid: false
         }
         MessageArea {
 
@@ -55,6 +57,7 @@ GameScene {
             playerBlockPool: playerBlockPool
             enemyBlockPool: computerBlockPool
             onCommunicationSent: function(commData) { topPlayerDashboard.processCommunicationFromOpponent(commData) }
+            isBottomGrid: true
         }
     }
 }

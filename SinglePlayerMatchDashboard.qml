@@ -8,7 +8,7 @@ GameScene {
     property var powerupDataStore
     property var enemyPowerupDataStore
     property var playerBlockPool
-    property var enemyBlockool
+    property var enemyBlockPool
     property bool isBottomGrid: false
 
     signal communicationSent(var commData)

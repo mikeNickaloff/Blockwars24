@@ -49,20 +49,7 @@ ApplicationWindow {
     Component {
         id: singlePlayerGameSceneComponent
         SinglePlayerGameScene {
-            stackView: stackView
-            powerupSelectionComponent: singlePlayerSelectPowerupsComponent
-            powerupSlotCount: 4
-            editorStore: powerupEditorStore
-            onExitToMenuRequested: stackView && stackView.pop()
-            onBeginMatchRequested: function(selection) {
-                if (!stackView)
-                    return
-                stackView.push(singlePlayerMatchSceneComponent, {
-                                    stackView: stackView,
-                                    playerLoadout: selection,
-                                    cpuLoadout: []
-                                })
-            }
+
         }
     }
 

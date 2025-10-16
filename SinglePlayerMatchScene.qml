@@ -31,7 +31,7 @@ GameScene {
             powerupDataStore: PowerupDataStore { table: "cpuLoadout" }
             enemyPowerupDataStore: PowerupDataStore { table: "playerLoadout" }
             playerBlockPool: BlockPool {}
-            enemyBlockool: BlockPool {}
+            enemyBlockPool: BlockPool {}
         }
 
         SinglePlayerMatchDashboard {
@@ -42,7 +42,7 @@ GameScene {
             powerupDataStore: PowerupDataStore { table: "playerLoadout" }
             enemyPowerupDataStore: PowerupDataStore { table: "cpuLoadout" }
             playerBlockPool: BlockPool {}
-            enemyBlockool: BlockPool {}
+            enemyBlockPool: BlockPool {}
         }
     }
 }
