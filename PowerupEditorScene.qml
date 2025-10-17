@@ -5,7 +5,7 @@ import QtQuick.Layouts
 Item {
     id: root
     property var stackView
-    property var editorStore
+    property var powerupRepository
     objectName: "powerupEditorMainPage"
 
     readonly property var menuOptions: [
@@ -15,7 +15,7 @@ Item {
             handler: function() {
                 root.stackView.push(createPowerupComponent, {
                                         stackView: root.stackView,
-                                        editorStore: root.editorStore,
+                                        powerupRepository: root.powerupRepository,
                                         mainPage: root,
                                         editMode: false,
                                         existingId: -1,
@@ -29,7 +29,7 @@ Item {
             handler: function() {
                 root.stackView.push(editPowerupComponent, {
                                         stackView: root.stackView,
-                                        editorStore: root.editorStore,
+                                        powerupRepository: root.powerupRepository,
                                         mainPage: root
                                     })
             }
@@ -123,7 +123,7 @@ Item {
                     anchors.fill: parent
                     clip: true
                     spacing: 12
-                    model: editorStore ? editorStore.createdPowerupsModel : null
+                    model: powerupRepository ? powerupRepository.createdPowerupsModel : null
                     delegate: ItemDelegate {
                         width: createdList.width
                         background: Rectangle {
@@ -200,7 +200,7 @@ Item {
                         anchors.centerIn: parent
                         text: qsTr("No powerups created yet.")
                         color: "#64748b"
-                        visible: !editorStore || editorStore.createdPowerupsModel.count === 0
+                        visible: !powerupRepository || powerupRepository.createdPowerupsModel.count === 0
                     }
                 }
             }

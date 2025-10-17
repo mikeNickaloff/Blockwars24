@@ -7,7 +7,7 @@ Item {
     id: root
 
     property var stackView
-    property var editorStore
+    property var powerupRepository
     property var powerupSelectionComponent
     property int powerupSlotCount: 4
     property var selectedPowerups: []
@@ -103,7 +103,7 @@ Item {
                         }
 
                         Label {
-                            visible: modelData && modelData.targetKey === "blocks"
+                            visible: Boolean(modelData && modelData.targetKey === "blocks")
                             text: qsTr("Blocks targeted: %1").arg(modelData && modelData.blockCount ? modelData.blockCount : 0)
                             color: "#64748b"
                             font.pixelSize: 12
@@ -177,7 +177,7 @@ Item {
             return
         stackView.push(powerupSelectionComponent, {
                               stackView: stackView,
-                              editorStore: editorStore,
+                              powerupRepository: powerupRepository,
                               slotCount: powerupSlotCount
                           })
     }

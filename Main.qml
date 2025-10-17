@@ -9,8 +9,9 @@ ApplicationWindow {
     visible: true
     title: qsTr("Block Wars")
 
-    PowerupEditorStore {
-        id: powerupEditorStore
+    PowerupCollectionController {
+        id: powerupRepository
+        table: "editor_custom_powerups"
     }
 
     StackView {
@@ -24,12 +25,12 @@ ApplicationWindow {
         MainMenup {
             onSinglePlayerClicked: stackView.push(singlePlayerSelectPowerupsComponent, {
                                                      stackView: stackView,
-                                                     editorStore: powerupEditorStore
+                                                     powerupRepository: powerupRepository
                                                  })
             onMultiplayerClicked: stackView.push(multiplayerPlaceholderComponent)
             onPowerupEditorClicked: stackView.push(powerupEditorMainComponent, {
                                                    stackView: stackView,
-                                                   editorStore: powerupEditorStore
+                                                   powerupRepository: powerupRepository
                                                })
             onOptionsClicked: stackView.push(optionsPlaceholderComponent)
             onExitClicked: Qt.quit()
@@ -41,7 +42,7 @@ ApplicationWindow {
         PowerupEditorMainPage {
             id: powerupEditorPage
             stackView: stackView
-            editorStore: powerupEditorStore
+            powerupRepository: powerupRepository
         }
     }
 
@@ -72,12 +73,13 @@ ApplicationWindow {
                 stackView.pop()
                 stackView.push(singlePlayerGameSceneComponent, {
                     stackView: stackView,
-                    editorStore: editorStore,
+                    powerupRepository: powerupRepository,
                     powerupSelectionComponent: singlePlayerSelectPowerupsComponent,
                     powerupSlotCount: slotCount,
                     selectedPowerups: selection
                 })
             }
+            powerupRepository: powerupRepository
         }
     }
 

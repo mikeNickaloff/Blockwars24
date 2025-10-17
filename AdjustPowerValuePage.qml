@@ -5,7 +5,7 @@ import QtQuick.Layouts
 Item {
     id: root
     property var stackView
-    property var editorStore
+    property var powerupRepository
     property var mainPage
     property var configuration: ({})
     property bool editMode: false
@@ -87,7 +87,7 @@ Item {
     onInitialHpChanged: amountSlider.value = clampValue(root.initialHp, amountSlider.from, amountSlider.to)
 
     function persist() {
-        if (!editorStore) {
+        if (!powerupRepository) {
             stackView.pop(mainPage)
             return
         }
@@ -109,9 +109,9 @@ Item {
         }
 
         if (root.editMode && root.existingId >= 0)
-            editorStore.updatePowerup(root.existingId, payload)
+            powerupRepository.updatePowerup(root.existingId, payload)
         else
-            editorStore.addPowerup(payload)
+            powerupRepository.addPowerup(payload)
 
         stackView.pop(mainPage)
     }
