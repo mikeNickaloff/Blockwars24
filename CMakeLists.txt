@@ -19,29 +19,17 @@ qt_add_qml_module(appBlockwars24
     VERSION 1.0
     QML_FILES
         Main.qml
-        Block.qml
-        BlockLaunchParticle.qml
-        BlockExplodeParticle.qml
-        GameGridElement.qml
-
-
-
-
-
-        PlaceholderPage.qml
-
-
-        MainMenup.qml
-
-
-
-
-
-        SinglePlayerGameScene.qml
-
-        SinglePlayerMatchDashboard.qml
-
-
+        MainMenu/MainMenuPage.qml
+        PowerupEditor/PowerupEditorScene.qml
+        PowerupEditor/CreatePowerupFlow.qml
+        PowerupEditor/CreatePowerupOverviewStep.qml
+        PowerupEditor/CreatePowerupBlockStep.qml
+        PowerupEditor/PowerupLibraryPage.qml
+        PowerupEditor/PowerupLibraryView.qml
+        Shared/PowerupDataStore.qml
+        Shared/PowerupEnergyModel.qml
+        Shared/PowerupRepository.qml
+        Shared/PlaceholderPage.qml
     RESOURCES
         resources.qrc
         AGENTS.md
@@ -52,17 +40,6 @@ qt_add_qml_module(appBlockwars24
         src/gamesignal.h src/gamesignal.cpp
         src/gameelementstore.h src/gameelementstore.cpp
         src/gamedataobject.h src/gamedataobject.cpp
-        QML_FILES PowerupDataStore.qml
-        QML_FILES DashboardGridElement.qml
-        QML_FILES PowerupEnergyModel.qml MatchDashboardLink.qml SinglePlayerMatchScene.qml
-        QML_FILES BlockPool.qml ChoosePowerupsModal.qml CreatePowerupPage.qml DashboardPlayerHealthHUD.qml DashboardPlayerPowerupSidebar.qml EditPowerupListPage.qml
-        QML_FILES  SinglePlayerSelectPowerupsScene.qml
-        QML_FILES PowerupEditorMainPage.qml PowerupEditorScene.qml PowerupCollectionController.qml DefaultPowerupRepository.qml
-        QML_FILES AdjustPowerValuePage.qml
-        QML_FILES MessageArea.qml
-        QML_FILES PowerupBlockSelectionGrid.qml PowerupDataStore.qml
-        QML_FILES PowerupBlockSelectionGrid.qml
-        QML_FILES SinglePlayerMatchGrid.qml
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.

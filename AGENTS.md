@@ -62,18 +62,62 @@ C++ style abstraction OOP only when coding with QML.
 
 # TO DO
 
-- Edit Powerup Area doesn't properly load the powerup data from QtQuick.LocalStorage based store
-- ✔️ Address this error when clicking Single Player in the Powerup Selection scene.
-     qrc:/qt/qml/Blockwars24/SinglePlayerSelectPowerupsScene.qml:78:23: QML Component: Cannot create delegate
-     qrc:/qt/qml/Blockwars24/SinglePlayerSelectPowerupsScene.qml:80:17: Required property payload was not initialized
-     qrc:/qt/qml/Blockwars24/SinglePlayerSelectPowerupsScene.qml:78:23: QML Component: Cannot create delegate
-     qrc:/qt/qml/Blockwars24/SinglePlayerSelectPowerupsScene.qml:80:17: Required property payload was not initialized
-     qrc:/qt/qml/Blockwars24/SinglePlayerSelectPowerupsScene.qml:78:23: QML Component: Cannot create delegate
-     qrc:/qt/qml/Blockwars24/SinglePlayerSelectPowerupsScene.qml:80:17: Required property payload was not initialized
-     qrc:/qt/qml/Blockwars24/SinglePlayerSelectPowerupsScene.qml:78:23: QML Component: Cannot create delegate
-     qrc:/qt/qml/Blockwars24/SinglePlayerSelectPowerupsScene.qml:80:17: Required property payload was not initialized
-
-
+- ✔️ Edit Powerup Area doesn't properly load the powerup data from QtQuick.LocalStorage based store
+- ✔️ Fix bug in SinglePlayerGameScene: "qrc:/qt/qml/Blockwars24/SinglePlayerGameScene.qml:150: ReferenceError: model is not defined"
+- ✔️ Read through the play-by-play and add TODO items for each of the play-by-play items needed to be done in order to fully implement each of the items with special attention to detail. - Do not implement all play-by-play items, just generate the to do list of items that will have to be done to fully complete each item. (can be more than 1 per item)
+- ✔️ TODO [Step 1]: Compose the Block Wars main menu with the title occupying the top 20% of the screen and centered horizontally on application launch.
+- ✔️ TODO [Step 2]: Lay out Single Player, Multiplayer, Powerup Editor, Options, and Exit buttons beneath the title and wire them into the StackView navigation flow.
+- ✔️ TODO [Step 3]: Present the Powerup Editor landing list with Create New, Edit Existing, and Back entries that switch StackView pages and prime the data store.
+- ✔️ TODO [Step 4]: Build the Create Powerup form with the dismiss button, combobox selections for type/target/color, and a guarded Next action.
+- ✔️ TODO [Step 5]: Persist the player's chosen type, target, and color selections between pages so block selection inherits the configuration.
+- ✔️ TODO [Step 6]: Implement the Select Blocks page with a 6x6 grey block grid that toggles to the chosen color with shading and tracks selections.
+- ✔️ TODO [Step 7]: Add the HP adjustment slider (1–20) that binds into the powerup configuration and previews applied values.
+- ✔️ TODO [Step 8]: Hook the Finish action to serialize the configured powerup, compute energy, commit to LocalStorage, and return to the editor menu.
+- TODO [Step 9]: Populate the Edit Existing list with scrollable cards showing color, type, target, damage, block count, and an energy panel per entry.
+- TODO [Step 10]: Ensure selecting an existing powerup rehydrates both pages with stored values, including slider ranges for heroes or players versus block flows.
+- TODO [Step 11]: Maintain the LocalStorage schema so the complete set of player powerups is stored in JSON and accessible to other systems.
+- TODO [Step 12]: When saving edits, overwrite the selected powerup, refresh the list model, and return to the Powerup Editor menu.
+- TODO [Step 13]: Provide a Back to Main Menu action from the editor that transitions the StackView to the title screen.
+- TODO [Step 14]: Assemble SinglePlayerSelectPowerupsScene with a GameScene root, PlayerPowerupLoadoutStore, and four loadout slots arranged via ColumnLayout.
+- TODO [Step 15]: Implement the shared selection modal that merges player-created powerups with default presets and commits decisions to the loadout store.
+- TODO [Step 16]: Reopen slots with their current selection highlighted and ensure confirming the existing entry leaves the store unchanged while new picks replace atomically.
+- TODO [Step 17]: Create the ReadyForMatchButton component sized to ~18% width, styled with the success palette, and enabled only when the loadout store reports readiness.
+- TODO [Step 18]: Emit beginMatch with a loadout snapshot, persist it, and transition into SinglePlayerMatchScene through the application controller.
+- TODO [Step 19]: Structure SinglePlayerMatchScene with a GameScene root stacking identical dashboards for CPU and human players in a SplitView.
+- TODO [Step 20]: Compose each SinglePlayerMatchDashboard with momentum bar, central GameGridElement, and powerup column while respecting the 80% grid width goal.
+- TODO [Step 21]: Build the PowerupColumn to render four cards linked to PowerupChargeMeter instances whose colors derive from powerup metadata.
+- TODO [Step 22]: Expose the underlying GameGridElement from the dashboard through a property alias so controllers can route signals without duplicating logic.
+- TODO [Step 23]: Show a centered WaitingForOpponentBanner that hides itself once both dashboards confirm readiness.
+- TODO [Step 24]: Instantiate a CpuPlayerController on first entry, seed it with four default powerups, and store its loadout internally.
+- TODO [Step 25]: Relay the CPU loadout via loadoutPrepared to the top dashboard using applyPowerupLoadout and ensure UI binds correctly.
+- TODO [Step 26]: Instantiate a HumanPlayerController that mirrors the CPU flow by replaying the persisted player loadout into the bottom dashboard.
+- TODO [Step 27]: Listen for powerupDataLoaded signals from both dashboards and track readiness flags before allowing play to continue.
+- TODO [Step 28]: Generate seeds through SeedRngHelper and invoke setBlockSeed on each dashboard, waiting for confirmations before initialization.
+- TODO [Step 29]: After both seeds are confirmed, call initializeGame to wire control signals between scene, dashboards, and controllers.
+- TODO [Step 30]: Conduct initiative rolls by requesting random values from both controllers, rerolling ties, and storing the active dashboard index.
+- TODO [Step 31]: Clear the waiting banner, issue beginTurn to the active dashboard, and notify the opponent that it is observing via queued signals.
+- TODO [Step 32]: Ensure GameGridElement creates Block components through a Component factory so every block shares the behavior tree.
+- TODO [Step 33]: Implement BlockAnimationStateMachine to map block states (idle, matched, launching, etc.) to sprite-sheet sequences from BlockSpriteRepository.
+- TODO [Step 34]: Maintain interactionEnabled and inAnimation flags on blocks, toggled by the grid and animation state machine to protect timing-sensitive logic.
+- TODO [Step 35]: Handle the beginFilling state by spawning new blocks via BlockFactory into virtual row -1 and animating them into place while tracking timers.
+- TODO [Step 36]: Provide settleSpawnedBlocks routines that wrap block drops in SequentialAnimation and correctly flip inAnimation markers.
+- TODO [Step 37]: Gate fillTimer on animation completion and transition to the compact state once row 0 is gap-free.
+- TODO [Step 38]: Implement compactTimer to compress columns one cell at a time toward the defender, respecting orientation and animation guards.
+- TODO [Step 39]: Create matchTimer to search for horizontal and vertical runs, populate matchList, and emit cascadeEnded when no matches remain.
+- TODO [Step 40]: Build launchTimer to iterate over matchList, trigger block.launch(), track launchCount, and revert to compact once all launches finish.
+- TODO [Step 41]: Execute swapBlocks only when the grid is in the match state with no animations, dropping immediately back into match processing on success.
+- TODO [Step 42]: When matches exhaust and swaps run out, emit turnEnded for the active dashboard and freeze cascading until the opponent finishes.
+- TODO [Step 43]: Upon receiving turnEnded, enable cascading on the opposing grid, reset swaps, and process fill/compact loops until stable.
+- TODO [Step 44]: After the opponent's first cascade, re-enable swapping and inform the corresponding controller to choose a move.
+- TODO [Step 45]: Have CpuPlayerController evaluate serialized grid snapshots, score all legal swaps, emit requestSwap, and wait for cascades before continuing.
+- TODO [Step 46]: Decrement CPU swaps after each cascade and emit turnComplete when no swaps remain or no legal moves exist.
+- TODO [Step 81]: Allow charged powerup cards to be dragged onto friendly grid cells only when swaps remain and no cascades are underway.
+- TODO [Step 82]: Replace the targeted two horizontal blocks with the deployed powerup entity and exclude those cells from match logic.
+- TODO [Step 83]: Enforce one deployment per card while permitting sequential activations as long as cascades are idle and swaps remain.
+- TODO [Step 84]: Resolve powerup abilities against their configured targets, applying damage or healing and triggering the appropriate animations.
+- TODO [Step 85]: Reset the card's current energy to zero after activation while keeping the board entity alive and ready for recharge via matches.
+- TODO [Step 86]: Permit re-activation of deployed powerups when charged, clicking instead of dragging if already on the board, and reset energy afterward.
+- TODO [Step 87]: Trigger explosion, glow, or shake feedback on affected blocks depending on whether they are destroyed, healed, or damaged without destruction.
 
 
 
