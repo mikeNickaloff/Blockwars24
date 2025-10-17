@@ -73,29 +73,29 @@ C++ style abstraction OOP only when coding with QML.
 - ✔️ TODO [Step 6]: Implement the Select Blocks page with a 6x6 grey block grid that toggles to the chosen color with shading and tracks selections.
 - ✔️ TODO [Step 7]: Add the HP adjustment slider (1–20) that binds into the powerup configuration and previews applied values.
 - ✔️ TODO [Step 8]: Hook the Finish action to serialize the configured powerup, compute energy, commit to LocalStorage, and return to the editor menu.
-- TODO [Step 9]: Populate the Edit Existing list with scrollable cards showing color, type, target, damage, block count, and an energy panel per entry.
-- TODO [Step 10]: Ensure selecting an existing powerup rehydrates both pages with stored values, including slider ranges for heroes or players versus block flows.
-- TODO [Step 11]: Maintain the LocalStorage schema so the complete set of player powerups is stored in JSON and accessible to other systems.
-- TODO [Step 12]: When saving edits, overwrite the selected powerup, refresh the list model, and return to the Powerup Editor menu.
-- TODO [Step 13]: Provide a Back to Main Menu action from the editor that transitions the StackView to the title screen.
-- TODO [Step 14]: Assemble SinglePlayerSelectPowerupsScene with a GameScene root, PlayerPowerupLoadoutStore, and four loadout slots arranged via ColumnLayout.
-- TODO [Step 15]: Implement the shared selection modal that merges player-created powerups with default presets and commits decisions to the loadout store.
-- TODO [Step 16]: Reopen slots with their current selection highlighted and ensure confirming the existing entry leaves the store unchanged while new picks replace atomically.
-- TODO [Step 17]: Create the ReadyForMatchButton component sized to ~18% width, styled with the success palette, and enabled only when the loadout store reports readiness.
-- TODO [Step 18]: Emit beginMatch with a loadout snapshot, persist it, and transition into SinglePlayerMatchScene through the application controller.
-- TODO [Step 19]: Structure SinglePlayerMatchScene with a GameScene root stacking identical dashboards for CPU and human players in a SplitView.
-- TODO [Step 20]: Compose each SinglePlayerMatchDashboard with momentum bar, central GameGridElement, and powerup column while respecting the 80% grid width goal.
-- TODO [Step 21]: Build the PowerupColumn to render four cards linked to PowerupChargeMeter instances whose colors derive from powerup metadata.
-- TODO [Step 22]: Expose the underlying GameGridElement from the dashboard through a property alias so controllers can route signals without duplicating logic.
-- TODO [Step 23]: Show a centered WaitingForOpponentBanner that hides itself once both dashboards confirm readiness.
-- TODO [Step 24]: Instantiate a CpuPlayerController on first entry, seed it with four default powerups, and store its loadout internally.
-- TODO [Step 25]: Relay the CPU loadout via loadoutPrepared to the top dashboard using applyPowerupLoadout and ensure UI binds correctly.
-- TODO [Step 26]: Instantiate a HumanPlayerController that mirrors the CPU flow by replaying the persisted player loadout into the bottom dashboard.
-- TODO [Step 27]: Listen for powerupDataLoaded signals from both dashboards and track readiness flags before allowing play to continue.
-- TODO [Step 28]: Generate seeds through SeedRngHelper and invoke setBlockSeed on each dashboard, waiting for confirmations before initialization.
-- TODO [Step 29]: After both seeds are confirmed, call initializeGame to wire control signals between scene, dashboards, and controllers.
-- TODO [Step 30]: Conduct initiative rolls by requesting random values from both controllers, rerolling ties, and storing the active dashboard index.
-- TODO [Step 31]: Clear the waiting banner, issue beginTurn to the active dashboard, and notify the opponent that it is observing via queued signals.
+- ✔️ TODO [Step 9]: Populate the Edit Existing list with scrollable cards showing color, type, target, damage, block count, and an energy panel per entry.
+- ✔️ TODO [Step 10]: Ensure selecting an existing powerup rehydrates both pages with stored values, including slider ranges for heroes or players versus block flows.
+- ✔️ TODO [Step 11]: Maintain the LocalStorage schema so the complete set of player powerups is stored in JSON and accessible to other systems.
+- ✔️ TODO [Step 12]: When saving edits, overwrite the selected powerup, refresh the list model, and return to the Powerup Editor menu.
+- ✔️ TODO [Step 13]: Provide a Back to Main Menu action from the editor that transitions the StackView to the title screen.
+- ✔️ TODO [Step 14]: Assemble SinglePlayerSelectPowerupsScene with a GameScene root, PlayerPowerupLoadoutStore, and four loadout slots arranged via ColumnLayout.
+- ✔️ TODO [Step 15]: Implement the shared selection modal that merges player-created powerups with default presets and commits decisions to the loadout store.
+- ✔️ TODO [Step 16]: Reopen slots with their current selection highlighted and ensure confirming the existing entry leaves the store unchanged while new picks replace atomically.
+- ✔️ TODO [Step 17]: Create the ReadyForMatchButton component sized to ~18% width, styled with the success palette, and enabled only when the loadout store reports readiness.
+- ✔️ TODO [Step 18]: Emit beginMatch with a loadout snapshot, persist it, and transition into SinglePlayerMatchScene through the application controller.
+- ✔️ TODO [Step 19]: Structure SinglePlayerMatchScene with a GameScene root stacking identical dashboards for CPU and human players in a SplitView.
+- ✔️ TODO [Step 20]: Compose each SinglePlayerMatchDashboard with momentum bar, central GameGridElement, and powerup column while respecting the 80% grid width goal.
+- ✔️ TODO [Step 21]: Build the PowerupColumn to render four cards linked to PowerupChargeMeter instances whose colors derive from powerup metadata.
+- ✔️ TODO [Step 22]: Expose the underlying GameGridElement from the dashboard through a property alias so controllers can route signals without duplicating logic.
+- ✔️ TODO [Step 23]: Show a centered WaitingForOpponentBanner that hides itself once both dashboards confirm readiness.
+- ✔️ TODO [Step 24]: Instantiate a CpuPlayerController on first entry, seed it with four default powerups, and store its loadout internally.
+- ✔️ TODO [Step 25]: Relay the CPU loadout via loadoutPrepared to the top dashboard using applyPowerupLoadout and ensure UI binds correctly.
+- ✔️ TODO [Step 26]: Instantiate a HumanPlayerController that mirrors the CPU flow by replaying the persisted player loadout into the bottom dashboard.
+- ✔️ TODO [Step 27]: Listen for powerupDataLoaded signals from both dashboards and track readiness flags before allowing play to continue.
+- ✔️ TODO [Step 28]: Generate seeds through SeedRngHelper and invoke setBlockSeed on each dashboard, waiting for confirmations before initialization.
+- ✔️ TODO [Step 29]: After both seeds are confirmed, call initializeGame to wire control signals between scene, dashboards, and controllers.
+- ✔️ TODO [Step 30]: Conduct initiative rolls by requesting random values from both controllers, rerolling ties, and storing the active dashboard index.
+- ✔️ TODO [Step 31]: Clear the waiting banner, issue beginTurn to the active dashboard, and notify the opponent that it is observing via queued signals.
 - TODO [Step 32]: Ensure GameGridElement creates Block components through a Component factory so every block shares the behavior tree.
 - TODO [Step 33]: Implement BlockAnimationStateMachine to map block states (idle, matched, launching, etc.) to sprite-sheet sequences from BlockSpriteRepository.
 - TODO [Step 34]: Maintain interactionEnabled and inAnimation flags on blocks, toggled by the grid and animation state machine to protect timing-sensitive logic.

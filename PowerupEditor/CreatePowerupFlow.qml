@@ -8,6 +8,8 @@ Item {
     id: root
 
     required property PowerupRepository repository
+    property string mode: "create"
+    property var existingEntry: null
     signal finished()
 
     property var draft: ({
@@ -35,11 +37,15 @@ Item {
         anchors.margins: 32
     }
 
-    Component.onCompleted: flowStack.push(overviewComponent, {
-                                           flow: root,
-                                           stackView: flowStack,
-                                           draft: root._cloneDraft(draft)
-                                       })
+    Component.onCompleted: {
+        const initialDraft = root.mode === "edit" && root.existingEntry ? root._cloneDraft(root.existingEntry) : root._cloneDraft(draft)
+        draft = initialDraft
+        flowStack.push(overviewComponent, {
+                             flow: root,
+                             stackView: flowStack,
+                             draft: root._cloneDraft(initialDraft)
+                         })
+    }
 
     Component {
         id: overviewComponent
@@ -62,14 +68,19 @@ Item {
 
     function saveAndExit(finalDraft) {
         draft = _cloneDraft(finalDraft)
-        if (repository)
-            repository.addPowerup(draft)
+        if (repository) {
+            if (mode === "edit" && draft.id !== undefined && draft.id >= 0)
+                repository.updatePowerup(draft.id, draft)
+            else
+                repository.addPowerup(draft)
+        }
         finished()
     }
 
     function _cloneDraft(source) {
         const reference = source || {}
         const clone = {
+            id: reference.id !== undefined ? reference.id : -1,
             typeKey: reference.typeKey,
             typeLabel: reference.typeLabel,
             targetKey: reference.targetKey,

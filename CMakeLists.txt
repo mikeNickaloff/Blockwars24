@@ -26,10 +26,24 @@ qt_add_qml_module(appBlockwars24
         PowerupEditor/CreatePowerupBlockStep.qml
         PowerupEditor/PowerupLibraryPage.qml
         PowerupEditor/PowerupLibraryView.qml
+        Shared/DefaultPowerupRepository.qml
         Shared/PowerupDataStore.qml
         Shared/PowerupEnergyModel.qml
         Shared/PowerupRepository.qml
         Shared/PlaceholderPage.qml
+        SinglePlayer/PlayerPowerupLoadoutStore.qml
+        SinglePlayer/SinglePlayerSelectPowerupsScene.qml
+        SinglePlayer/SinglePlayerMatchScene.qml
+        SinglePlayer/components/SelectPowerupSlot.qml
+        SinglePlayer/components/ReadyForMatchButton.qml
+        SinglePlayer/components/PowerupSelectionModal.qml
+        SinglePlayer/components/MatchDashboard.qml
+        SinglePlayer/components/MatchMomentumBar.qml
+        SinglePlayer/components/MatchGridView.qml
+        SinglePlayer/components/PowerupColumn.qml
+        SinglePlayer/components/PowerupChargeMeter.qml
+        SinglePlayer/controllers/CpuPlayerController.qml
+        SinglePlayer/controllers/HumanPlayerController.qml
     RESOURCES
         resources.qrc
         AGENTS.md

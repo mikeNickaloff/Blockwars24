@@ -28,9 +28,8 @@ ApplicationWindow {
     Component {
         id: mainMenuComponent
         MainMenuPage {
-            onSinglePlayerRequested: stackView.push(placeholderComponent, {
-                                                title: qsTr("Single Player"),
-                                                message: qsTr("Single player mode is under construction."),
+            onSinglePlayerRequested: stackView.push(singlePlayerSelectComponent, {
+                                                powerupRepository: powerupRepository,
                                                 stackView: stackView
                                             })
             onMultiplayerRequested: stackView.push(placeholderComponent, {
@@ -54,6 +53,25 @@ ApplicationWindow {
     Component {
         id: powerupEditorComponent
         PowerupEditorScene {}
+    }
+
+    Component {
+        id: singlePlayerSelectComponent
+        SinglePlayerSelectPowerupsScene {
+            onBackRequested: stackView.pop()
+            onSelectionConfirmed: function(selection) {
+                stackView.push(singlePlayerMatchComponent, {
+                                    playerLoadout: selection
+                                })
+            }
+        }
+    }
+
+    Component {
+        id: singlePlayerMatchComponent
+        SinglePlayerMatchScene {
+            onExitRequested: stackView.pop()
+        }
     }
 
     Component {

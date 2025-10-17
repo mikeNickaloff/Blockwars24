@@ -7,6 +7,7 @@ Item {
     id: root
 
     property PowerupRepository repository
+    signal editRequested(var entry)
 
     anchors.fill: parent
 
@@ -85,6 +86,13 @@ Item {
                         font.bold: true
                         horizontalAlignment: Text.AlignHCenter
                     }
+                }
+
+                Button {
+                    text: qsTr("Edit")
+                    Layout.alignment: Qt.AlignVCenter
+                    padding: 10
+                    onClicked: root.editRequested(modelData)
                 }
             }
         }

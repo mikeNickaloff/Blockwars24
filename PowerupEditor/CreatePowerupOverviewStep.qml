@@ -195,6 +195,7 @@ Item {
         const target = targetOptions[targetCombo.currentIndex]
         const color = colorOptions[colorCombo.currentIndex]
         const updated = {
+            id: draft && draft.id !== undefined ? draft.id : -1,
             typeKey: type.key,
             typeLabel: type.label,
             targetKey: target.key,

@@ -1,0 +1,102 @@
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+
+Item {
+    id: dashboard
+
+    required property int dashboardIndex
+    property var loadout: []
+    property int blockSeed: -1
+    property bool observing: false
+
+    signal powerupDataLoaded(int dashboardIndex)
+    signal seedConfirmed(int dashboardIndex, int seed)
+
+    function applyPowerupLoadout(entries) {
+        loadout = Array.isArray(entries) ? entries : []
+        powerupColumn.model = loadout
+        Qt.callLater(function() {
+            dashboard.powerupDataLoaded(dashboard.dashboardIndex)
+        })
+    }
+
+    function setBlockSeed(seedValue) {
+        blockSeed = Number(seedValue)
+        Qt.callLater(function() {
+            dashboard.seedConfirmed(dashboard.dashboardIndex, blockSeed)
+        })
+    }
+
+    function beginTurn() {
+        statusLabel.text = qsTr("Active")
+        observing = false
+    }
+
+    function observeTurn() {
+        statusLabel.text = qsTr("Observing")
+        observing = true
+    }
+
+    implicitHeight: 360
+
+    Rectangle {
+        anchors.fill: parent
+        radius: 16
+        color: dashboardIndex === 0 ? "#111b2e" : "#0b162a"
+        border.color: "#1e293b"
+        border.width: 1
+    }
+
+    ColumnLayout {
+        anchors.fill: parent
+        anchors.margins: 20
+        spacing: 16
+
+        MatchMomentumBar {
+            Layout.fillWidth: true
+            Layout.preferredHeight: 18
+            orientation: dashboardIndex === 0 ? Qt.TopEdge : Qt.BottomEdge
+        }
+
+        RowLayout {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            spacing: 24
+
+            MatchGridView {
+                id: matchGrid
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                Layout.preferredWidth: parent.width * 0.8
+            }
+
+            PowerupColumn {
+                id: powerupColumn
+                Layout.preferredWidth: Math.max(220, parent.width * 0.18)
+                Layout.fillHeight: true
+                model: loadout
+            }
+        }
+
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 12
+
+            Label {
+                id: statusLabel
+                text: qsTr("Waiting")
+                color: "#f8fafc"
+                font.pixelSize: 14
+            }
+
+            Item { Layout.fillWidth: true }
+
+            Label {
+                text: qsTr("Seed: %1").arg(blockSeed >= 0 ? blockSeed : "--")
+                color: "#94a3b8"
+                font.pixelSize: 12
+            }
+        }
+    }
+}

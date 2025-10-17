@@ -174,7 +174,17 @@ Item {
         id: createFlowComponent
         CreatePowerupFlow {
             repository: root.repository
+            mode: "create"
             onFinished: root._returnToMenu()
+        }
+    }
+
+    Component {
+        id: editFlowComponent
+        CreatePowerupFlow {
+            repository: root.repository
+            mode: "edit"
+            onFinished: root._completeEdit()
         }
     }
 
@@ -183,6 +193,9 @@ Item {
         PowerupLibraryPage {
             repository: root.repository
             onFinished: root._returnToMenu()
+            onEditRequested: function(entry) {
+                root._openEditor(entry)
+            }
         }
     }
 
@@ -207,5 +220,22 @@ Item {
         if (!stackView)
             return
         stackView.pop()
+    }
+
+    function _openEditor(entry) {
+        if (!stackView)
+            return
+        const existingId = entry && entry.id !== undefined ? entry.id : -1
+        const hydrated = existingId >= 0 && repository && repository.entryForId ? repository.entryForId(existingId) : entry
+        stackView.push(editFlowComponent, {
+                           existingEntry: hydrated
+                       })
+    }
+
+    function _completeEdit() {
+        if (repository && repository.reload)
+            repository.reload()
+        if (stackView)
+            stackView.pop(root)
     }
 }

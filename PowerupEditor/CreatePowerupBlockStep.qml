@@ -250,6 +250,7 @@ Item {
 
     function _finish() {
         const payload = {
+            id: draft && draft.id !== undefined ? draft.id : -1,
             typeKey: draft.typeKey,
             typeLabel: draft.typeLabel,
             targetKey: draft.targetKey,

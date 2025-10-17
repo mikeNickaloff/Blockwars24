@@ -53,6 +53,28 @@ QtObject {
         return entry
     }
 
+    function updatePowerup(identifier, specification) {
+        const index = _indexForId(identifier)
+        if (index < 0)
+            return false
+        const current = powerupModel.get(index)
+        const merged = Object.assign({ id: identifier }, specification || {}, { id: identifier })
+        const entry = _normalizeEntry(merged)
+        entry.id = identifier
+        powerupModel.set(index, entry)
+        entries = _collectEntries()
+        _persist()
+        entriesChanged()
+        return true
+    }
+
+    function entryForId(identifier) {
+        const index = _indexForId(identifier)
+        if (index < 0)
+            return null
+        return powerupModel.get(index)
+    }
+
     function _collectEntries() {
         const list = []
         for (let i = 0; i < powerupModel.count; ++i)
@@ -138,5 +160,17 @@ QtObject {
             players: { key: "players", label: qsTr("Player Health") }
         }
         return map[key] || map.blocks
+    }
+
+    function _indexForId(identifier) {
+        const targetId = Number(identifier)
+        if (isNaN(targetId))
+            return -1
+        for (let i = 0; i < powerupModel.count; ++i) {
+            const candidate = powerupModel.get(i)
+            if (candidate && Number(candidate.id) === targetId)
+                return i
+        }
+        return -1
     }
 }

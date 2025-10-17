@@ -7,6 +7,7 @@ Item {
     id: root
 
     property alias repository: libraryView.repository
+    property var onEditRequested
     signal finished()
 
     anchors.fill: parent
@@ -45,6 +46,10 @@ Item {
             id: libraryView
             Layout.fillWidth: true
             Layout.fillHeight: true
+            onEditRequested: function(entry) {
+                if (typeof root.onEditRequested === "function")
+                    root.onEditRequested(entry)
+            }
         }
     }
 }
