@@ -13,6 +13,8 @@ Item {
 
     signal powerupDataLoaded(int dashboardIndex)
     signal seedConfirmed(int dashboardIndex, int seed)
+    signal cascadeComplete(int dashboardIndex)
+    signal turnCompleted(int dashboardIndex)
 
     function applyPowerupLoadout(entries) {
         loadout = Array.isArray(entries) ? entries : []
@@ -72,6 +74,8 @@ Item {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 Layout.preferredWidth: 1
+                onCascadeEnded: dashboard.cascadeComplete(dashboard.dashboardIndex)
+                onTurnEnded: dashboard.turnCompleted(dashboard.dashboardIndex)
             }
 
             PowerupColumn {

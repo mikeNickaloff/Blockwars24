@@ -12,8 +12,13 @@ Item {
     property var gridMatrix: []
     property var matchList: []
     property int activeLaunches: 0
+    property int maxSwaps: 3
+    property int swapsRemaining: 0
+    property bool activeTurn: false
 
     signal cascadeEnded()
+    signal swapPerformed(bool success, int row1, int column1, int row2, int column2)
+    signal turnEnded()
 
     implicitWidth: 420
     implicitHeight: 420
@@ -71,11 +76,38 @@ Item {
     }
 
     function beginTurn() {
+        activeTurn = true
+        swapsRemaining = maxSwaps
         beginFilling()
     }
 
     function observeTurn() {
-        // observer mode currently passive; placeholder for future behavior
+        activeTurn = false
+        swapsRemaining = 0
+    }
+
+    function requestSwap(row1, column1, row2, column2) {
+        if (!activeTurn || swapsRemaining <= 0)
+            return false
+        if (gridState !== "match" || _hasActiveAnimations())
+            return false
+        if (!_adjacentCells(row1, column1, row2, column2))
+            return false
+        const first = _blockAt(row1, column1)
+        const second = _blockAt(row2, column2)
+        if (!first || !second)
+            return false
+        _swapBlocks(row1, column1, row2, column2, false)
+        const matches = _detectMatches()
+        if (!matches.length) {
+            _swapBlocks(row1, column1, row2, column2, false)
+            swapPerformed(false, row1, column1, row2, column2)
+            return false
+        }
+        swapPerformed(true, row1, column1, row2, column2)
+        _consumeSwap()
+        _processMatches(matches)
+        return true
     }
 
     function beginFilling() {
@@ -242,15 +274,7 @@ Item {
             return
         }
         const matches = _detectMatches()
-        if (matches.length > 0) {
-            matchList = matches
-            gridState = "launch"
-            _launchMatches()
-        } else {
-            gridState = "idle"
-            matchList = []
-            cascadeEnded()
-        }
+        _processMatches(matches)
     }
 
     function _detectMatches() {
@@ -323,6 +347,19 @@ Item {
         }
     }
 
+    function _processMatches(matches) {
+        if (matches && matches.length > 0) {
+            matchList = matches
+            gridState = "launch"
+            _launchMatches()
+        } else {
+            gridState = "idle"
+            matchList = []
+            cascadeEnded()
+            _onCascadeComplete()
+        }
+    }
+
     function _handleLaunchComplete(block) {
         const row = block.row
         const column = block.column
@@ -346,5 +383,119 @@ Item {
             }
         }
         return false
+    }
+
+    function _adjacentCells(r1, c1, r2, c2) {
+        return Math.abs(r1 - r2) + Math.abs(c1 - c2) === 1
+    }
+
+    function _blockAt(row, column) {
+        if (row < 0 || row >= rowCount || column < 0 || column >= columnCount)
+            return null
+        return gridMatrix[row][column]
+    }
+
+    function _swapBlocks(row1, column1, row2, column2, animate) {
+        const first = gridMatrix[row1][column1]
+        const second = gridMatrix[row2][column2]
+        gridMatrix[row1][column1] = second
+        gridMatrix[row2][column2] = first
+        if (first)
+            _positionBlock(first, row2, column2, animate)
+        if (second)
+            _positionBlock(second, row1, column1, animate)
+    }
+
+    function _consumeSwap() {
+        if (swapsRemaining > 0)
+            swapsRemaining -= 1
+    }
+
+    function _onCascadeComplete() {
+        if (!activeTurn)
+            return
+        if (swapsRemaining <= 0) {
+            activeTurn = false
+            turnEnded()
+        }
+    }
+
+    function evaluateSwapPotential(row1, column1, row2, column2) {
+        if (!_adjacentCells(row1, column1, row2, column2))
+            return 0
+        const matrix = _colorMatrix()
+        const temp = matrix[row1][column1]
+        matrix[row1][column1] = matrix[row2][column2]
+        matrix[row2][column2] = temp
+        return _countMatchesInMatrix(matrix)
+    }
+
+    function endTurnEarly() {
+        if (!activeTurn)
+            return
+        swapsRemaining = 0
+        _onCascadeComplete()
+    }
+
+    function _colorMatrix() {
+        const matrix = []
+        for (let r = 0; r < rowCount; ++r) {
+            const row = []
+            for (let c = 0; c < columnCount; ++c) {
+                const block = gridMatrix[r][c]
+                row.push(block ? block.colorKey : "")
+            }
+            matrix.push(row)
+        }
+        return matrix
+    }
+
+    function _countMatchesInMatrix(matrix) {
+        const seen = {}
+        // Horizontal
+        for (let r = 0; r < rowCount; ++r) {
+            let run = []
+            let lastKey = null
+            for (let c = 0; c < columnCount; ++c) {
+                const key = matrix[r][c]
+                if (key && key === lastKey)
+                    run.push({ row: r, column: c })
+                else {
+                    if (run.length >= 3)
+                        _recordMatch(run, seen)
+                    run = key ? [{ row: r, column: c }] : []
+                    lastKey = key
+                }
+            }
+            if (run.length >= 3)
+                _recordMatch(run, seen)
+        }
+        // Vertical
+        for (let c = 0; c < columnCount; ++c) {
+            let run = []
+            let lastKey = null
+            for (let r = 0; r < rowCount; ++r) {
+                const key = matrix[r][c]
+                if (key && key === lastKey)
+                    run.push({ row: r, column: c })
+                else {
+                    if (run.length >= 3)
+                        _recordMatch(run, seen)
+                    run = key ? [{ row: r, column: c }] : []
+                    lastKey = key
+                }
+            }
+            if (run.length >= 3)
+                _recordMatch(run, seen)
+        }
+        return Object.keys(seen).length
+    }
+
+    function _recordMatch(run, store) {
+        for (let i = 0; i < run.length; ++i) {
+            const coord = run[i]
+            const key = coord.row + ":" + coord.column
+            store[key] = true
+        }
     }
 }

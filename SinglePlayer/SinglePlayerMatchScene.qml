@@ -13,6 +13,9 @@ GameScene {
     property var cpuLoadout: []
     property bool matchActive: false
     property int activeDashboardIndex: -1
+    property var awaitingCascade: [false, false]
+    property bool cpuThinking: false
+    property bool humanCanSwap: false
 
     signal exitRequested()
 
@@ -79,6 +82,8 @@ GameScene {
                 dashboardIndex: 0
                 onPowerupDataLoaded: function(idx) { scene._markPowerupLoaded(idx) }
                 onSeedConfirmed: function(idx, seed) { scene._markSeedConfirmed(idx) }
+                onCascadeComplete: function(idx) { scene._handleCascadeComplete(idx) }
+                onTurnCompleted: function(idx) { scene._handleTurnCompleted(idx) }
             }
 
             MatchDashboard {
@@ -88,6 +93,8 @@ GameScene {
                 dashboardIndex: 1
                 onPowerupDataLoaded: function(idx) { scene._markPowerupLoaded(idx) }
                 onSeedConfirmed: function(idx, seed) { scene._markSeedConfirmed(idx) }
+                onCascadeComplete: function(idx) { scene._handleCascadeComplete(idx) }
+                onTurnCompleted: function(idx) { scene._handleTurnCompleted(idx) }
             }
         }
 
@@ -111,6 +118,9 @@ GameScene {
         powerupsLoaded1 = false
         seedConfirmed0 = false
         seedConfirmed1 = false
+        awaitingCascade = [false, false]
+        cpuThinking = false
+        humanCanSwap = false
         cpuController.prepareLoadout()
         _prepareHumanLoadout()
     }
@@ -171,13 +181,71 @@ GameScene {
             }
             activeDashboardIndex = initiativeResults["0"] > initiativeResults["1"] ? 0 : 1
             waitingBanner.visible = false
-            if (activeDashboardIndex === 0) {
-                cpuDashboard.beginTurn()
-                humanDashboard.observeTurn()
-            } else {
-                humanDashboard.beginTurn()
-                cpuDashboard.observeTurn()
-            }
+            _startTurnFor(activeDashboardIndex)
         }
     }
+
+    function _startTurnFor(index) {
+        activeDashboardIndex = index
+        awaitingCascade = [false, false]
+        awaitingCascade[index] = true
+        if (index === 0) {
+            cpuThinking = false
+            humanCanSwap = false
+            cpuDashboard.beginTurn()
+            humanDashboard.observeTurn()
+        } else {
+            humanCanSwap = false
+            cpuDashboard.observeTurn()
+            humanDashboard.beginTurn()
+        }
+    }
+
+    function _handleCascadeComplete(index) {
+        if (index !== activeDashboardIndex)
+            return
+        if (awaitingCascade[index]) {
+            awaitingCascade[index] = false
+            _notifyTurnReady(index)
+            return
+        }
+        if (index === 0) {
+            const grid = cpuDashboard.gridElement
+            if (grid.activeTurn && grid.swapsRemaining > 0)
+                _triggerCpuMove()
+        }
+    }
+
+    function _handleTurnCompleted(index) {
+        if (index !== activeDashboardIndex)
+            return
+        const nextIndex = index === 0 ? 1 : 0
+        _startTurnFor(nextIndex)
+    }
+
+    function _notifyTurnReady(index) {
+        if (index === 0)
+            _triggerCpuMove()
+        else
+            humanCanSwap = true
+    }
+
+    function _triggerCpuMove() {
+        if (cpuThinking)
+            return
+        const grid = cpuDashboard.gridElement
+        if (!grid.activeTurn || grid.swapsRemaining <= 0 || grid.gridState !== "match")
+            return
+        const move = cpuController.selectBestSwap(grid)
+        if (!move) {
+            grid.endTurnEarly()
+            return
+        }
+        cpuThinking = true
+        const success = grid.requestSwap(move.row1, move.column1, move.row2, move.column2)
+        cpuThinking = false
+        if (!success)
+            grid.endTurnEarly()
+    }
+
 }

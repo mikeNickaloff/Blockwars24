@@ -105,12 +105,12 @@ C++ style abstraction OOP only when coding with QML.
 - ✔️ TODO [Step 38]: Implement compactTimer to compress columns one cell at a time toward the defender, respecting orientation and animation guards.
 - ✔️ TODO [Step 39]: Create matchTimer to search for horizontal and vertical runs, populate matchList, and emit cascadeEnded when no matches remain.
 - ✔️ TODO [Step 40]: Build launchTimer to iterate over matchList, trigger block.launch(), track launchCount, and revert to compact once all launches finish.
-- TODO [Step 41]: Execute swapBlocks only when the grid is in the match state with no animations, dropping immediately back into match processing on success.
-- TODO [Step 42]: When matches exhaust and swaps run out, emit turnEnded for the active dashboard and freeze cascading until the opponent finishes.
-- TODO [Step 43]: Upon receiving turnEnded, enable cascading on the opposing grid, reset swaps, and process fill/compact loops until stable.
-- TODO [Step 44]: After the opponent's first cascade, re-enable swapping and inform the corresponding controller to choose a move.
-- TODO [Step 45]: Have CpuPlayerController evaluate serialized grid snapshots, score all legal swaps, emit requestSwap, and wait for cascades before continuing.
-- TODO [Step 46]: Decrement CPU swaps after each cascade and emit turnComplete when no swaps remain or no legal moves exist.
+- ✔️ TODO [Step 41]: Execute swapBlocks only when the grid is in the match state with no animations, dropping immediately back into match processing on success.
+- ✔️ TODO [Step 42]: When matches exhaust and swaps run out, emit turnEnded for the active dashboard and freeze cascading until the opponent finishes.
+- ✔️ TODO [Step 43]: Upon receiving turnEnded, enable cascading on the opposing grid, reset swaps, and process fill/compact loops until stable.
+- ✔️ TODO [Step 44]: After the opponent's first cascade, re-enable swapping and inform the corresponding controller to choose a move.
+- ✔️ TODO [Step 45]: Have CpuPlayerController evaluate serialized grid snapshots, score all legal swaps, emit requestSwap, and wait for cascades before continuing.
+- ✔️ TODO [Step 46]: Decrement CPU swaps after each cascade and emit turnComplete when no swaps remain or no legal moves exist.
 - TODO [Step 81]: Allow charged powerup cards to be dragged onto friendly grid cells only when swaps remain and no cascades are underway.
 - TODO [Step 82]: Replace the targeted two horizontal blocks with the deployed powerup entity and exclude those cells from match logic.
 - TODO [Step 83]: Enforce one deployment per card while permitting sequential activations as long as cascades are idle and swaps remain.
