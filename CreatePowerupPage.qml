@@ -235,7 +235,7 @@ Item {
                         PowerupBlockSelectionGrid {
                             id: blockSelector
                             Layout.alignment: Qt.AlignHCenter
-                            selectionUpdated: function(cells) {
+                            onSelectionUpdate: function(cells) {
                                 root._applySelectedBlocks(cells)
                             }
                         }

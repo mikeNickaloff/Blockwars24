@@ -59,6 +59,8 @@ qt_add_qml_module(appBlockwars24
         QML_FILES PowerupEditorMainPage.qml PowerupEditorScene.qml PowerupCollectionController.qml DefaultPowerupRepository.qml
         QML_FILES AdjustPowerValuePage.qml
         QML_FILES MessageArea.qml
+        QML_FILES PowerupBlockSelectionGrid.qml PowerupDataStore.qml
+        QML_FILES PowerupBlockSelectionGrid.qml
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.

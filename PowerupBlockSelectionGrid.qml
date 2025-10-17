@@ -16,7 +16,7 @@ Item {
 
     readonly property int cellCount: rows * columns
 
-    signal selectionUpdated(var cells)
+    signal selectionUpdate(var cells)
 
     implicitWidth: gridLayout.implicitWidth
     implicitHeight: gridLayout.implicitHeight
@@ -112,7 +112,7 @@ Item {
         _selectionLookup = lookup
         selectedCells = normalized
         if (emitSignal && changed)
-            selectionUpdated(selectedCells)
+            selectionUpdate(selectedCells)
         gridLayout.forceLayout()
     }
 

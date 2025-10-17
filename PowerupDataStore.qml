@@ -6,7 +6,7 @@ Item {
 
     property string table: ""
     property string databaseName: "BlockwarsPowerups"
-    property int databaseVersion: 1
+    property string databaseVersion: "1.0"
     property string databaseDescription: "Blockwars powerup persistence"
     property int databaseEstimatedSize: 1024 * 1024
 
