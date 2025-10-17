@@ -5,21 +5,18 @@ import "./"
 QtObject {
     id: repository
 
-    property alias model: powerupModel
+    property alias model: _powerupModel
     property string scope: "editor_custom_powerups"
     property var entries: []
 
-    PowerupDataStore {
-        id: persistence
+    property var persistence: PowerupDataStore {
         scope: repository.scope
     }
 
-    PowerupEnergyModel {
-        id: energyModel
-    }
+    property var energyModel: PowerupEnergyModel {}
 
     ListModel {
-        id: powerupModel
+        id: _powerupModel
     }
 
     Component.onCompleted: reload()
@@ -28,22 +25,22 @@ QtObject {
     function reload() {
         const loaded = persistence.loadAll()
         const normalized = []
-        powerupModel.clear()
+        _powerupModel.clear()
         let nextId = 0
         for (let i = 0; i < loaded.length; ++i) {
             const entry = _normalizeEntry(loaded[i])
             entry.id = nextId
             nextId += 1
             normalized.push(entry)
-            powerupModel.append(entry)
+            _powerupModel.append(entry)
         }
         entries = normalized
     }
 
     function addPowerup(specification) {
         const entry = _normalizeEntry(specification)
-        entry.id = powerupModel.count
-        powerupModel.append(entry)
+        entry.id = _powerupModel.count
+        _powerupModel.append(entry)
         entries = _collectEntries()
         _persist()
         return entry
@@ -53,11 +50,11 @@ QtObject {
         const index = _indexForId(identifier)
         if (index < 0)
             return false
-        const current = powerupModel.get(index)
+        const current = _powerupModel.get(index)
         const merged = Object.assign({ id: identifier }, specification || {}, { id: identifier })
         const entry = _normalizeEntry(merged)
         entry.id = identifier
-        powerupModel.set(index, entry)
+        _powerupModel.set(index, entry)
         entries = _collectEntries()
         _persist()
         return true
@@ -67,13 +64,13 @@ QtObject {
         const index = _indexForId(identifier)
         if (index < 0)
             return null
-        return powerupModel.get(index)
+        return _powerupModel.get(index)
     }
 
     function _collectEntries() {
         const list = []
-        for (let i = 0; i < powerupModel.count; ++i)
-            list.push(_normalizeEntry(powerupModel.get(i)))
+        for (let i = 0; i < _powerupModel.count; ++i)
+            list.push(_normalizeEntry(_powerupModel.get(i)))
         return list
     }
 
@@ -161,8 +158,8 @@ QtObject {
         const targetId = Number(identifier)
         if (isNaN(targetId))
             return -1
-        for (let i = 0; i < powerupModel.count; ++i) {
-            const candidate = powerupModel.get(i)
+        for (let i = 0; i < _powerupModel.count; ++i) {
+            const candidate = _powerupModel.get(i)
             if (candidate && Number(candidate.id) === targetId)
                 return i
         }
