@@ -63,7 +63,7 @@ C++ style abstraction OOP only when coding with QML.
 # TO DO
 
 - Edit Powerup Area doesn't properly load the powerup data from QtQuick.LocalStorage based store
-- Address this error when clicking Single Player in the Powerup Selection scene.
+- ✔️ Address this error when clicking Single Player in the Powerup Selection scene.
      qrc:/qt/qml/Blockwars24/SinglePlayerSelectPowerupsScene.qml:78:23: QML Component: Cannot create delegate
      qrc:/qt/qml/Blockwars24/SinglePlayerSelectPowerupsScene.qml:80:17: Required property payload was not initialized
      qrc:/qt/qml/Blockwars24/SinglePlayerSelectPowerupsScene.qml:78:23: QML Component: Cannot create delegate
