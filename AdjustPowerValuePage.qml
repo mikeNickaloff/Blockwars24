@@ -25,15 +25,22 @@ Item {
         spacing: 24
 
         Label {
-            text: configuration.targetKey === "heroes" ? qsTr("Adjust Hero Power") : qsTr("Adjust Player Power")
+            text: configuration.targetKey === "heroes"
+                  ? qsTr("Adjust Hero Power")
+                  : (configuration.targetKey === "blocks"
+                     ? qsTr("Adjust Block Power")
+                     : qsTr("Adjust Player Power"))
             font.pixelSize: 32
             font.bold: true
             color: "#e2e8f0"
         }
 
         Label {
-            text: qsTr("Use the slider to set the amount of HP to %1 when this powerup activates.")
-                    .arg(configuration.typeKey === "self" ? qsTr("restore") : qsTr("remove"))
+            text: configuration.targetKey === "blocks"
+                  ? qsTr("Use the slider to set how much HP to %1 each selected block when this powerup activates.")
+                        .arg(configuration.typeKey === "self" ? qsTr("restore to") : qsTr("remove from"))
+                  : qsTr("Use the slider to set the amount of HP to %1 when this powerup activates.")
+                        .arg(configuration.typeKey === "self" ? qsTr("restore") : qsTr("remove"))
             wrapMode: Text.WordWrap
             color: "#cbd5f5"
             Layout.fillWidth: true
@@ -60,6 +67,13 @@ Item {
                 Layout.fillWidth: true
             }
 
+            Label {
+                visible: configuration.targetKey === "blocks"
+                text: qsTr("Blocks targeted: %1").arg(configuration.blocks && configuration.blocks.length ? configuration.blocks.length : 0)
+                color: "#94a3b8"
+                font.pixelSize: 12
+            }
+
             Button {
                 text: root.editMode ? qsTr("Save") : qsTr("Finish")
                 Layout.alignment: Qt.AlignHCenter
@@ -78,6 +92,8 @@ Item {
             return
         }
 
+        const blockSelection = cloneBlocks(configuration.blocks)
+
         var payload = {
             typeKey: configuration.typeKey,
             typeLabel: configuration.typeLabel,
@@ -88,8 +104,8 @@ Item {
             colorHex: configuration.colorHex,
             hp: Math.round(amountSlider.value),
             energy: configuration.energy !== undefined ? configuration.energy : 0,
-            blockCount: configuration.blockCount !== undefined ? configuration.blockCount : 0,
-            blocks: configuration.blocks && configuration.blocks.length ? configuration.blocks.slice() : []
+            blockCount: blockSelection.length,
+            blocks: blockSelection
         }
 
         if (root.editMode && root.existingId >= 0)
@@ -105,5 +121,25 @@ Item {
         if (isNaN(number))
             number = minValue
         return Math.max(minValue, Math.min(maxValue, number))
+    }
+
+    function cloneBlocks(blocks) {
+        var sanitized = []
+        if (!Array.isArray(blocks))
+            return sanitized
+        var seen = {}
+        for (var i = 0; i < blocks.length; ++i) {
+            var cell = blocks[i]
+            if (!cell)
+                continue
+            var row = Math.max(0, Math.min(5, Number(cell.row)))
+            var column = Math.max(0, Math.min(5, Number(cell.column)))
+            var key = row + ":" + column
+            if (seen[key])
+                continue
+            seen[key] = true
+            sanitized.push({ row: row, column: column })
+        }
+        return sanitized
     }
 }

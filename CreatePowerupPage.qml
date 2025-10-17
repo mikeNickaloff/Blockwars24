@@ -16,7 +16,8 @@ Item {
     property var selectedType: ({})
     property var selectedTarget: ({})
     property var selectedColor: ({})
-    property int selectedBlockCount: 0
+    property var selectedBlocks: []
+    readonly property int selectedBlockCount: selectedBlocks ? selectedBlocks.length : 0
     property int selectedEnergy: 12
 
     readonly property var typeOptions: [
@@ -61,12 +62,10 @@ Item {
     ]
 
     readonly property var colorOptions: [
-        { key: "red", label: qsTr("Ruby"), hex: "#f87171" },
-        { key: "blue", label: qsTr("Sapphire"), hex: "#60a5fa" },
-        { key: "green", label: qsTr("Emerald"), hex: "#34d399" },
-        { key: "yellow", label: qsTr("Topaz"), hex: "#facc15" },
-        { key: "purple", label: qsTr("Amethyst"), hex: "#a855f7" },
-        { key: "orange", label: qsTr("Amber"), hex: "#fb923c" }
+        { key: "red", label: qsTr("Red"), hex: "#ef4444" },
+        { key: "blue", label: qsTr("Blue"), hex: "#3b82f6" },
+        { key: "green", label: qsTr("Green"), hex: "#22c55e" },
+        { key: "yellow", label: qsTr("Yellow"), hex: "#facc15" }
     ]
 
     anchors.fill: parent
@@ -220,30 +219,31 @@ Item {
                         }
                     }
 
-                    Item {
+                    ColumnLayout {
                         Layout.fillWidth: true
                         visible: root.selectedTarget.key === "blocks"
-                        ColumnLayout {
+                        spacing: 12
+
+                        Label {
+                            text: qsTr("Choose the exact blocks affected when this powerup fires.")
+                            wrapMode: Text.WordWrap
+                            color: "#cbd5f5"
+                            font.pixelSize: 12
                             Layout.fillWidth: true
-                            spacing: 8
-                            Label {
-                                text: qsTr("Blocks Affected: %1").arg(root.selectedBlockCount)
-                                color: "#f8fafc"
-                                font.pixelSize: 14
+                        }
+
+                        PowerupBlockSelectionGrid {
+                            id: blockSelector
+                            Layout.alignment: Qt.AlignHCenter
+                            selectionUpdated: function(cells) {
+                                root._applySelectedBlocks(cells)
                             }
-                            Slider {
-                                id: blockCountSlider
-                                from: 0
-                                to: 8
-                                stepSize: 1
-                                value: root.selectedBlockCount
-                                Layout.fillWidth: true
-                                onValueChanged: {
-                                    const rounded = Math.round(value)
-                                    if (root.selectedBlockCount !== rounded)
-                                        root.selectedBlockCount = rounded
-                                }
-                            }
+                        }
+
+                        Label {
+                            text: qsTr("Blocks Selected: %1").arg(root.selectedBlockCount)
+                            color: "#f8fafc"
+                            font.pixelSize: 14
                         }
                     }
                 }
@@ -408,10 +408,7 @@ Item {
         const energyMaximum = (typeof energySlider !== "undefined") ? energySlider.to : 60
         const initialEnergy = existingData.energy !== undefined ? Math.round(existingData.energy) : 12
         selectedEnergy = _clamp(initialEnergy, energyMinimum, energyMaximum)
-        const blockMinimum = (typeof blockCountSlider !== "undefined") ? blockCountSlider.from : 0
-        const blockMaximum = (typeof blockCountSlider !== "undefined") ? blockCountSlider.to : 8
-        const initialBlockCount = existingData.blockCount !== undefined ? existingData.blockCount : 0
-        selectedBlockCount = _clamp(initialBlockCount, blockMinimum, blockMaximum)
+        _applySelectedBlocks(existingData && existingData.blocks ? existingData.blocks : [])
     }
 
     function _cloneOption(option) {
@@ -437,11 +434,47 @@ Item {
     function _setTarget(option) {
         selectedTarget = _cloneOption(option)
         if (selectedTarget.key !== "blocks")
-            selectedBlockCount = 0
+            _applySelectedBlocks([])
+        else if ((!selectedBlocks || selectedBlocks.length === 0) && existingData && existingData.blocks)
+            _applySelectedBlocks(existingData.blocks)
     }
 
     function _setColor(option) {
         selectedColor = _cloneOption(option)
+    }
+
+    function _applySelectedBlocks(blocks) {
+        const sanitized = _sanitizeBlocks(blocks)
+        selectedBlocks = sanitized
+        if (typeof blockSelector !== "undefined" && blockSelector)
+            blockSelector.setSelectedCells(sanitized)
+    }
+
+    function _cloneBlocks(blocks) {
+        const sanitized = _sanitizeBlocks(blocks)
+        const copy = []
+        for (let i = 0; i < sanitized.length; ++i)
+            copy.push({ row: sanitized[i].row, column: sanitized[i].column })
+        return copy
+    }
+
+    function _sanitizeBlocks(blocks) {
+        const source = Array.isArray(blocks) ? blocks : []
+        const seen = {}
+        const sanitized = []
+        for (let i = 0; i < source.length; ++i) {
+            const block = source[i]
+            if (!block)
+                continue
+            const row = Math.max(0, Math.min(5, Number(block.row)))
+            const column = Math.max(0, Math.min(5, Number(block.column)))
+            const key = row + ":" + column
+            if (seen[key])
+                continue
+            seen[key] = true
+            sanitized.push({ row: row, column: column })
+        }
+        return sanitized
     }
 
     function _clamp(value, minimum, maximum) {
@@ -457,7 +490,11 @@ Item {
     }
 
     function _readyToContinue() {
-        return selectedType.key && selectedTarget.key && selectedColor.key
+        if (!selectedType.key || !selectedTarget.key || !selectedColor.key)
+            return false
+        if (selectedTarget.key === "blocks")
+            return selectedBlockCount > 0
+        return true
     }
 
     function _cancel() {
@@ -478,7 +515,7 @@ Item {
             colorHex: selectedColor.hex,
             blockCount: selectedBlockCount,
             energy: selectedEnergy,
-            blocks: existingData && existingData.blocks && existingData.blocks.length ? existingData.blocks.slice() : []
+            blocks: selectedBlocks && selectedBlocks.length ? _cloneBlocks(selectedBlocks) : []
         }
         stackView.push(adjustComponent, {
                             stackView: stackView,

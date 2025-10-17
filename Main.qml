@@ -22,9 +22,10 @@ ApplicationWindow {
     Component {
         id: mainMenuComponent
         MainMenup {
-            onSinglePlayerClicked: stackView.push(singlePlayerGameSceneComponent, {
-                stackView: stackView,
-                           })
+            onSinglePlayerClicked: stackView.push(singlePlayerSelectPowerupsComponent, {
+                                                     stackView: stackView,
+                                                     editorStore: powerupEditorStore
+                                                 })
             onMultiplayerClicked: stackView.push(multiplayerPlaceholderComponent)
             onPowerupEditorClicked: stackView.push(powerupEditorMainComponent, {
                                                    stackView: stackView,
