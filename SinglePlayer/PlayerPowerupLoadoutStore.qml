@@ -6,22 +6,21 @@ QtObject {
     id: store
 
     property int slotCount: 4
-    property alias model: loadoutModel
+    property alias model: store.loadoutModel
     readonly property bool ready: _computeReady()
 
     signal loadoutChanged()
 
-    PowerupDataStore {
-        id: persistence
+    property var persistence: PowerupDataStore {
         scope: "single_player_loadout"
     }
 
-    PowerupEnergyModel {
-        id: energyModel
+    property var energyModel: PowerupEnergyModel {
+
     }
 
-    ListModel {
-        id: loadoutModel
+    property var loadoutModel: ListModel {
+
     }
 
     Component.onCompleted: reload()

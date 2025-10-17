@@ -4,7 +4,7 @@ import QtQuick.Controls
 Item {
     id: bar
 
-    property enumeration orientation: Qt.TopEdge
+    property var orientation: Qt.TopEdge
     anchors.left: parent ? parent.left : undefined
     anchors.right: parent ? parent.right : undefined
     height: implicitHeight

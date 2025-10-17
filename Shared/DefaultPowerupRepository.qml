@@ -104,7 +104,7 @@ QtObject {
         return sanitized
     }
 
-    PowerupEnergyModel {
-        id: energyModel
+    property var energyModel: PowerupEnergyModel {
+
     }
 }

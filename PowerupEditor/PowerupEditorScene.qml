@@ -63,7 +63,7 @@ Item {
             delegate: ItemDelegate {
                 width: optionList.width
                 padding: 18
-                onClicked: root._handleAction(action)
+                onClicked: root._handleAction(delegate.action)
 
                 background: Rectangle {
                     radius: 14

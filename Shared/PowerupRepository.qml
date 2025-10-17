@@ -5,7 +5,7 @@ import "./"
 QtObject {
     id: repository
 
-    property alias model: _powerupModel
+    property alias model: repository._powerupModel
     property string scope: "editor_custom_powerups"
     property var entries: []
 
@@ -15,8 +15,8 @@ QtObject {
 
     property var energyModel: PowerupEnergyModel {}
 
-    ListModel {
-        id: _powerupModel
+    property var _powerupModel: ListModel {
+
     }
 
     Component.onCompleted: reload()
