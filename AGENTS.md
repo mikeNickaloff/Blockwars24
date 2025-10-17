@@ -62,12 +62,19 @@ C++ style abstraction OOP only when coding with QML.
 
 # TO DO
 
-- ✔️ Edit Powerup Area doesn't properly load the powerup data from the LocalStorage table where powerups are stored
-- ✔️ (unsure if the actual "Edit Powerup" section works because the buttons to edit powerup attributes doesn't work)
-- ✔️ Powerup Energy should not be a value that can be changed by the player, it should be determined based on how much HP damage / support it has and how many blocks it affects.
-- ✔️ Single Player cannot choose Powerups at the select Powerup page
-- ✔️ Need Dashboard, DashboardGridElement, DashboardlayerHealthHUD, and DeashboardPlayerPowerSidebar to all be properly tied into a single Dashboard, and two Dashboards be tied into a Single Player Game file for the battle.
-- ✔️ Need to implement the communication between Dashboards with all feature needed.
+- Edit Powerup Area doesn't properly load the powerup data from QtQuick.LocalStorage based store
+- Address this error when clicking Single Player in the Powerup Selection scene.
+     qrc:/qt/qml/Blockwars24/SinglePlayerSelectPowerupsScene.qml:78:23: QML Component: Cannot create delegate
+     qrc:/qt/qml/Blockwars24/SinglePlayerSelectPowerupsScene.qml:80:17: Required property payload was not initialized
+     qrc:/qt/qml/Blockwars24/SinglePlayerSelectPowerupsScene.qml:78:23: QML Component: Cannot create delegate
+     qrc:/qt/qml/Blockwars24/SinglePlayerSelectPowerupsScene.qml:80:17: Required property payload was not initialized
+     qrc:/qt/qml/Blockwars24/SinglePlayerSelectPowerupsScene.qml:78:23: QML Component: Cannot create delegate
+     qrc:/qt/qml/Blockwars24/SinglePlayerSelectPowerupsScene.qml:80:17: Required property payload was not initialized
+     qrc:/qt/qml/Blockwars24/SinglePlayerSelectPowerupsScene.qml:78:23: QML Component: Cannot create delegate
+     qrc:/qt/qml/Blockwars24/SinglePlayerSelectPowerupsScene.qml:80:17: Required property payload was not initialized
+
+
+
 
 
 
