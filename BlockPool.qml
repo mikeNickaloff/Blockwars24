@@ -4,12 +4,10 @@ Item {
     id: pool
 
     property var colorPalette: [
-        "#3b82f6",
         "#ef4444",
-        "#f97316",
+        "#3b82f6",
         "#22c55e",
-        "#a855f7",
-        "#eab308"
+        "#facc15"
     ]
 
     property int blockPoolIndex: 0

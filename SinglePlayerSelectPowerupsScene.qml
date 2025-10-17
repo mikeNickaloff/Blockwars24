@@ -8,6 +8,7 @@ GameScene {
     id: scene
 
     property var editorStore
+    property var stackView
     property int slotCount: 4
 
     signal backRequested
