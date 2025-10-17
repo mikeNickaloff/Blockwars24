@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import "."
 
 Item {
     id: root
@@ -12,11 +13,23 @@ Item {
     property int existingId: -1
     property int initialHp: 10
 
+    readonly property int blockSelectionCount: configuration && configuration.blocks ? configuration.blocks.length : 0
+    readonly property int computedEnergy: energyModel.estimateEnergy({
+                                    hp: Math.round(amountSlider.value),
+                                    blockCount: Math.max(1, blockSelectionCount),
+                                    typeKey: configuration.typeKey,
+                                    targetKey: configuration.targetKey
+                                })
+
     anchors.fill: parent
 
     Rectangle {
         anchors.fill: parent
         color: "#0f172a"
+    }
+
+    PowerupEnergyModel {
+        id: energyModel
     }
 
     ColumnLayout {
@@ -55,6 +68,11 @@ Item {
                 Label {
                     text: qsTr("HP Adjustment: %1").arg(Math.round(amountSlider.value))
                     color: "#f8fafc"
+                }
+                Label {
+                    text: qsTr("Energy: %1").arg(root.computedEnergy)
+                    color: "#38bdf8"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                 }
             }
 
@@ -103,7 +121,7 @@ Item {
             colorLabel: configuration.colorLabel,
             colorHex: configuration.colorHex,
             hp: Math.round(amountSlider.value),
-            energy: configuration.energy !== undefined ? configuration.energy : 0,
+            energy: computedEnergy,
             blockCount: blockSelection.length,
             blocks: blockSelection
         }

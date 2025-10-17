@@ -12,6 +12,16 @@ Item {
 
     anchors.fill: parent
 
+    Component.onCompleted: root._requestReload()
+    onPowerupRepositoryChanged: root._requestReload()
+
+    Connections {
+        target: powerupRepository
+        function onPowerupsChanged() {
+            powerupList.forceLayout()
+        }
+    }
+
     Rectangle {
         anchors.fill: parent
         color: "#0f172a"
@@ -135,11 +145,25 @@ Item {
                         Button {
                             text: qsTr("Edit Traits")
                             onClicked: root._openTraitsEditor(modelData ? modelData.id : -1, modelData)
+                            TapHandler {
+                                acceptedButtons: Qt.LeftButton
+                                gesturePolicy: TapHandler.ReleaseWithinBounds
+                                onTapped: function(event) {
+                                    event.accepted = true
+                                }
+                            }
                         }
 
                         Button {
                             text: qsTr("Adjust Power")
                             onClicked: root._openPowerAdjust(modelData ? modelData.id : -1, modelData)
+                            TapHandler {
+                                acceptedButtons: Qt.LeftButton
+                                gesturePolicy: TapHandler.ReleaseWithinBounds
+                                onTapped: function(event) {
+                                    event.accepted = true
+                                }
+                            }
                         }
                     }
                 }
@@ -234,6 +258,11 @@ Item {
             copy.blockCount = 0
         }
         return copy
+    }
+
+    function _requestReload() {
+        if (powerupRepository && powerupRepository.reload)
+            powerupRepository.reload()
     }
 
     function _resolveTitle(payload) {

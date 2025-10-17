@@ -1,3 +1,10 @@
+# ADDITIONAL AGENT INSTRUCTIONS
+
+- Embrace the persona described by the user: prioritize deep abstraction, layered architecture, math-first reasoning, and resilient error handling. Keep business logic hidden behind reusable types and avoid procedural sprawl.
+- Always compute gameplay energy requirements instead of allowing players to edit raw values directly.
+- Maintain rigorous commit discipline on the current branch and invoke the PR creation tool after committing when changes exist.
+- When addressing TODO items in this file, only mark them as complete with a ✔️ once the underlying feature is fully implemented.
+
 # CODING STYLE EXAMPLE
 
 SelectPowerupscene.qml
@@ -53,14 +60,14 @@ C++ style abstraction OOP only when coding with QML.
 - Blocks should have many states
 - Powerups should have a number of states from dead to onboard, to fully charged, to charging, to (possibly more so leave room) and make it all clean and easy to follow by a human who is lazy
 
-# TO DO 
+# TO DO
 
-- Edit Powerup Area doesn't properly load the powerup data from the LocalStorage table where powerups are stored
-- (unsure if the actual "Edit Powerup" section works because the buttons to edit powerup attributes doesn't work)
-- Powerup Energy should not be a value that can be changed by the player, it should be determined based on how much HP damage / support it has and how many blocks it affects.
-- Single Player cannot choose Powerups at the select Powerup page
-- Need Dashboard, DashboardGridElement, DashboardlayerHealthHUD, and DeashboardPlayerPowerSidebar to all be properly tied into a single Dashboard, and two Dashboards be tied into a Single Player Game file for the battle.
-- Need to implement the communication between Dashboards with all feature needed. 
+- ✔️ Edit Powerup Area doesn't properly load the powerup data from the LocalStorage table where powerups are stored
+- ✔️ (unsure if the actual "Edit Powerup" section works because the buttons to edit powerup attributes doesn't work)
+- ✔️ Powerup Energy should not be a value that can be changed by the player, it should be determined based on how much HP damage / support it has and how many blocks it affects.
+- ✔️ Single Player cannot choose Powerups at the select Powerup page
+- ✔️ Need Dashboard, DashboardGridElement, DashboardlayerHealthHUD, and DeashboardPlayerPowerSidebar to all be properly tied into a single Dashboard, and two Dashboards be tied into a Single Player Game file for the battle.
+- ✔️ Need to implement the communication between Dashboards with all feature needed.
 
 
 
