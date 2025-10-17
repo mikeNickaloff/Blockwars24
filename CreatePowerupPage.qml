@@ -7,7 +7,7 @@ Item {
     id: root
 
     property var stackView
-    property var editorStore
+    property var powerupRepository
     property var mainPage
     property bool editMode: false
     property int existingId: -1
@@ -519,7 +519,7 @@ Item {
         }
         stackView.push(adjustComponent, {
                             stackView: stackView,
-                            editorStore: editorStore,
+                            powerupRepository: powerupRepository,
                             mainPage: mainPage || root,
                             editMode: editMode,
                             existingId: existingId,

@@ -7,7 +7,7 @@ Item {
     id: root
 
     property var stackView
-    property var editorStore
+    property var powerupRepository
     property var mainPage
 
     anchors.fill: parent
@@ -51,7 +51,7 @@ Item {
             Layout.fillHeight: true
             clip: true
             spacing: 12
-            model: editorStore ? editorStore.createdPowerupsModel : null
+            model: powerupRepository ? powerupRepository.createdPowerupsModel : null
 
             delegate: ItemDelegate {
                 width: powerupList.width
@@ -100,7 +100,7 @@ Item {
                                 Layout.fillWidth: true
                             }
                             Label {
-                                visible: modelData && modelData.targetKey === "blocks"
+                                visible: Boolean(modelData && modelData.targetKey === "blocks")
                                 text: qsTr("Blocks selected: %1").arg(modelData && modelData.blockCount ? modelData.blockCount : 0)
                                 color: "#64748b"
                                 font.pixelSize: 12
@@ -149,7 +149,7 @@ Item {
                 anchors.centerIn: parent
                 text: qsTr("No powerups available.")
                 color: "#94a3b8"
-                visible: !editorStore || editorStore.createdPowerupsModel.count === 0
+                visible: !powerupRepository || powerupRepository.createdPowerupsModel.count === 0
             }
         }
     }
@@ -178,11 +178,11 @@ Item {
     }
 
     function _createNewPowerup() {
-        if (!stackView || !editorStore)
+        if (!stackView || !powerupRepository)
             return
         stackView.push(editTraitsComponent, {
                           stackView: stackView,
-                          editorStore: editorStore,
+                          powerupRepository: powerupRepository,
                           mainPage: mainPage || root,
                           editMode: false,
                           existingId: -1,
@@ -191,11 +191,11 @@ Item {
     }
 
     function _openTraitsEditor(identifier, payload) {
-        if (!stackView || !editorStore || identifier < 0)
+        if (!stackView || !powerupRepository || identifier < 0)
             return
         stackView.push(editTraitsComponent, {
                           stackView: stackView,
-                          editorStore: editorStore,
+                          powerupRepository: powerupRepository,
                           mainPage: mainPage || root,
                           editMode: true,
                           existingId: identifier,
@@ -204,11 +204,11 @@ Item {
     }
 
     function _openPowerAdjust(identifier, payload) {
-        if (!stackView || !editorStore || identifier < 0)
+        if (!stackView || !powerupRepository || identifier < 0)
             return
         stackView.push(adjustComponent, {
                           stackView: stackView,
-                          editorStore: editorStore,
+                          powerupRepository: powerupRepository,
                           mainPage: mainPage || root,
                           editMode: true,
                           existingId: identifier,

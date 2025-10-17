@@ -8,7 +8,6 @@ GameScene {
     id: scene
 
     property var stackView
-    property var editorStore
     property var playerLoadout: []
     property var cpuLoadout: []
 

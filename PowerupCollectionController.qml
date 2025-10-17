@@ -3,56 +3,77 @@ import QtQml.Models
 import "."
 
 Item {
-    id: store
+    id: controller
 
     property alias createdPowerupsModel: createdModel
-
-    property int _nextId: 0
-    readonly property string persistenceTable: "editor_custom_powerups"
+    property string table: "editor_custom_powerups"
+    property int _nextIdentifier: 0
 
     PowerupDataStore {
         id: persistenceAdapter
-        table: store.persistenceTable
+        table: controller.table
     }
 
     ListModel {
         id: createdModel
     }
 
-    Component.onCompleted: store._loadPersistedPowerups()
+    Component.onCompleted: controller.reload()
+
+    function reload() {
+        const persisted = persistenceAdapter ? persistenceAdapter.getPowerupData() : []
+        createdModel.clear()
+        let nextIdCandidate = 0
+        for (let i = 0; i < persisted.length; ++i) {
+            const entry = controller._cloneEntry(persisted[i])
+            if (entry.id === undefined || entry.id === null || isNaN(entry.id)) {
+                entry.id = nextIdCandidate
+                nextIdCandidate += 1
+            } else {
+                entry.id = Math.max(0, Math.floor(entry.id))
+                nextIdCandidate = Math.max(nextIdCandidate, entry.id + 1)
+            }
+            createdModel.append(entry)
+        }
+        controller._nextIdentifier = nextIdCandidate
+    }
 
     function addPowerup(payload) {
-        const entry = store._cloneEntry(payload)
-        entry.id = store._nextId
-        store._nextId += 1
+        const entry = controller._cloneEntry(payload)
+        entry.id = controller._nextIdentifier
+        controller._nextIdentifier += 1
         createdModel.append(entry)
-        store._persistSnapshot()
+        controller._persistSnapshot()
         return entry.id
     }
 
     function updatePowerup(identifier, payload) {
-        const index = store._indexOfId(identifier)
+        const index = controller._indexOfId(identifier)
         if (index < 0)
             return false
-        const entry = store._cloneEntry(payload)
+        const entry = controller._cloneEntry(payload)
         entry.id = identifier
         createdModel.set(index, entry)
-        store._persistSnapshot()
+        controller._persistSnapshot()
         return true
     }
 
     function getPowerup(identifier) {
-        const index = store._indexOfId(identifier)
+        const index = controller._indexOfId(identifier)
         if (index < 0)
             return null
-        return store._cloneEntry(createdModel.get(index))
+        return controller._cloneEntry(createdModel.get(index))
     }
 
     function allPowerups() {
         const values = []
         for (let i = 0; i < createdModel.count; ++i)
-            values.push(store._cloneEntry(createdModel.get(i)))
+            values.push(controller._cloneEntry(createdModel.get(i)))
         return values
+    }
+
+    function cloneEntry(payload) {
+        return controller._cloneEntry(payload)
     }
 
     function _indexOfId(identifier) {
@@ -67,7 +88,7 @@ Item {
 
     function _cloneEntry(payload) {
         const base = Object.assign({}, payload || {})
-        const sanitizedBlocks = store._sanitizeBlocks(base.blocks)
+        const sanitizedBlocks = controller._sanitizeBlocks(base.blocks)
         base.blocks = sanitizedBlocks
         base.blockCount = sanitizedBlocks.length
         if (base.id !== undefined && base.id !== null)
@@ -99,27 +120,7 @@ Item {
             return
         const snapshot = []
         for (let i = 0; i < createdModel.count; ++i)
-            snapshot.push(store._cloneEntry(createdModel.get(i)))
+            snapshot.push(controller._cloneEntry(createdModel.get(i)))
         persistenceAdapter.setPowerupData(snapshot)
-    }
-
-    function _loadPersistedPowerups() {
-        if (!persistenceAdapter)
-            return
-        const persisted = persistenceAdapter.getPowerupData()
-        createdModel.clear()
-        let nextIdCandidate = 0
-        for (let i = 0; i < persisted.length; ++i) {
-            const entry = store._cloneEntry(persisted[i])
-            if (entry.id === undefined || entry.id === null || isNaN(entry.id)) {
-                entry.id = nextIdCandidate
-                nextIdCandidate += 1
-            } else {
-                entry.id = Math.max(0, Math.floor(entry.id))
-                nextIdCandidate = Math.max(nextIdCandidate, entry.id + 1)
-            }
-            createdModel.append(entry)
-        }
-        store._nextId = nextIdCandidate
     }
 }
