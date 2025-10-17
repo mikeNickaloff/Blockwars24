@@ -19,6 +19,7 @@ Item {
     property var selectedBlocks: []
     readonly property int selectedBlockCount: selectedBlocks ? selectedBlocks.length : 0
     property int selectedEnergy: 12
+    property int _provisionalHp: 12
 
     readonly property var typeOptions: [
         {
@@ -67,6 +68,10 @@ Item {
         { key: "green", label: qsTr("Green"), hex: "#22c55e" },
         { key: "yellow", label: qsTr("Yellow"), hex: "#facc15" }
     ]
+
+    PowerupEnergyModel {
+        id: energyModel
+    }
 
     anchors.fill: parent
 
@@ -305,27 +310,20 @@ Item {
                     spacing: 12
 
                     Label {
-                        text: qsTr("Energy Cost: %1").arg(root.selectedEnergy)
+                        text: qsTr("Estimated Energy: %1").arg(root.selectedEnergy)
                         color: "#f8fafc"
                         font.pixelSize: 16
                     }
 
-                    Slider {
-                        id: energySlider
-                        from: 4
-                        to: 60
-                        stepSize: 1
+                    ProgressBar {
+                        from: 0
+                        to: energyModel.maximumEnergy
                         value: root.selectedEnergy
                         Layout.fillWidth: true
-                        onValueChanged: {
-                            const rounded = Math.round(value)
-                            if (root.selectedEnergy !== rounded)
-                                root.selectedEnergy = rounded
-                        }
                     }
 
                     Label {
-                        text: qsTr("Higher energy costs reflect more powerful effects. Balance potency and availability to fit your strategy.")
+                        text: qsTr("Energy adjusts automatically based on the powerup's impact. Increase the effect in the next step to raise the energy demand.")
                         wrapMode: Text.WordWrap
                         color: "#94a3b8"
                         font.pixelSize: 12
@@ -404,10 +402,13 @@ Item {
         selectedType = _cloneOption(_resolveOption(typeOptions, existingData.typeKey, typeOptions[0]))
         selectedTarget = _cloneOption(_resolveOption(targetOptions, existingData.targetKey, targetOptions[0]))
         selectedColor = _cloneOption(_resolveOption(colorOptions, existingData.colorKey, colorOptions[0]))
-        const energyMinimum = (typeof energySlider !== "undefined") ? energySlider.from : 4
-        const energyMaximum = (typeof energySlider !== "undefined") ? energySlider.to : 60
-        const initialEnergy = existingData.energy !== undefined ? Math.round(existingData.energy) : 12
-        selectedEnergy = _clamp(initialEnergy, energyMinimum, energyMaximum)
+        _provisionalHp = existingData && existingData.hp !== undefined ? Math.round(existingData.hp) : 12
+        selectedEnergy = energyModel.estimateEnergy({
+            hp: _provisionalHp,
+            blockCount: Math.max(1, selectedBlockCount || 1),
+            typeKey: selectedType.key,
+            targetKey: selectedTarget.key
+        })
         _applySelectedBlocks(existingData && existingData.blocks ? existingData.blocks : [])
     }
 
@@ -429,6 +430,7 @@ Item {
 
     function _setType(option) {
         selectedType = _cloneOption(option)
+        _refreshEnergy()
     }
 
     function _setTarget(option) {
@@ -437,6 +439,8 @@ Item {
             _applySelectedBlocks([])
         else if ((!selectedBlocks || selectedBlocks.length === 0) && existingData && existingData.blocks)
             _applySelectedBlocks(existingData.blocks)
+        else
+            _refreshEnergy()
     }
 
     function _setColor(option) {
@@ -448,6 +452,7 @@ Item {
         selectedBlocks = sanitized
         if (typeof blockSelector !== "undefined" && blockSelector)
             blockSelector.setSelectedCells(sanitized)
+        _refreshEnergy()
     }
 
     function _cloneBlocks(blocks) {
@@ -456,6 +461,16 @@ Item {
         for (let i = 0; i < sanitized.length; ++i)
             copy.push({ row: sanitized[i].row, column: sanitized[i].column })
         return copy
+    }
+
+    function _refreshEnergy() {
+        const count = selectedTarget && selectedTarget.key === "blocks" ? Math.max(1, selectedBlockCount) : 1
+        selectedEnergy = energyModel.estimateEnergy({
+            hp: _provisionalHp,
+            blockCount: count,
+            typeKey: selectedType.key,
+            targetKey: selectedTarget.key
+        })
     }
 
     function _sanitizeBlocks(blocks) {

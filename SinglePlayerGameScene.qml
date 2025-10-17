@@ -11,6 +11,8 @@ Item {
     property var powerupSelectionComponent
     property int powerupSlotCount: 4
     property var selectedPowerups: []
+    property bool battleActive: false
+    property var cpuBattleLoadout: []
 
     anchors.fill: parent
 
@@ -18,6 +20,18 @@ Item {
         anchors.fill: parent
         color: "#020617"
     }
+
+    DefaultPowerupRepository {
+        id: defaultRepository
+    }
+
+    Component.onCompleted: {
+        root._syncPlayerSelection()
+        root._refreshCpuLoadout()
+    }
+
+    onSelectedPowerupsChanged: root._syncPlayerSelection()
+    onPowerupSlotCountChanged: root._refreshCpuLoadout()
 
     ColumnLayout {
         anchors.fill: parent
@@ -158,12 +172,48 @@ Item {
                 }
 
                 Label {
-                    text: qsTr("Gameplay is still under construction. Configure your loadout above and stay tuned for upcoming combat updates.")
+                    text: qsTr("Review your loadout and begin the battle when ready. The confrontation will load both dashboards and synchronize powerups automatically.")
                     wrapMode: Text.WordWrap
                     color: "#94a3b8"
                     Layout.fillWidth: true
                 }
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 12
+
+                    Item { Layout.fillWidth: true }
+
+                    Button {
+                        text: qsTr("Begin Battle")
+                        enabled: (selectedPowerups && selectedPowerups.length > 0)
+                        onClicked: root._beginBattle()
+                    }
+                }
             }
+        }
+    }
+
+    Loader {
+        id: matchLoader
+        anchors.fill: parent
+        active: root.battleActive
+        visible: active
+        sourceComponent: matchComponent
+        onStatusChanged: {
+            if (status === Loader.Ready && item) {
+                item.playerLoadout = root._normalizedSelection()
+                item.cpuLoadout = root.cpuBattleLoadout
+            }
+        }
+    }
+
+    Component {
+        id: matchComponent
+        SinglePlayerMatchScene {
+            playerLoadout: root._normalizedSelection()
+            cpuLoadout: root.cpuBattleLoadout
+            onExitRequested: root._endBattle()
         }
     }
 
@@ -180,6 +230,22 @@ Item {
                               powerupRepository: powerupRepository,
                               slotCount: powerupSlotCount
                           })
+    }
+
+    function _beginBattle() {
+        if (battleActive)
+            return
+        battleActive = true
+        if (matchLoader.item) {
+            matchLoader.item.playerLoadout = root._normalizedSelection()
+            matchLoader.item.cpuLoadout = root.cpuBattleLoadout
+        }
+    }
+
+    function _endBattle() {
+        if (!battleActive)
+            return
+        battleActive = false
     }
 
     function _resolveTitle(entry) {
@@ -206,5 +272,66 @@ Item {
             return "0"
         const rounded = Math.round(number * 10) / 10
         return Math.abs(rounded - Math.round(rounded)) < 0.0001 ? String(Math.round(rounded)) : rounded.toFixed(1)
+    }
+
+    function _normalizedSelection() {
+        return root._normalizedEntries(selectedPowerups)
+    }
+
+    function _normalizedEntries(source) {
+        const list = Array.isArray(source) ? source : []
+        const normalized = []
+        for (let i = 0; i < list.length; ++i) {
+            const entry = list[i]
+            if (!entry)
+                continue
+            normalized.push({
+                                typeKey: entry.typeKey,
+                                typeLabel: entry.typeLabel,
+                                targetKey: entry.targetKey,
+                                targetLabel: entry.targetLabel,
+                                colorKey: entry.colorKey,
+                                colorLabel: entry.colorLabel,
+                                colorHex: entry.colorHex,
+                                hp: entry.hp,
+                                energy: entry.energy,
+                                blocks: root._sanitizeBlocks(entry.blocks)
+                            })
+        }
+        return normalized
+    }
+
+    function _sanitizeBlocks(blocks) {
+        const source = Array.isArray(blocks) ? blocks : []
+        const sanitized = []
+        const seen = {}
+        for (let i = 0; i < source.length; ++i) {
+            const cell = source[i]
+            if (!cell)
+                continue
+            const row = Math.max(0, Math.min(5, Math.floor(Number(cell.row))))
+            const column = Math.max(0, Math.min(5, Math.floor(Number(cell.column))))
+            const key = row + ":" + column
+            if (seen[key])
+                continue
+            seen[key] = true
+            sanitized.push({ row: row, column: column })
+        }
+        return sanitized
+    }
+
+    function _syncPlayerSelection() {
+        if (battleActive && matchLoader.item)
+            matchLoader.item.playerLoadout = root._normalizedSelection()
+    }
+
+    function _refreshCpuLoadout() {
+        const defaults = defaultRepository ? defaultRepository.allPowerups() : []
+        const loadout = []
+        for (let i = 0; i < Math.min(powerupSlotCount, defaults.length); ++i)
+            loadout.push(defaults[i])
+        cpuBattleLoadout = root._normalizedEntries(loadout)
+        if (battleActive && matchLoader.item)
+            matchLoader.item.cpuLoadout = cpuBattleLoadout
     }
 }

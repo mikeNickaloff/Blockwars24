@@ -9,6 +9,8 @@ Item {
     property string table: "editor_custom_powerups"
     property int _nextIdentifier: 0
 
+    signal powerupsChanged()
+
     PowerupDataStore {
         id: persistenceAdapter
         table: controller.table
@@ -19,6 +21,7 @@ Item {
     }
 
     Component.onCompleted: controller.reload()
+    onTableChanged: controller.reload()
 
     function reload() {
         const persisted = persistenceAdapter ? persistenceAdapter.getPowerupData() : []
@@ -36,6 +39,7 @@ Item {
             createdModel.append(entry)
         }
         controller._nextIdentifier = nextIdCandidate
+        controller._notifyChange()
     }
 
     function addPowerup(payload) {
@@ -122,5 +126,10 @@ Item {
         for (let i = 0; i < createdModel.count; ++i)
             snapshot.push(controller._cloneEntry(createdModel.get(i)))
         persistenceAdapter.setPowerupData(snapshot)
+        controller._notifyChange()
+    }
+
+    function _notifyChange() {
+        controller.powerupsChanged()
     }
 }

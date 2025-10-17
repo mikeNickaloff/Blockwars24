@@ -33,7 +33,10 @@ GameScene {
 
     anchors.fill: parent
 
-    Component.onCompleted: scene._initializeSlots()
+    Component.onCompleted: {
+        scene._synchronizeRepository()
+        scene._initializeSlots()
+    }
     onSlotCountChanged: scene._initializeSlots()
 
     Rectangle {
@@ -332,6 +335,11 @@ GameScene {
         }
     }
 
+    function _synchronizeRepository() {
+        if (powerupRepository && powerupRepository.reload)
+            powerupRepository.reload()
+    }
+
     function _refreshCatalog() {
         catalogModel.clear()
         const customEntries = powerupRepository && powerupRepository.allPowerups ? powerupRepository.allPowerups() : []
@@ -457,5 +465,14 @@ GameScene {
         copy.blocks = sanitized
         copy.blockCount = sanitized.length
         return copy
+    }
+    onPowerupRepositoryChanged: scene._synchronizeRepository()
+
+    Connections {
+        target: powerupRepository
+        function onPowerupsChanged() {
+            if (catalogModal.visible)
+                scene._refreshCatalog()
+        }
     }
 }
