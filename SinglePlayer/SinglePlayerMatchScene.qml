@@ -28,7 +28,7 @@ GameScene {
             cpuLoadout = loadout
             cpuDashboard.applyPowerupLoadout(loadout)
         }
-        onInitiativeRolled: scene._handleInitiative(index, rollValue)
+        onInitiativeRolled: function(index, rollValue) { scene._handleInitiative(index, rollValue) }
     }
 
     HumanPlayerController {
@@ -36,7 +36,7 @@ GameScene {
         onLoadoutPrepared: function(index, loadout) {
             humanDashboard.applyPowerupLoadout(loadout)
         }
-        onInitiativeRolled: scene._handleInitiative(index, rollValue)
+        onInitiativeRolled: function(index, rollValue) { scene._handleInitiative(index, rollValue) }
     }
 
     QtObject {
