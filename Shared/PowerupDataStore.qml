@@ -8,7 +8,7 @@ QtObject {
     property string databaseVersion: "1.0"
     property string databaseDescription: "Block Wars powerup persistence"
     property int estimatedSize: 1024 * 1024
-    property string scope: "editor_custom_powerups"
+    property string tableName: "editor_custom_powerups"
 
     property var _database: null
     property bool _schemaReady: false
@@ -19,8 +19,8 @@ QtObject {
         const db = _openDatabase()
         db.transaction(function(tx) {
             const result = tx.executeSql(
-                        "SELECT payload FROM powerup_records WHERE scope = ? ORDER BY position ASC, id ASC",
-                        [scope])
+                        "SELECT payload FROM powerup_records WHERE table_name = ? ORDER BY position ASC, id ASC",
+                        [tableName])
             for (let i = 0; i < result.rows.length; ++i)
                 values.push(_parsePayload(result.rows.item(i).payload))
         })
@@ -32,11 +32,11 @@ QtObject {
         const list = Array.isArray(entries) ? entries : []
         const db = _openDatabase()
         db.transaction(function(tx) {
-            tx.executeSql("DELETE FROM powerup_records WHERE scope = ?", [scope])
+            tx.executeSql("DELETE FROM powerup_records WHERE table_name = ?", [tableName])
             for (let i = 0; i < list.length; ++i) {
                 tx.executeSql(
-                            "INSERT INTO powerup_records (scope, position, payload) VALUES (?, ?, ?)",
-                            [scope, i, JSON.stringify(list[i] || {})])
+                            "INSERT INTO powerup_records (table_name, position, payload) VALUES (?, ?, ?)",
+                            [tableName, i, JSON.stringify(list[i] || {})])
             }
         })
     }
@@ -54,10 +54,20 @@ QtObject {
         db.transaction(function(tx) {
             tx.executeSql("CREATE TABLE IF NOT EXISTS powerup_records (" +
                           "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                          "scope TEXT NOT NULL, " +
+                          "table_name TEXT NOT NULL, " +
                           "position INTEGER NOT NULL DEFAULT 0, " +
                           "payload TEXT NOT NULL)")
-            tx.executeSql("CREATE INDEX IF NOT EXISTS idx_powerup_scope ON powerup_records(scope)")
+            tx.executeSql("CREATE INDEX IF NOT EXISTS idx_powerup_scope ON powerup_records(table_name)")
+            try {
+                tx.executeSql("ALTER TABLE powerup_records ADD COLUMN table_name TEXT")
+            } catch (error) {
+                // column may already exist; ignore
+            }
+            try {
+                tx.executeSql("ALTER TABLE powerup_records ADD COLUMN scope TEXT")
+            } catch (error) {
+                // legacy column optional
+            }
         })
         _schemaReady = true
     }

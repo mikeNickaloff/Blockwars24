@@ -13,7 +13,10 @@ Item {
 
     property color backgroundColor: "#020617"
 
-    anchors.fill: parent
+    implicitWidth: 1024
+    implicitHeight: 768
+    width: parent ? parent.width : implicitWidth
+    height: parent ? parent.height : implicitHeight
 
     Rectangle {
         anchors.fill: parent

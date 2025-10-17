@@ -10,7 +10,10 @@ Item {
     required property StackView stackView
     required property PowerupRepository repository
 
-    anchors.fill: parent
+    implicitWidth: 1024
+    implicitHeight: 768
+    width: parent ? parent.width : implicitWidth
+    height: parent ? parent.height : implicitHeight
 
     Rectangle {
         anchors.fill: parent
@@ -164,7 +167,7 @@ Item {
                     anchors.centerIn: parent
                     text: qsTr("No powerups saved yet.")
                     color: "#64748b"
-                    visible: model ? model.count === 0 : true
+                    visible: !libraryPreview.model || libraryPreview.model.count === 0
                 }
             }
         }

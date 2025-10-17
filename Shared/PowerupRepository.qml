@@ -10,7 +10,7 @@ QtObject {
     property var entries: []
 
     property var persistence: PowerupDataStore {
-        scope: repository.scope
+        tableName: repository.scope
     }
 
     property var energyModel: PowerupEnergyModel {}
@@ -20,7 +20,10 @@ QtObject {
     }
 
     Component.onCompleted: reload()
-    onScopeChanged: reload()
+    onScopeChanged: {
+        persistence.tableName = scope
+        reload()
+    }
 
     function reload() {
         const loaded = persistence.loadAll()
