@@ -96,15 +96,15 @@ C++ style abstraction OOP only when coding with QML.
 - ✔️ TODO [Step 29]: After both seeds are confirmed, call initializeGame to wire control signals between scene, dashboards, and controllers.
 - ✔️ TODO [Step 30]: Conduct initiative rolls by requesting random values from both controllers, rerolling ties, and storing the active dashboard index.
 - ✔️ TODO [Step 31]: Clear the waiting banner, issue beginTurn to the active dashboard, and notify the opponent that it is observing via queued signals.
-- TODO [Step 32]: Ensure GameGridElement creates Block components through a Component factory so every block shares the behavior tree.
-- TODO [Step 33]: Implement BlockAnimationStateMachine to map block states (idle, matched, launching, etc.) to sprite-sheet sequences from BlockSpriteRepository.
-- TODO [Step 34]: Maintain interactionEnabled and inAnimation flags on blocks, toggled by the grid and animation state machine to protect timing-sensitive logic.
-- TODO [Step 35]: Handle the beginFilling state by spawning new blocks via BlockFactory into virtual row -1 and animating them into place while tracking timers.
-- TODO [Step 36]: Provide settleSpawnedBlocks routines that wrap block drops in SequentialAnimation and correctly flip inAnimation markers.
-- TODO [Step 37]: Gate fillTimer on animation completion and transition to the compact state once row 0 is gap-free.
-- TODO [Step 38]: Implement compactTimer to compress columns one cell at a time toward the defender, respecting orientation and animation guards.
-- TODO [Step 39]: Create matchTimer to search for horizontal and vertical runs, populate matchList, and emit cascadeEnded when no matches remain.
-- TODO [Step 40]: Build launchTimer to iterate over matchList, trigger block.launch(), track launchCount, and revert to compact once all launches finish.
+- ✔️ TODO [Step 32]: Ensure GameGridElement creates Block components through a Component factory so every block shares the behavior tree.
+- ✔️ TODO [Step 33]: Implement BlockAnimationStateMachine to map block states (idle, matched, launching, etc.) to sprite-sheet sequences from BlockSpriteRepository.
+- ✔️ TODO [Step 34]: Maintain interactionEnabled and inAnimation flags on blocks, toggled by the grid and animation state machine to protect timing-sensitive logic.
+- ✔️ TODO [Step 35]: Handle the beginFilling state by spawning new blocks via BlockFactory into virtual row -1 and animating them into place while tracking timers.
+- ✔️ TODO [Step 36]: Provide settleSpawnedBlocks routines that wrap block drops in SequentialAnimation and correctly flip inAnimation markers.
+- ✔️ TODO [Step 37]: Gate fillTimer on animation completion and transition to the compact state once row 0 is gap-free.
+- ✔️ TODO [Step 38]: Implement compactTimer to compress columns one cell at a time toward the defender, respecting orientation and animation guards.
+- ✔️ TODO [Step 39]: Create matchTimer to search for horizontal and vertical runs, populate matchList, and emit cascadeEnded when no matches remain.
+- ✔️ TODO [Step 40]: Build launchTimer to iterate over matchList, trigger block.launch(), track launchCount, and revert to compact once all launches finish.
 - TODO [Step 41]: Execute swapBlocks only when the grid is in the match state with no animations, dropping immediately back into match processing on success.
 - TODO [Step 42]: When matches exhaust and swaps run out, emit turnEnded for the active dashboard and freeze cascading until the opponent finishes.
 - TODO [Step 43]: Upon receiving turnEnded, enable cascading on the opposing grid, reset swaps, and process fill/compact loops until stable.

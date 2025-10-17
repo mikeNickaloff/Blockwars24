@@ -37,9 +37,11 @@ qt_add_qml_module(appBlockwars24
         SinglePlayer/components/SelectPowerupSlot.qml
         SinglePlayer/components/ReadyForMatchButton.qml
         SinglePlayer/components/PowerupSelectionModal.qml
+        SinglePlayer/grid/Block.qml
+        SinglePlayer/grid/BlockAnimationStateMachine.qml
+        SinglePlayer/grid/GameGridElement.qml
         SinglePlayer/components/MatchDashboard.qml
         SinglePlayer/components/MatchMomentumBar.qml
-        SinglePlayer/components/MatchGridView.qml
         SinglePlayer/components/PowerupColumn.qml
         SinglePlayer/components/PowerupChargeMeter.qml
         SinglePlayer/controllers/CpuPlayerController.qml

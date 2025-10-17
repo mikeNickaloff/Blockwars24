@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import "../grid"
 
 Item {
     id: dashboard
@@ -31,11 +32,13 @@ Item {
     function beginTurn() {
         statusLabel.text = qsTr("Active")
         observing = false
+        matchGrid.beginTurn()
     }
 
     function observeTurn() {
         statusLabel.text = qsTr("Observing")
         observing = true
+        matchGrid.observeTurn()
     }
 
     implicitHeight: 360
@@ -64,7 +67,7 @@ Item {
             Layout.fillHeight: true
             spacing: 24
 
-            MatchGridView {
+            GameGridElement {
                 id: matchGrid
                 Layout.fillWidth: true
                 Layout.fillHeight: true
@@ -99,4 +102,6 @@ Item {
             }
         }
     }
+
+    property alias gridElement: matchGrid
 }
