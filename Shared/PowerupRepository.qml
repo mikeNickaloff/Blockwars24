@@ -9,8 +9,6 @@ QtObject {
     property string scope: "editor_custom_powerups"
     property var entries: []
 
-    signal entriesChanged()
-
     PowerupDataStore {
         id: persistence
         scope: repository.scope
@@ -40,7 +38,6 @@ QtObject {
             powerupModel.append(entry)
         }
         entries = normalized
-        entriesChanged()
     }
 
     function addPowerup(specification) {
@@ -49,7 +46,6 @@ QtObject {
         powerupModel.append(entry)
         entries = _collectEntries()
         _persist()
-        entriesChanged()
         return entry
     }
 
@@ -64,7 +60,6 @@ QtObject {
         powerupModel.set(index, entry)
         entries = _collectEntries()
         _persist()
-        entriesChanged()
         return true
     }
 
