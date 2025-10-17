@@ -37,6 +37,34 @@ The example code is how the entire file should be (with imports etc at the top t
 No cramming or functional hellscapes. 
 C++ style abstraction OOP only when coding with QML.
 
+# CODING GUIDELINES
+
+- Use play-by-play descriptions as references for how each scene in the game will look. 
+- Use Game Rules as references as to how to enforce the overall flow of the game and limitations on what can be done and when.
+- Use TODO list to determine what needs to be done still
+- Set yourself up for success. Write code so that it will be compatible and portable even when other components change 
+- Break down large problems into multiple QML files, and use OOP style integration to keep them from being overly dependent
+- Encapsulate code to manipulate and control other QML files as functions and properties with generic purposes - avoid being too specific and instead use relative values (parent.implicitWidth * 0.60) instead of 650
+- Use functions to control the scene and use generic types that are then used as base classes for more specific types with specialized features. 
+- Break down difficult integrations into many different small integrations. 
+- Leave room everywhere to be able to tie in additional bells and whistles by connecting animations to events and then connecting events to their destinations so i can make things have little animated experiences as they transition through states
+- Use states to control what interactive types are allowed to do and what role they play.
+- GameGrid should have many many states
+- Blocks should have many states
+- Powerups should have a number of states from dead to onboard, to fully charged, to charging, to (possibly more so leave room) and make it all clean and easy to follow by a human who is lazy
+
+# TO DO 
+
+- Edit Powerup Area doesn't properly load the powerup data from the LocalStorage table where powerups are stored
+- (unsure if the actual "Edit Powerup" section works because the buttons to edit powerup attributes doesn't work)
+- Powerup Energy should not be a value that can be changed by the player, it should be determined based on how much HP damage / support it has and how many blocks it affects.
+- Single Player cannot choose Powerups at the select Powerup page
+- Need Dashboard, DashboardGridElement, DashboardlayerHealthHUD, and DeashboardPlayerPowerSidebar to all be properly tied into a single Dashboard, and two Dashboards be tied into a Single Player Game file for the battle.
+- Need to implement the communication between Dashboards with all feature needed. 
+
+
+
+
 # QML API Reference
 
 This section is the QML-facing API for the engine classes that inherit
@@ -123,44 +151,7 @@ Keep nicely formatted and able to be understood by other agents (or people)
 
 ## Example
 
-     SelectPowerupGameScene.qml
-     
-     GameScene {
-        id: selectPowerupSceneRootItem
-        
-        PowerupDataStore { 
-            id: singlePlayerPowerupSelectedDataStore
-            table:  "singlePlayerSelectedPowerupsForPlayer"
-
-       }
-
-        SelectPowerupSlotView {
-            id: selectPowerupSlotViewer
-            
-            selectedPowerupDataStore: singlePlayerPowerupSelectedDataStore
-            
-            onOpenSelectionModal: function (slotIdx) {
-            
-                // call function from Powercatalog.qml
-                powerupCatalog.openCatalogForSlot(slotIdx)
-               
-                // connect to function in PowerupCatalog.qml
-               powerupCatalog.powerupChosen.connect(singlePlayerPowerupSelectedDataStore.updateSelectedPowerupData) 
-            }
-            
-        }
-        
-        PowerupCatalog {
-           id: powerupCatalog
-          
-       }
-     }
-
-## Example comments
- - Avoid cramming all the implementation steps into the exact place they are used.  
- - Break up everything into the most simplified set of elements following an OOP design schema
- - Use properties and functions with parameters within other QML files to safely pass data between multiple files without risking losing the data due to scoping or context changes.
- - Create robust and varied suite of simple QML files that when combined together offer the full functionality of the requirements.
+ 
 
 ## Play-by-play section
 
@@ -168,7 +159,7 @@ Keep nicely formatted and able to be understood by other agents (or people)
  1. The application opens revealing a Screen with the title Block Wars on the top 20% of the screen, centered on the X axis with the application
  2. Beneath the Block Wars logo there are a few buttons: Single Player, Multiplayer, Powerup Editor, Options, and Exit.
 
-### (DONE) Powerup Editor
+### Powerup Editor
   3. The player clicks on Powerup Editor which changes the entire screen (stackview) to the PowerupEditor scene which starts
    by showning a List View that displays the following choices: Create New, Edit Existing, Back to Main Menu
  4. The player clicks on Create New which changes the page to the "Create Powerup" page which has a red button with an "X" on the 
