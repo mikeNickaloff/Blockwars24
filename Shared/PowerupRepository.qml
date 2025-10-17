@@ -2,48 +2,51 @@ import QtQuick
 import QtQml.Models
 import "./"
 
-QtObject {
+Item {
     id: repository
 
-    property alias model: repository._powerupModel
+    property alias model: powerupModel
     property string scope: "editor_custom_powerups"
     property var entries: []
+    visible: false
+    width: 0
+    height: 0
 
-    property var persistence: PowerupDataStore {
+    PowerupDataStore {
+        id: persistence
         tableName: repository.scope
     }
 
-    property var energyModel: PowerupEnergyModel {}
+    PowerupEnergyModel {
+        id: energyModel
+    }
 
-    property var _powerupModel: ListModel {
-
+    ListModel {
+        id: powerupModel
     }
 
     Component.onCompleted: reload()
-    onScopeChanged: {
-        persistence.tableName = scope
-        reload()
-    }
+    onScopeChanged: reload()
 
     function reload() {
         const loaded = persistence.loadAll()
         const normalized = []
-        _powerupModel.clear()
+        powerupModel.clear()
         let nextId = 0
         for (let i = 0; i < loaded.length; ++i) {
             const entry = _normalizeEntry(loaded[i])
             entry.id = nextId
             nextId += 1
             normalized.push(entry)
-            _powerupModel.append(entry)
+            powerupModel.append(entry)
         }
         entries = normalized
     }
 
     function addPowerup(specification) {
         const entry = _normalizeEntry(specification)
-        entry.id = _powerupModel.count
-        _powerupModel.append(entry)
+        entry.id = powerupModel.count
+        powerupModel.append(entry)
         entries = _collectEntries()
         _persist()
         return entry
@@ -53,11 +56,11 @@ QtObject {
         const index = _indexForId(identifier)
         if (index < 0)
             return false
-        const current = _powerupModel.get(index)
+        const current = powerupModel.get(index)
         const merged = Object.assign({ id: identifier }, specification || {}, { id: identifier })
         const entry = _normalizeEntry(merged)
         entry.id = identifier
-        _powerupModel.set(index, entry)
+        powerupModel.set(index, entry)
         entries = _collectEntries()
         _persist()
         return true
@@ -67,13 +70,13 @@ QtObject {
         const index = _indexForId(identifier)
         if (index < 0)
             return null
-        return _powerupModel.get(index)
+        return powerupModel.get(index)
     }
 
     function _collectEntries() {
         const list = []
-        for (let i = 0; i < _powerupModel.count; ++i)
-            list.push(_normalizeEntry(_powerupModel.get(i)))
+        for (let i = 0; i < powerupModel.count; ++i)
+            list.push(_normalizeEntry(powerupModel.get(i)))
         return list
     }
 
@@ -161,8 +164,8 @@ QtObject {
         const targetId = Number(identifier)
         if (isNaN(targetId))
             return -1
-        for (let i = 0; i < _powerupModel.count; ++i) {
-            const candidate = _powerupModel.get(i)
+        for (let i = 0; i < powerupModel.count; ++i) {
+            const candidate = powerupModel.get(i)
             if (candidate && Number(candidate.id) === targetId)
                 return i
         }

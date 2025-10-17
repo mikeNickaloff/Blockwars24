@@ -2,25 +2,30 @@ import QtQuick
 import QtQml.Models
 import "../Shared"
 
-QtObject {
+Item {
     id: store
 
     property int slotCount: 4
-    property alias model: store.loadoutModel
+    property alias model: loadoutModel
     readonly property bool ready: _computeReady()
 
     signal loadoutChanged()
 
-    property var persistence: PowerupDataStore {
-        scope: "single_player_loadout"
+    visible: false
+    width: 0
+    height: 0
+
+    PowerupDataStore {
+        id: persistence
+        tableName: "single_player_loadout"
     }
 
-    property var energyModel: PowerupEnergyModel {
-
+    PowerupEnergyModel {
+        id: energyModel
     }
 
-    property var loadoutModel: ListModel {
-
+    ListModel {
+        id: loadoutModel
     }
 
     Component.onCompleted: reload()

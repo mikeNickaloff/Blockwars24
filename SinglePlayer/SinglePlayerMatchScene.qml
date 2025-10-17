@@ -72,13 +72,13 @@ GameScene {
             Layout.fillHeight: true
             orientation: Qt.Vertical
 
-           MatchDashboard {
+            MatchDashboard {
                 id: cpuDashboard
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 dashboardIndex: 0
-                onPowerupDataLoaded: scene._markPowerupLoaded(dashboardIndex)
-                onSeedConfirmed: scene._markSeedConfirmed(dashboardIndex)
+                onPowerupDataLoaded: function(idx) { scene._markPowerupLoaded(idx) }
+                onSeedConfirmed: function(idx, seed) { scene._markSeedConfirmed(idx) }
             }
 
             MatchDashboard {
@@ -86,8 +86,8 @@ GameScene {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 dashboardIndex: 1
-                onPowerupDataLoaded: scene._markPowerupLoaded(dashboardIndex)
-                onSeedConfirmed: scene._markSeedConfirmed(dashboardIndex)
+                onPowerupDataLoaded: function(idx) { scene._markPowerupLoaded(idx) }
+                onSeedConfirmed: function(idx, seed) { scene._markSeedConfirmed(idx) }
             }
         }
 

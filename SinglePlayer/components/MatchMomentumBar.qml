@@ -5,8 +5,8 @@ Item {
     id: bar
 
     property var orientation: Qt.TopEdge
-    anchors.left: parent ? parent.left : undefined
-    anchors.right: parent ? parent.right : undefined
+    Layout.fillWidth: true
+    Layout.preferredHeight: implicitHeight
     height: implicitHeight
     implicitHeight: 18
 

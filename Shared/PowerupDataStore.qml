@@ -1,8 +1,11 @@
 import QtQuick
 import QtQuick.LocalStorage
 
-QtObject {
+Item {
     id: store
+    visible: false
+    width: 0
+    height: 0
 
     property string databaseName: "BlockwarsPowerups"
     property string databaseVersion: "1.0"
@@ -59,14 +62,14 @@ QtObject {
                           "payload TEXT NOT NULL)")
             tx.executeSql("CREATE INDEX IF NOT EXISTS idx_powerup_scope ON powerup_records(table_name)")
             try {
-                tx.executeSql("ALTER TABLE powerup_records ADD COLUMN table_name TEXT")
-            } catch (error) {
-                // column may already exist; ignore
-            }
-            try {
                 tx.executeSql("ALTER TABLE powerup_records ADD COLUMN scope TEXT")
             } catch (error) {
                 // legacy column optional
+            }
+            try {
+                tx.executeSql("UPDATE powerup_records SET table_name = COALESCE(scope, ?) WHERE table_name IS NULL OR table_name = ''",
+                               [tableName])
+            } catch (error) {
             }
         })
         _schemaReady = true

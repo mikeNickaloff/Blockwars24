@@ -71,13 +71,15 @@ Item {
                 id: matchGrid
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                Layout.preferredWidth: parent.width * 0.8
+                Layout.preferredWidth: 1
             }
 
             PowerupColumn {
                 id: powerupColumn
-                Layout.preferredWidth: Math.max(220, parent.width * 0.18)
+                Layout.preferredWidth: 240
+                Layout.maximumWidth: 280
                 Layout.fillHeight: true
+                Layout.alignment: Qt.AlignTop
                 model: loadout
             }
         }

@@ -1,6 +1,6 @@
 import QtQuick
 
-QtObject {
+Item {
     id: energyModel
 
     property real baseCost: 6

@@ -59,7 +59,7 @@ GameScene {
             ReadyForMatchButton {
                 id: readyButton
                 Layout.alignment: Qt.AlignRight
-                Layout.preferredWidth: parent ? parent.width * 0.18 : 180
+                Layout.preferredWidth: 220
                 onClicked: scene._confirmSelection()
             }
         }
