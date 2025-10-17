@@ -31,6 +31,69 @@ GameScene {
         id: catalogModel
     }
 
+    QtObject {
+        id: slotLedger
+
+        readonly property var _blankSignature: ({
+                                                    typeKey: "",
+                                                    typeLabel: "",
+                                                    targetKey: "",
+                                                    targetLabel: "",
+                                                    colorKey: "",
+                                                    colorLabel: "",
+                                                    colorHex: "#334155",
+                                                    hp: 0,
+                                                    energy: 0,
+                                                    blocks: [],
+                                                    blockCount: 0
+                                                })
+
+        function composeSlot(index, source) {
+            const normalized = clonePayload(source)
+            return {
+                slotIndex: index,
+                payload: hasPowerup(normalized) ? normalized : clonePayload(_blankSignature),
+                hasPowerup: hasPowerup(normalized)
+            }
+        }
+
+        function clonePayload(payload) {
+            const candidate = Object.assign({}, _blankSignature, payload || {})
+            const sanitized = sanitizeBlocks(candidate.blocks)
+            candidate.blocks = sanitized
+            candidate.blockCount = sanitized.length
+            return candidate
+        }
+
+        function sanitizeBlocks(blocks) {
+            const source = Array.isArray(blocks) ? blocks : []
+            const seen = {}
+            const sanitized = []
+            for (let i = 0; i < source.length; ++i) {
+                const cell = source[i]
+                if (!cell)
+                    continue
+                const row = Math.max(0, Math.min(5, Number(cell.row)))
+                const column = Math.max(0, Math.min(5, Number(cell.column)))
+                const key = row + ":" + column
+                if (seen[key])
+                    continue
+                seen[key] = true
+                sanitized.push({ row: row, column: column })
+            }
+            return sanitized
+        }
+
+        function hasPowerup(payload) {
+            return Boolean(payload && payload.typeKey)
+        }
+
+        function serializePayload(payload) {
+            const normalized = clonePayload(payload)
+            return hasPowerup(normalized) ? normalized : {}
+        }
+    }
+
     anchors.fill: parent
 
     Component.onCompleted: {
@@ -326,12 +389,8 @@ GameScene {
         const count = slotCount > 0 ? slotCount : 0
         slotModel.clear()
         for (let i = 0; i < count; ++i) {
-            const payload = (persisted && persisted.length > i) ? _clonePayload(persisted[i]) : null
-            slotModel.append({
-                slotIndex: i,
-                payload: payload,
-                hasPowerup: Boolean(payload && payload.typeKey)
-            })
+            const entry = (persisted && persisted.length > i) ? persisted[i] : null
+            slotModel.append(slotLedger.composeSlot(i, entry))
         }
     }
 
@@ -378,23 +437,15 @@ GameScene {
     function _applySelection(slotIndex, payload) {
         if (slotIndex < 0 || slotIndex >= slotModel.count)
             return
-        const cloned = _clonePayload(payload)
-        slotModel.set(slotIndex, {
-            slotIndex: slotIndex,
-            payload: cloned,
-            hasPowerup: Boolean(cloned && cloned.typeKey)
-        })
+        const slotEntry = slotLedger.composeSlot(slotIndex, payload)
+        slotModel.set(slotIndex, slotEntry)
         _persistSelection()
     }
 
     function _clearSlot(slotIndex) {
         if (slotIndex < 0 || slotIndex >= slotModel.count)
             return
-        slotModel.set(slotIndex, {
-            slotIndex: slotIndex,
-            payload: null,
-            hasPowerup: false
-        })
+        slotModel.set(slotIndex, slotLedger.composeSlot(slotIndex, null))
         _persistSelection()
     }
 
@@ -404,7 +455,7 @@ GameScene {
         const snapshot = []
         for (let i = 0; i < slotModel.count; ++i) {
             const entry = slotModel.get(i)
-            snapshot.push(entry && entry.payload ? _clonePayload(entry.payload) : {})
+            snapshot.push(slotLedger.serializePayload(entry ? entry.payload : null))
         }
         selectedPowerupStore.setPowerupData(snapshot)
     }
@@ -413,7 +464,7 @@ GameScene {
         const chosen = []
         for (let i = 0; i < slotModel.count; ++i) {
             const entry = slotModel.get(i)
-            if (entry && entry.payload && entry.payload.typeKey)
+            if (entry && slotLedger.hasPowerup(entry.payload))
                 chosen.push(_clonePayload(entry.payload))
         }
         scene.selectionConfirmed(chosen)
@@ -446,25 +497,7 @@ GameScene {
     }
 
     function _clonePayload(payload) {
-        const copy = Object.assign({}, payload || {})
-        const sanitized = []
-        const source = Array.isArray(copy.blocks) ? copy.blocks : []
-        const seen = {}
-        for (let i = 0; i < source.length; ++i) {
-            const cell = source[i]
-            if (!cell)
-                continue
-            const row = Math.max(0, Math.min(5, Number(cell.row)))
-            const column = Math.max(0, Math.min(5, Number(cell.column)))
-            const key = row + ":" + column
-            if (seen[key])
-                continue
-            seen[key] = true
-            sanitized.push({ row: row, column: column })
-        }
-        copy.blocks = sanitized
-        copy.blockCount = sanitized.length
-        return copy
+        return slotLedger.clonePayload(payload)
     }
     onPowerupRepositoryChanged: scene._synchronizeRepository()
 
