@@ -45,6 +45,10 @@ QtObject {
         defeated: {
             opacity: 0.0,
             scale: 0.7
+        },
+        selected: {
+            opacity: 1.0,
+            scale: 1.08
         }
     })
 

@@ -48,6 +48,7 @@ qt_add_qml_module(appBlockwars24
         SinglePlayer/controllers/HumanPlayerController.qml
     RESOURCES
         resources.qrc
+        quickpromise/qml/quickpromise.qrc
         AGENTS.md
     SOURCES
         src/abstractgameelement.h src/abstractgameelement.cpp
@@ -56,6 +57,9 @@ qt_add_qml_module(appBlockwars24
         src/gamesignal.h src/gamesignal.cpp
         src/gameelementstore.h src/gameelementstore.cpp
         src/gamedataobject.h src/gamedataobject.cpp
+        src/gamegridorchestrator.h src/gamegridorchestrator.cpp
+        RESOURCES
+        QML_FILES lib/promise.js lib/Promise.qml lib/PromiseTimer.qml
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.

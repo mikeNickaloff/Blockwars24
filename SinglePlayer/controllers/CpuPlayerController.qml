@@ -1,11 +1,14 @@
 import QtQuick
 import "../../Shared"
+import "../../lib/promise.js" as Q
 
 Item {
     id: controller
 
     property int dashboardIndex: 0
     property var preparedLoadout: []
+    property var linkedDashboard: null
+    property var hydrationPromise: null
 
     signal loadoutPrepared(int dashboardIndex, var loadout)
     signal initiativeRolled(int dashboardIndex, int rollValue)
@@ -17,7 +20,9 @@ Item {
     function prepareLoadout() {
         const entries = defaults.allPowerups()
         preparedLoadout = entries.slice(0, 4)
+        hydrationPromise = Q.promise()
         loadoutPrepared(dashboardIndex, preparedLoadout)
+        return hydrationPromise
     }
 
     function rollInitiative() {
@@ -26,18 +31,19 @@ Item {
     }
 
     function selectBestSwap(grid) {
-        if (!grid)
+        const activeGrid = grid || (linkedDashboard ? linkedDashboard.gridElement : null)
+        if (!activeGrid)
             return null
         const options = []
-        for (let r = 0; r < grid.rowCount; ++r) {
-            for (let c = 0; c < grid.columnCount; ++c) {
-                if (c + 1 < grid.columnCount) {
-                    const scoreH = grid.evaluateSwapPotential(r, c, r, c + 1)
+        for (let r = 0; r < activeGrid.rowCount; ++r) {
+            for (let c = 0; c < activeGrid.columnCount; ++c) {
+                if (c + 1 < activeGrid.columnCount) {
+                    const scoreH = activeGrid.evaluateSwapPotential(r, c, r, c + 1)
                     if (scoreH > 0)
                         options.push({ row1: r, column1: c, row2: r, column2: c + 1, score: scoreH })
                 }
-                if (r + 1 < grid.rowCount) {
-                    const scoreV = grid.evaluateSwapPotential(r, c, r + 1, c)
+                if (r + 1 < activeGrid.rowCount) {
+                    const scoreV = activeGrid.evaluateSwapPotential(r, c, r + 1, c)
                     if (scoreV > 0)
                         options.push({ row1: r, column1: c, row2: r + 1, column2: c, score: scoreV })
                 }

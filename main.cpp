@@ -4,6 +4,7 @@
 #include "src/gamespritesheetelement.h"
 #include "src/gamescene.h"
 #include "src/gamesignal.h"
+#include "src/gamegridorchestrator.h"
 #include <QResource>
 #include <QDir>
 
@@ -24,6 +25,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<GameSpriteSheetElement>("Blockwars24", 1, 0, "GameSpriteSheetElement");
      qmlRegisterType<GameScene>("Blockwars24", 1, 0, "GameScene");
      qmlRegisterType<GameSignal>("Blockwars24", 1, 0, "GameSignal");
+    qmlRegisterType<GameGridOrchestrator>("Blockwars24", 1, 0, "GameGridOrchestrator");
     QObject::connect(
         &engine,
         &QQmlApplicationEngine::objectCreationFailed,

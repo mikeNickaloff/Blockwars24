@@ -111,13 +111,51 @@ C++ style abstraction OOP only when coding with QML.
 - ✔️ TODO [Step 44]: After the opponent's first cascade, re-enable swapping and inform the corresponding controller to choose a move.
 - ✔️ TODO [Step 45]: Have CpuPlayerController evaluate serialized grid snapshots, score all legal swaps, emit requestSwap, and wait for cascades before continuing.
 - ✔️ TODO [Step 46]: Decrement CPU swaps after each cascade and emit turnComplete when no swaps remain or no legal moves exist.
-- TODO [Step 81]: Allow charged powerup cards to be dragged onto friendly grid cells only when swaps remain and no cascades are underway.
-- TODO [Step 82]: Replace the targeted two horizontal blocks with the deployed powerup entity and exclude those cells from match logic.
-- TODO [Step 83]: Enforce one deployment per card while permitting sequential activations as long as cascades are idle and swaps remain.
-- TODO [Step 84]: Resolve powerup abilities against their configured targets, applying damage or healing and triggering the appropriate animations.
-- TODO [Step 85]: Reset the card's current energy to zero after activation while keeping the board entity alive and ready for recharge via matches.
-- TODO [Step 86]: Permit re-activation of deployed powerups when charged, clicking instead of dragging if already on the board, and reset energy afterward.
-- TODO [Step 87]: Trigger explosion, glow, or shake feedback on affected blocks depending on whether they are destroyed, healed, or damaged without destruction.
+- ✔️ TODO [Step 47]: After both GameGrids broadcast `beginFilling`, notify each dashboard (with its index) to transition into the enabled filling/launch state chain so their UI and logic stay synchronized.
+- ✔️ TODO [Step 48]: Maintain a persistent association between Player controllers and dashboards so routed signals (fill, launch, swaps, health updates) always land on the correct side.
+- ✔️ TODO [Step 49]: When a dashboard receives the `beginFilling` directive, compress existing blocks toward the centre-facing edge before spawning replacements so grids reset cleanly.
+- ✔️ TODO [Step 50]: Implement the pooled block generator that iterates columns, advances a pool index, spawns new blocks at virtual row -1, and stages them for compression into row 0.
+- ✔️ TODO [Step 51]: Refactor `Block.qml` to inherit from `AbstractGameElement`, wiring drop/launch tweens through the engine helpers instead of ad-hoc JavaScript animations.
+- ✔️ TODO [Step 52]: Implement `GameGridOrchestrator` (C++) that owns fill/compact/match state, deterministic spawn pools, and exposes concise QML hooks for `GameGridElement`.
+- ✔️ TODO [Step 53]: Add pointer handlers that honour `interactionEnabled`, allowing the grid to toggle swap hit testing per turn.
+- TODO [Step 54]: On receipt of `beginFilling`, drive the grid into `fill` via a QuickPromise state gate that resolves once the fill controller begins (avoid direct signal-slot binds).
+- TODO [Step 55]: When `fill` activates, spin up a QuickPromise vacancy scan (replacing `fillTimer`) that inspects row 0 and resolves with the list of open cells.
+- TODO [Step 56]: Chain the vacancy promise to spawn row -1 blocks for each open column and expose a promise that settles after the component creations register.
+- TODO [Step 57]: Promote staged row -1 blocks into row 0 using drop animations wrapped in QuickPromise sequences so `inAnimation` flags flip only after `.then()` handlers run.
+- TODO [Step 58]: Wrap block Y animations in QuickPromise helpers that set `inAnimation = true` before movement and resolve to flip it off post-landing.
+- TODO [Step 59]: Keep the fill-chain promise pending whenever any block's animation promise is unresolved and exit early only once every drop promise settles.
+- TODO [Step 60]: When the fill-chain resolves, transition to `compact` by chaining a new QuickPromise instead of firing timers.
+- TODO [Step 61]: Implement compaction as a QuickPromise-driven column iterator that moves one cell per resolved step while honoring orientation.
+- TODO [Step 62]: After the compaction promise settles, branch with `.then()`; re-enter `fill` if gaps remain or advance into `match` otherwise.
+- TODO [Step 63]: In `match` state, guard against unresolved animation promises, detect empty rows, and populate `matchList` as the resolved payload.
+- TODO [Step 64]: Extend the detector promise to append vertical runs so every qualifying sequence enters `matchList` exactly once.
+- TODO [Step 65]: When the match detection promise resolves empty, return to `idle` and notify the turn manager by fulfilling a QuickPromise instead of emitting raw signals.
+- TODO [Step 66]: If `matchList` carries entries, enter `launch` by resolving a QuickPromise that triggers each block's `launch()` and aggregates launch promises with `Q.all`.
+- TODO [Step 67]: Await the aggregated launch promise before looping back into the compaction promise chain.
+- TODO [Step 68]: Wrap swap requests in QuickPromise guards so the grid snaps back to `match` only after the swap promise resolves.
+- TODO [Step 69]: Maintain the (`match`→`launch`→`compact`→`fill`) loop as a series of chained promises to guarantee deterministic cascades without signal races.
+- TODO [Step 70]: Once the match promise resolves with no runs and all animation promises have settled, verify remaining swaps through a QuickPromise-based check.
+- TODO [Step 71]: If no swaps remain, fulfill a turn-ending QuickPromise that pauses cascading on that grid instead of emitting directly.
+- TODO [Step 72]: Upon the opponent's turn completion promise, re-enable cascading on the passive grid and drive it through the promise-based fill/compact loop until stable.
+- TODO [Step 73]: Chain a promise that replenishes the defending grid's swaps and only resolves when the board is back in `match` with no pending animations.
+- TODO [Step 74]: After the defender's first cascade promise fulfills, permit swaps for that grid and notify its controller via `.then()`.
+- TODO [Step 75]: Surface grid serialization via an async API that returns a QuickPromise delivering row/column/color data for the CPU.
+- TODO [Step 76]: Have CpuPlayerController score adjacent swaps inside promise chains, using `.then()` to request the highest-value swap through the grid API.
+- TODO [Step 77]: After dispatching a swap, keep the CPU idle by awaiting the cascade promise before decrementing swaps.
+- TODO [Step 78]: Repeat the CPU evaluation loop by chaining promises until three swaps resolve or no legal moves remain.
+- TODO [Step 79]: When the CPU move budget promise completes, resolve a turn completion promise so control passes back to the human grid.
+- TODO [Step 80]: Ensure the human-side grid awaits the CPU turn completion promise before cascading, refilling, and unlocking swaps.
+- TODO [Step 81]: Allow charged powerup cards to be placed only when swap/cascade promise guards resolve, enforcing interactions through promise gating.
+- TODO [Step 82]: Replace targeted blocks with the deployed powerup and resolve a QuickPromise once the board exclusions propagate to match logic.
+- TODO [Step 83]: Enforce one deployment per card by chaining activation promises; sequential activations only start after the previous promise settles.
+- TODO [Step 84]: Resolve powerup abilities via promise-based damage/heal pipelines that also trigger animations and settle when feedback completes.
+- TODO [Step 85]: Reset card energy inside the activation promise's `.then()` while keeping the board entity live for recharge.
+- TODO [Step 86]: Permit re-activation when the recharge promise fulfills, supporting click re-use and energy reset inside the resolution handler.
+- TODO [Step 87]: Trigger explosion/glow/shake feedback through QuickPromise animation helpers so upstream logic awaits visual completion.
+- ✔️ TODO [Step 88]: Collapse the WaitingForOpponentBanner only after a `Q.all` aggregate of dashboard readiness promises resolves, keeping UI state changes promise-gated.
+- ✔️ TODO [Step 89]: Refactor CPU and Human loadout hydration so controllers expose QuickPromise hooks that resolve once cards bind and animations settle, avoiding direct signal wiring.
+- ✔️ TODO [Step 90]: Replace the seed confirmation handshake with chained QuickPromises—generate seeds, wait on both `setBlockSeed` resolutions, then resolve into `initializeGame`.
+- ✔️ TODO [Step 91]: Conduct initiative rolls inside a QuickPromise loop that reruns on ties and settles before `beginTurn` promise chains trigger dashboard state flips.
 
 
 
@@ -275,17 +313,17 @@ Keep nicely formatted and able to be understood by other agents (or people)
 31. The scene clears the waiting banner, tells the active dashboard to `beginTurn()`, and notifies the opposing dashboard that it is observing. From this point forward all game state changes flow strictly through queued signals so order of operations remains deterministic.
 
 ##### Blocks
-32. `GameGridElement` never spawns raw rectangles. Instead, it instantiates `Block.qml` entities through a `Component` factory so every block inherits the same behavior tree. Each block owns a `BlockAnimationStateMachine` helper that maps logical states (idle, matched, preparingLaunch, launching, airborne, colliding, exploding, filling, waiting, defeated) to sprite-sheet frame ranges and transitions.
-33. The sprite system loads atlases once through `BlockSpriteRepository`. Individual blocks request their sequence by logical action; the repository hands back a `SpriteSequence` object so blocks never hardcode URLs. Launch-to-impact flows reuse a single sheet, while explosions trigger `BlockExplodeParticle` emitters routed through the grid's particle overlay layer.
-34. Blocks expose `interactionEnabled` and `inAnimation` flags. The grid toggles `interactionEnabled` when swaps are legal; the animation state machine is responsible for toggling `inAnimation` whenever an animation begins or ends so timers can make safe decisions.
+32. `Block.qml` now derives from `AbstractGameElement`, so drops, launches, and collisions use the engine’s tween helpers rather than bespoke JavaScript animations. `BlockAnimationStateMachine` remains the visual layer, responding to engine-driven state changes.
+33. Sprite atlases still originate from `BlockSpriteRepository`, but blocks request sequences through engine callbacks so sprite selection stays data-driven while leaning on the unified tween pipeline.
+34. Interaction gates (`interactionEnabled`, `inAnimation`) are toggled inside the engine-managed tweens. `GameGridElement` simply mirrors desired intent, letting the engine keep authoritative timing for swap eligibility.
 
 ##### Game Board Simulation
-35. Receiving `beginFilling` places the grid into the `fill` state and arms `fillTimer`. The timer inspects row 0 for null entries. For each empty column it requests a new `Block` from `BlockFactory`, seeds it at virtual row -1, and pushes it into the grid matrix.
-36. After populating row -1, the grid calls `settleSpawnedBlocks()` which steps each newcomer to its real row while marking `inAnimation = true`. Blocks animate downward via a `SequentialAnimation` on `y` that begins with `ScriptAction { inAnimation = true }`, runs the `NumberAnimation`, and ends with `ScriptAction { inAnimation = false }`.
-37. `fillTimer` first checks whether any block still reports `inAnimation = true`. If so, it defers work until animations finish. When the entire grid is stable and row 0 contains no gaps, the grid flips to the `compact` state.
-38. `compactTimer` runs while the state is `compact`. It skips processing whenever a block is mid-animation. Otherwise it scans from the interior toward the opposing player (row 5→0 for the top grid, 0→5 for the bottom grid) and moves blocks one cell per tick using `compressColumnStep()` so motion stays orderly. Once every column is compacted the grid re-enters `fill`.
-39. When `fill` and `compact` no longer discover work, the grid transitions to `match`. `matchTimer` again guards on `inAnimation`, then searches for horizontal and vertical runs using the grid's helper algorithms. Matching blocks populate `matchList`; a non-empty list pushes the state to `launch`, otherwise the grid enters `idle` and emits `cascadeEnded` to signal that the turn may end.
-40. `launchTimer` dequeues blocks from `matchList`, calls their `launch()` method, and increments `launchCount`. Once every match has launched, the timer waits until `launchCount` returns to zero (blocks decrement the counter when they finish colliding) before swapping the state back to `compact`.
+35. A dedicated `GameGridOrchestrator` C++ element owns the fill/compact/match loop. `GameGridElement` forwards high-level cues to it and reacts to orchestration signals that describe which blocks to move, spawn, or launch.
+36. During filling, the orchestrator pre-compresses columns toward the arena centre, pulls deterministic spawn specs from its seeded pool, and emits `queueDrop` commands. Blocks animate via engine tweens so the top grid drops downward while the bottom grid rises into view without ad-hoc animations.
+37. Compaction advances only after every drop tween reports completion. The orchestrator processes one cell per tick toward the opponent, again dispatching tween instructions so motion cadence stays deterministic.
+38. Match detection and launch scheduling also live in C++. The orchestrator issues `queueLaunch` directives that blocks convert into launch tweens and waits for completion acknowledgements before resuming filling.
+39. Because orchestration runs inside the engine, async ordering is guaranteed. `GameGridElement` becomes a thin view that relays orchestrator signals to the dashboards while controllers consume clean lifecycle events (`fillCycleStarted`, `cascadeCompleted`, etc.).
+40. Additional client-side timers exist only for presentation (e.g., HUD updates); game-state progression is anchored in the orchestrator to keep both dashboards perfectly synchronized.
 
 ##### Turn Management and CPU Behavior
 41. Swaps arrive via `swapBlocks(row1, column1, row2, column2)`. The grid only executes the swap if its state is `match` and no block is animating; successful swaps immediately push the state back into `match` so the standard fill/compact/match loop resumes.
@@ -295,6 +333,37 @@ Keep nicely formatted and able to be understood by other agents (or people)
 45. `CpuPlayerController` responds by requesting a serialized snapshot of its grid (`serializeElements()` restricted to blocks). It evaluates every legal adjacent swap, scoring each outcome for potential matches. When it finds the highest-value move it issues `requestSwap(row1, column1, row2, column2)` and waits for the grid to finish cascading before consuming another swap.
 46. After each cascade the CPU decrements its internal `swapsRemaining`. When the counter hits zero—or no legal swaps remain—it emits `turnComplete(dashboardIndex)`. The scene relays that to the opposing dashboard, restarting the state machine described above so play alternates cleanly.
 
+47. Dashboards expose explicit `bindOrchestratorSignals(index)` helpers so `SinglePlayerMatchScene` can connect orchestration events to the correct HUD without guessing. Every high-level cue therefore travels from controller → scene → orchestrator → dashboard in a single, ordered chain.
+48. Player controllers maintain persistent references to their dashboards (and vice versa) to keep swap toggles, turn summaries, and orchestrator messages aligned with the correct side. The association is established once during scene initialization and reused across rematches.
+49. When a dashboard receives `beginFilling` it merely calls `orchestrator.beginFill(dashboardIndex, fillDirection)`. The C++ orchestrator handles compression toward the centre, spawn pooling, and tween dispatch; the dashboard listens for engine callbacks to update HUD state.
+50. Blocks remain one-per-cell, but creation now flows through the engine. The orchestrator instantiates new `Block` elements via the factory and queues tweens relative to the dashboard’s orientation, eliminating ad-hoc column loops in QML.
+
+##### Blocks
+51. Each `Block` surfaces invokables like `queueDropTo(cellIndex)` and `queueLaunch(vector)` that simply wrap engine tween helpers. Visual state changes (matched, charging, launched, destroyed) trigger `BlockAnimationStateMachine` updates, keeping the QML clean and declarative.
+52. Sprite atlases still drive the look: powering up, projectile flight, and explosions reuse the existing sheets, but the selection now occurs inside the `Block` engine callbacks so behaviour remains centralized and consistent.
+53. Blocks also must detect mouse events for switching when enabled, so they must be updated as to whether they are allowed to be interacted wth or not by the Game Grid
+
+##### Game Board
+54. `GameGridElement` forwards `beginFilling` to the orchestrator, which flips the logical state to `fill`, pre-compresses columns toward centre court, and issues deterministic `queueDrop` commands for any empty cells.
+55. The orchestrator watches engine-managed drop acknowledgements before transitioning to `compact`. Compaction runs one cell per tick toward the opposing player and only concludes when every column is stable.
+56. Once compacted, the orchestrator performs horizontal and vertical match scans. A non-empty result queues launches; an empty result loops back into fill. All state transitions are surfaced to QML via concise signals (`fillCycleStarted`, `compactionComplete`, `launchQueued`).
+57. Launch handling is orchestrator-driven: it emits `queueLaunch` events, tracks completion from each `Block`, and finally broadcasts `cascadeCompleted` so dashboards and controllers advance the turn.
+
+##### Block
+58. Blocks expose invokables that wrap engine tweens (`queueDropTo`, `queueLaunch`, `queueDamage`) and invoke `BlockAnimationStateMachine` updates so visuals mirror the orchestrator without bespoke JavaScript animation code.
+
+##### Game Board
+59. Swap requests (`requestSwap`) still originate from `GameGridElement`, but validation, execution, and the ensuing fill/compact/match loop are orchestrated in C++. Dashboards listen for orchestrator signals to unlock or lock interaction.
+60. End-of-turn behaviour hinges on orchestrator callbacks (`swapBudgetDepleted`, `cascadeCompleted`), giving controllers deterministic points to hand control to the opponent.
+72. If match has no matches, and the GameGrid blocks are not animating, then  this point the swaps remaining is 0 issue a signal to the other Game Grid stating that the turn has been ended for this Game Grid which in turn results in Cascading being disabled for this Game Grid as well as swapping being disabled. 
+73. once the signal is sent informing that a Game Grid has finished their turn, the other Game Grid instance should detect that signal and enable cascades. 
+74. After enabling cascades on the opponent Game Grid, the opponent Game Grid state should be set to compact which will trigger the infite loop system of compact, fill, match, launch, compact, fill, match, launch, and on and on.
+75. Also, the opponent Game Grid should be given 3 swaps that they can make, and enable swapping once the Game Grid is in match state and has no mathes and no animations happening, which will be available to be used by the CPU (or remote player) depending on who the other player is. 
+76. Once its the opponent's turn and their grid has completed at least one full cascade (or more depending on if any matches come up during the match state), but once the cascade is completed, then the CPU's Game Grid should be set to allow swaps to happen. 
+77. The CPU Player will be sent a signal to make one move, which will cause the CPU player object to request the block data from the Game Grid, which will show all the available blocks on Game Grid 1 to the CPU by sending a signal containing the block data (row, col, color) for all blocks.
+78. The CPU player will iterate through each grid position, searching each possible direction that the block can swap (up down left or right) and then check to see if there are any 3+ in a row or column when making that switch.  Once it finds a valid swap, it sends a signal to GameGrid 1 to make that swap then waits until cascading finishes (using timers) from that move and decrease moves remaining by 1 
+79. Once cascading finished and sends the cascade finished signal, then the CPU will check to see if it has any moves remaining (out of its 3 moves), it will proceed to find a swap and make it 
+80. After all 3 CPU swaps are made and all cascades are fully completed, then endTurn signal is sent which is picked up by Game Grid 0, which then cascades its blocks starting with comact and continuing on matching and launching etc (using timers) until no matches exist when the state changes to "match" at which point Game Grid 0 unlocks and swaps are allowed for Game Grid 0. 
 #####  Game Board / Powerups
 81. When the active player still has swaps remaining, both grids are idle, and at least one of their four powerup cards is fully charged, that player may drag a charged card from the Powerup HUD onto any empty-friendly cell (never onto the opponent's grid) to deploy the powerup instead of performing a swap.
 82. Dropping a powerup onto the board replaces the two horizontal blocks beneath it with the powerup entity; those cells are no longer considered matchable blocks for the purposes of the match-3 rules.
