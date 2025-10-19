@@ -502,18 +502,99 @@ Item {
         })
     }
 
-    function _detectMatches() {
-        const matches = orchestrator.detectMatches(_colorMatrix())
+    function _appendHorizontalRuns(matrix, seen, coordinates) {
+        if (!matrix || !matrix.length)
+            return
+
+        const rows = matrix.length
+        const columns = matrix[0] ? matrix[0].length : 0
+
+        for (let row = 0; row < rows; ++row) {
+            let run = []
+            let lastKey = ""
+            for (let column = 0; column < columns; ++column) {
+                const key = matrix[row][column] || ""
+                if (key && key === lastKey)
+                    run.push({ row: row, column: column })
+                else {
+                    _commitRun(run, seen, coordinates)
+                    run = key ? [{ row: row, column: column }] : []
+                    lastKey = key
+                }
+            }
+            _commitRun(run, seen, coordinates)
+        }
+    }
+
+    function _appendVerticalRuns(matrix, seen, coordinates) {
+        if (!matrix || !matrix.length)
+            return
+
+        const rows = matrix.length
+        const columns = matrix[0] ? matrix[0].length : 0
+
+        for (let column = 0; column < columns; ++column) {
+            let run = []
+            let lastKey = ""
+            for (let row = 0; row < rows; ++row) {
+                const key = matrix[row][column] || ""
+                if (key && key === lastKey)
+                    run.push({ row: row, column: column })
+                else {
+                    _commitRun(run, seen, coordinates)
+                    run = key ? [{ row: row, column: column }] : []
+                    lastKey = key
+                }
+            }
+            _commitRun(run, seen, coordinates)
+        }
+    }
+
+    function _commitRun(run, seen, coordinates) {
+        if (!run || run.length < 3)
+            return
+        for (let idx = 0; idx < run.length; ++idx) {
+            const coordinate = run[idx]
+            const key = coordinate.row + ":" + coordinate.column
+            if (seen[key])
+                continue
+            seen[key] = true
+            coordinates.push(coordinate)
+        }
+    }
+
+    function _coordinatesToBlocks(coordinates) {
         const blocks = []
-        for (let i = 0; i < matches.length; ++i) {
-            const match = matches[i]
-            const r = match.row
-            const c = match.column
-            const block = _blockAt(r, c)
+        for (let i = 0; i < coordinates.length; ++i) {
+            const coordinate = coordinates[i]
+            const block = _blockAt(coordinate.row, coordinate.column)
             if (block && blocks.indexOf(block) === -1)
                 blocks.push(block)
         }
         return blocks
+    }
+
+    function _detectMatches() {
+        const matrix = _colorMatrix()
+        const seen = {}
+        const coordinates = []
+        _appendHorizontalRuns(matrix, seen, coordinates)
+        _appendVerticalRuns(matrix, seen, coordinates)
+        return _coordinatesToBlocks(coordinates)
+    }
+
+    function _detectMatchesAsync() {
+        const matrix = _colorMatrix()
+        const seen = {}
+        const coordinates = []
+
+        return Q.promise(function(resolve) {
+            _appendHorizontalRuns(matrix, seen, coordinates)
+            Qt.callLater(function() {
+                _appendVerticalRuns(matrix, seen, coordinates)
+                resolve(_coordinatesToBlocks(coordinates))
+            })
+        })
     }
 
     function _launchMatches() {
@@ -980,9 +1061,11 @@ Item {
                 gridState = "fill"
                 return _advanceStateMachine()
             }
-            const matches = _detectMatches() || []
-            matchList = matches
-            return _processMatches(matches)
+            return _detectMatchesAsync().then(function(matches) {
+                const resolvedMatches = matches || []
+                matchList = resolvedMatches
+                return _processMatches(resolvedMatches)
+            })
         })
     }
 

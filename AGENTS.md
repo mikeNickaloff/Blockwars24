@@ -128,7 +128,7 @@ C++ style abstraction OOP only when coding with QML.
 - ✔️ TODO [Step 61]: Implement compaction as a QuickPromise-driven column iterator that moves one cell per resolved step while honoring orientation.
 - ✔️ TODO [Step 62]: After the compaction promise settles, branch with `.then()`; re-enter `fill` if gaps remain or advance into `match` otherwise.
 - ✔️ TODO [Step 63]: In `match` state, guard against unresolved animation promises, detect empty rows, and populate `matchList` as the resolved payload.
-- TODO [Step 64]: Extend the detector promise to append vertical runs so every qualifying sequence enters `matchList` exactly once.
+- ✔️ TODO [Step 64]: Extend the detector promise to append vertical runs so every qualifying sequence enters `matchList` exactly once.
 - TODO [Step 65]: When the match detection promise resolves empty, return to `idle` and notify the turn manager by fulfilling a QuickPromise instead of emitting raw signals.
 - TODO [Step 66]: If `matchList` carries entries, enter `launch` by resolving a QuickPromise that triggers each block's `launch()` and aggregates launch promises with `Q.all`.
 - TODO [Step 67]: Await the aggregated launch promise before looping back into the compaction promise chain.
