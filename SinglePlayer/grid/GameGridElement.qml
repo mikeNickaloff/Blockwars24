@@ -25,8 +25,8 @@ Item {
     property bool _cascadeInFlight: false
     property var _cascadePromise: null
     property var _fillStateGate: null
+    property var _cascadeCompletionGate: null
 
-    signal cascadeEnded()
     signal swapPerformed(bool success, int row1, int column1, int row2, int column2)
     signal turnEnded()
     signal fillCycleStarted()
@@ -138,6 +138,14 @@ Item {
         })
     }
 
+    function awaitCascadeCompletion() {
+        if (_cascadeCompletionGate && typeof _cascadeCompletionGate.then === "function")
+            return _cascadeCompletionGate
+        const gate = Q.promise()
+        gate.resolve({ state: gridState })
+        return gate
+    }
+
     function _initialize() {
         gridMatrix = []
         for (let r = 0; r < rowCount; ++r) {
@@ -228,6 +236,24 @@ Item {
         const promise = Q.promise()
         promise.resolve(value)
         return promise
+    }
+
+    function _resolveCascadeCompletion(payload) {
+        if (!_cascadeCompletionGate)
+            return
+        const gate = _cascadeCompletionGate
+        _cascadeCompletionGate = null
+        if (typeof gate.resolve === "function")
+            gate.resolve(payload || { state: "idle" })
+    }
+
+    function _rejectCascadeCompletion(reason) {
+        if (!_cascadeCompletionGate)
+            return
+        const gate = _cascadeCompletionGate
+        _cascadeCompletionGate = null
+        if (typeof gate.reject === "function")
+            gate.reject(reason)
     }
 
     function _positionBlock(block, row, column, animate) {
@@ -636,7 +662,7 @@ Item {
         gridState = "idle"
         if (seedingFill)
             seedingFill = false
-        cascadeEnded()
+        _resolveCascadeCompletion({ state: "idle" })
         _cascadeInFlight = false
         _onCascadeComplete()
         return _resolvedPromise(false)
@@ -1094,6 +1120,7 @@ Item {
         if (_cascadeInFlight)
             return _cascadePromise || _resolvedPromise(false)
 
+        _cascadeCompletionGate = Q.promise()
         _cascadeInFlight = true
         fillCycleStarted()
 
@@ -1101,10 +1128,13 @@ Item {
         _cascadePromise = cascade.then(function(result) {
             _cascadeInFlight = false
             _cascadePromise = null
+            if (_cascadeCompletionGate && !_cascadeCompletionGate.isSettled)
+                _resolveCascadeCompletion({ state: gridState })
             return result
         }, function(error) {
             _cascadeInFlight = false
             _cascadePromise = null
+            _rejectCascadeCompletion(error)
             console.error("Cascade sequence rejected", error)
             throw error
         })

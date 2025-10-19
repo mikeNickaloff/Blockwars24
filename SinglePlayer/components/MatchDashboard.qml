@@ -16,6 +16,7 @@ Item {
     property bool fillingChainEnabled: false
     property string phaseState: "waiting"
     property var controller: null
+    property var cascadeCompletionPromise: null
 
     signal powerupDataLoaded(int dashboardIndex)
     signal seedConfirmed(int dashboardIndex, int seed)
@@ -150,7 +151,6 @@ Item {
                 Layout.minimumHeight: 0
                 fillDirection: dashboardIndex === 0 ? 1 : -1
                 onFillCycleStarted: dashboard._handleFillCycleStarted()
-                onCascadeEnded: dashboard._handleCascadeFinished()
                 onTurnEnded: dashboard._handleTurnFinished()
             }
 
@@ -198,6 +198,25 @@ Item {
         setPhaseState(observing ? "observing" : "fillingPending")
         _refreshSwapPermission()
         fillCycleStarted(dashboardIndex)
+
+        const pendingCascadePromise = matchGrid.awaitCascadeCompletion()
+        if (pendingCascadePromise && typeof pendingCascadePromise.then === "function") {
+            cascadeCompletionPromise = pendingCascadePromise
+            pendingCascadePromise.then(function() {
+                if (cascadeCompletionPromise !== pendingCascadePromise)
+                    return
+                cascadeCompletionPromise = null
+                dashboard._handleCascadeFinished()
+            }, function(error) {
+                if (cascadeCompletionPromise === pendingCascadePromise)
+                    cascadeCompletionPromise = null
+                console.error("Cascade promise rejected", error)
+                dashboard._handleCascadeFinished()
+            })
+        } else {
+            cascadeCompletionPromise = null
+            dashboard._handleCascadeFinished()
+        }
     }
 
     function _handleCascadeFinished() {
@@ -214,6 +233,7 @@ Item {
         fillingChainEnabled = false
         setPhaseState("waiting")
         _refreshSwapPermission()
+        cascadeCompletionPromise = null
         turnCompleted(dashboardIndex)
     }
 }
