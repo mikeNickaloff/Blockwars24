@@ -26,6 +26,7 @@ Item {
     property var _cascadePromise: null
     property var _fillStateGate: null
     property var _cascadeCompletionGate: null
+    property int compactionStepDurationMs: 110
 
     signal swapPerformed(bool success, int row1, int column1, int row2, int column2)
     signal turnEnded()
@@ -256,7 +257,7 @@ Item {
             gate.reject(reason)
     }
 
-    function _positionBlock(block, row, column, animate) {
+    function _positionBlock(block, row, column, animate, durationMs) {
         const targetX = column * cellSize + cellPadding
         const targetY = row * cellSize + cellPadding
         block.row = row
@@ -264,7 +265,7 @@ Item {
         block.setGridGeometry(cellSize, cellPadding)
         block.x = targetX
         if (animate)
-            return block.queueDropTo(row, column, 160)
+            return block.queueDropTo(row, column, durationMs || block.dropDurationMs)
         block.y = targetY
         block.inAnimation = false
         return _resolvedPromise(block)
@@ -420,7 +421,7 @@ Item {
                 if (!Qt.isQtObject(block))
                     return false
                 gridMatrix[row][column] = null
-                return _positionBlock(block, nextRow, column, true).then(function() {
+                return _positionBlock(block, nextRow, column, true, compactionStepDurationMs).then(function() {
                     if (!Qt.isQtObject(block))
                         return false
                     gridMatrix[nextRow][column] = block
