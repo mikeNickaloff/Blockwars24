@@ -23,6 +23,8 @@ Item {
     property var _dragContext: null
     property int spawnSeed: 1
     property bool _cascadeInFlight: false
+    property var _cascadePromise: null
+    property var _fillStateGate: null
 
     signal cascadeEnded()
     signal swapPerformed(bool success, int row1, int column1, int row2, int column2)
@@ -120,7 +122,20 @@ Item {
     function beginFilling() {
         if (gridState !== "fill")
             gridState = "fill"
-        _requestCascade()
+
+        const gate = Q.promise()
+        _fillStateGate = gate
+        const cascade = _requestCascade()
+
+        Qt.callLater(function() {
+            if (_fillStateGate === gate && typeof gate.resolve === "function")
+                gate.resolve({ state: "fill" })
+            _fillStateGate = null
+        })
+
+        return gate.then(function() {
+            return cascade
+        })
     }
 
     function _initialize() {
@@ -229,50 +244,262 @@ Item {
         return _resolvedPromise(block)
     }
 
-    function _fillColumns() {
-        const instructions = orchestrator.prepareFill(_colorMatrix())
-        if (!instructions.length)
-            return _resolvedPromise(false)
-        const promises = []
-        for (let i = 0; i < instructions.length; ++i) {
-            const op = instructions[i]
-            const column = op.column
-            const targetRow = op.targetRow
-            const spawnRow = op.spawnRow
-            const spec = op.spec
-            if (gridMatrix[targetRow][column])
+    function _scanVacancies() {
+        if (rowCount <= 0 || columnCount <= 0)
+            return _resolvedPromise([])
+
+        const edgeRow = fillDirection >= 0 ? 0 : rowCount - 1
+        const spawnRow = fillDirection >= 0 ? -1 : rowCount
+        const matrix = _colorMatrix()
+        const vacancies = []
+
+        for (let column = 0; column < columnCount; ++column) {
+            if (gridMatrix[edgeRow][column])
                 continue
-            const block = _createBlock(spawnRow, column, spec, false)
-            block.interactionEnabled = allowPointerSwaps && activeTurn
-            block.allowSwitch = allowPointerSwaps && activeTurn
-            gridMatrix[targetRow][column] = block
-            promises.push(_positionBlock(block, targetRow, column, true))
+
+            const spec = orchestrator.spawnSpecFor(matrix, edgeRow, column)
+            if (!spec || !spec.colorKey)
+                continue
+
+            matrix[edgeRow][column] = spec.colorKey
+            vacancies.push({
+                              column: column,
+                              targetRow: edgeRow,
+                              spawnRow: spawnRow,
+                              spec: spec
+                          })
         }
+
+        return _resolvedPromise(vacancies)
+    }
+
+    function _spawnBlocksForVacancies(vacancies) {
+        if (!vacancies || !vacancies.length)
+            return _resolvedPromise([])
+
+        const staged = []
+        for (let i = 0; i < vacancies.length; ++i) {
+            const vacancy = vacancies[i]
+            if (!vacancy || gridMatrix[vacancy.targetRow][vacancy.column])
+                continue
+
+            const block = _createBlock(vacancy.spawnRow, vacancy.column, vacancy.spec, false)
+            if (!block)
+                continue
+
+            block.interactionEnabled = false
+            block.allowSwitch = false
+            block.updateVisualState("idle")
+
+            staged.push({
+                            block: block,
+                            targetRow: vacancy.targetRow,
+                            column: vacancy.column
+                        })
+        }
+
+        return _resolvedPromise(staged)
+    }
+
+    function _dropStagedBlocks(stagedEntries) {
+        if (!stagedEntries || !stagedEntries.length)
+            return _resolvedPromise(false)
+
+        const promises = []
+        for (let i = 0; i < stagedEntries.length; ++i) {
+            const entry = stagedEntries[i]
+            if (!entry || !entry.block)
+                continue
+
+            const targetRow = entry.targetRow
+            const column = entry.column
+            const dropPromise = entry.block.queueDropTo(targetRow, column, entry.block.dropDurationMs).then(function(instance) {
+                if (targetRow >= 0 && targetRow < rowCount && column >= 0 && column < columnCount)
+                    gridMatrix[targetRow][column] = instance
+                instance.interactionEnabled = allowPointerSwaps && activeTurn
+                instance.allowSwitch = allowPointerSwaps && activeTurn
+                instance.updateVisualState("idle")
+                return instance
+            })
+
+            promises.push(dropPromise)
+        }
+
         if (!promises.length)
             return _resolvedPromise(false)
+
         return Q.all(promises).then(function() { return true; })
     }
 
-    function _preCompressColumns() {
-        const moves = orchestrator.compactionMoves(_colorMatrix())
-        if (!moves.length)
+    function _fillColumns() {
+        return _scanVacancies().then(function(vacancies) {
+            if (!vacancies || !vacancies.length)
+                return false
+            return _spawnBlocksForVacancies(vacancies).then(function(staged) {
+                if (!staged || !staged.length)
+                    return false
+                return _dropStagedBlocks(staged)
+            })
+        })
+    }
+
+    function _edgeVacanciesExist() {
+        if (rowCount <= 0 || columnCount <= 0)
+            return false
+        const edgeRow = fillDirection >= 0 ? 0 : rowCount - 1
+        for (let column = 0; column < columnCount; ++column) {
+            if (!gridMatrix[edgeRow][column])
+                return true
+        }
+        return false
+    }
+
+    function _gridHasEmptyRow() {
+        for (let r = 0; r < rowCount; ++r) {
+            let occupied = false
+            for (let c = 0; c < columnCount; ++c) {
+                if (gridMatrix[r][c]) {
+                    occupied = true
+                    break
+                }
+            }
+            if (!occupied)
+                return true
+        }
+        return false
+    }
+
+    function _moveBlockStepwise(block, fromRow, toRow, column) {
+        if (!Qt.isQtObject(block))
             return _resolvedPromise(false)
-        const promises = []
+
+        const start = Number(fromRow)
+        const target = Number(toRow)
+        if (!isFinite(start) || !isFinite(target) || start === target) {
+            block.interactionEnabled = allowPointerSwaps && activeTurn
+            block.allowSwitch = allowPointerSwaps && activeTurn
+            return _resolvedPromise(false)
+        }
+
+        const step = target > start ? 1 : -1
+        let moved = false
+        let chain = _resolvedPromise(false)
+
+        block.interactionEnabled = false
+        block.allowSwitch = false
+
+        for (let row = start; row !== target; row += step) {
+            const nextRow = row + step
+            chain = chain.then(function() {
+                if (!Qt.isQtObject(block))
+                    return false
+                gridMatrix[row][column] = null
+                return _positionBlock(block, nextRow, column, true).then(function() {
+                    if (!Qt.isQtObject(block))
+                        return false
+                    gridMatrix[nextRow][column] = block
+                    moved = true
+                    return true
+                })
+            })
+        }
+
+        return chain.then(function() {
+            if (Qt.isQtObject(block)) {
+                block.interactionEnabled = allowPointerSwaps && activeTurn
+                block.allowSwitch = allowPointerSwaps && activeTurn
+                block.updateVisualState("idle")
+            }
+            return moved
+        })
+    }
+
+    function _compactColumnMoves(column, moveList) {
+        if (!moveList || !moveList.length)
+            return _resolvedPromise(false)
+
+        let chain = _resolvedPromise(false)
+        let movedAny = false
+
+        for (let i = 0; i < moveList.length; ++i) {
+            const move = moveList[i]
+            const fromRow = Number(move.fromRow !== undefined ? move.fromRow : move["fromRow"])
+            const toRow = Number(move.toRow !== undefined ? move.toRow : move["toRow"])
+            if (!isFinite(fromRow) || !isFinite(toRow))
+                continue
+
+            chain = chain.then(function() {
+                const block = _blockAt(fromRow, column)
+                if (!Qt.isQtObject(block))
+                    return false
+                return _moveBlockStepwise(block, fromRow, toRow, column).then(function(stepMoved) {
+                    movedAny = movedAny || stepMoved
+                    return true
+                })
+            })
+        }
+
+        return chain.then(function() {
+            return movedAny
+        })
+    }
+
+    function _preCompressColumns() {
+        if (rowCount <= 0 || columnCount <= 0)
+            return _resolvedPromise(false)
+
+        const moves = orchestrator.compactionMoves(_colorMatrix())
+        if (!moves || !moves.length) {
+            _syncBlockInteractivity()
+            return _resolvedPromise(false)
+        }
+
+        const columnMoves = {}
         for (let i = 0; i < moves.length; ++i) {
             const move = moves[i]
-            const fromRow = move.fromRow
-            const column = move.column
-            const block = gridMatrix[fromRow][column]
-            if (!block)
+            const column = Number(move.column !== undefined ? move.column : move["column"])
+            if (!isFinite(column))
                 continue
-            const toRow = move.toRow
-            gridMatrix[fromRow][column] = null
-            gridMatrix[toRow][column] = block
-            promises.push(_positionBlock(block, toRow, column, true))
+            if (!columnMoves[column])
+                columnMoves[column] = []
+            columnMoves[column].push(move)
         }
-        if (!promises.length)
-            return _resolvedPromise(false)
-        return Q.promise.all(promises).then(function() { return true; })
+
+        const orderedColumns = Object.keys(columnMoves).map(function(entry) {
+            return Number(entry)
+        }).sort(function(a, b) {
+            return a - b
+        })
+
+        let chain = _resolvedPromise(false)
+        let movedAny = false
+
+        for (let idx = 0; idx < orderedColumns.length; ++idx) {
+            const column = orderedColumns[idx]
+            const moveList = columnMoves[column]
+            if (!moveList || !moveList.length)
+                continue
+
+            moveList.sort(function(a, b) {
+                const first = Number(a.toRow !== undefined ? a.toRow : a["toRow"])
+                const second = Number(b.toRow !== undefined ? b.toRow : b["toRow"])
+                if (fillDirection >= 0)
+                    return second - first
+                return first - second
+            })
+
+            chain = chain.then(function() {
+                return _compactColumnMoves(column, moveList).then(function(columnMoved) {
+                    movedAny = movedAny || columnMoved
+                    return true
+                })
+            })
+        }
+
+        return chain.then(function() {
+            _syncBlockInteractivity()
+            return movedAny
+        })
     }
 
     function _detectMatches() {
@@ -308,7 +535,7 @@ Item {
         matchList = []
         if (!promises.length)
             return _resolvedPromise()
-        return Q.promise.all(promises)
+        return Q.all(promises)
     }
 
     function _processMatches(matches) {
@@ -715,43 +942,90 @@ Item {
         return false
     }
 
+    function _waitForAnimationsToSettle() {
+        if (!_hasActiveAnimations())
+            return _resolvedPromise(true)
+        return Q.promise(function(resolve) {
+            Qt.callLater(function() {
+                _waitForAnimationsToSettle().then(resolve)
+            })
+        })
+    }
+
+    function _resolveFillState() {
+        return _fillColumns().then(function() {
+            return _enterCompactState()
+        })
+    }
+
+    function _enterCompactState() {
+        gridState = "compact"
+        return _resolveCompactState()
+    }
+
+    function _resolveCompactState() {
+        return _preCompressColumns().then(function() {
+            if (_edgeVacanciesExist()) {
+                gridState = "fill"
+                return _advanceStateMachine()
+            }
+            gridState = "match"
+            return _advanceStateMachine()
+        })
+    }
+
+    function _resolveMatchState() {
+        return _waitForAnimationsToSettle().then(function() {
+            if (_gridHasEmptyRow()) {
+                gridState = "fill"
+                return _advanceStateMachine()
+            }
+            const matches = _detectMatches() || []
+            matchList = matches
+            return _processMatches(matches)
+        })
+    }
+
+    function _resolveLaunchState() {
+        return _launchMatches().then(function() {
+            return _enterCompactState()
+        })
+    }
+
     function _advanceStateMachine() {
-        if (gridState === "fill") {
-            return _fillColumns().then(function(spawned) {
-                if (spawned)
-                    return _advanceStateMachine()
-                gridState = "compact"
-                return _advanceStateMachine()
-            })
+        switch (gridState) {
+        case "fill":
+            return _resolveFillState()
+        case "compact":
+            return _resolveCompactState()
+        case "match":
+            return _resolveMatchState()
+        case "launch":
+            return _resolveLaunchState()
+        default:
+            return _resolvedPromise(false)
         }
-        if (gridState === "compact") {
-            return _preCompressColumns().then(function(moved) {
-                if (moved)
-                    return _advanceStateMachine()
-                gridState = "match"
-                return _advanceStateMachine()
-            })
-        }
-        if (gridState === "match")
-            return _processMatches(_detectMatches())
-        if (gridState === "launch") {
-            return _launchMatches().then(function() {
-                gridState = "compact"
-                return _advanceStateMachine()
-            })
-        }
-        return _resolvedPromise(false)
     }
 
     function _requestCascade() {
         if (_cascadeInFlight)
-            return
+            return _cascadePromise || _resolvedPromise(false)
+
         _cascadeInFlight = true
         fillCycleStarted()
-        _advanceStateMachine().then(function() {
+
+        const cascade = _advanceStateMachine()
+        _cascadePromise = cascade.then(function(result) {
             _cascadeInFlight = false
-        }, function() {
+            _cascadePromise = null
+            return result
+        }, function(error) {
             _cascadeInFlight = false
+            _cascadePromise = null
+            console.error("Cascade sequence rejected", error)
+            throw error
         })
+
+        return _cascadePromise
     }
 }

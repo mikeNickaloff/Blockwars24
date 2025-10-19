@@ -118,16 +118,16 @@ C++ style abstraction OOP only when coding with QML.
 - ✔️ TODO [Step 51]: Refactor `Block.qml` to inherit from `AbstractGameElement`, wiring drop/launch tweens through the engine helpers instead of ad-hoc JavaScript animations.
 - ✔️ TODO [Step 52]: Implement `GameGridOrchestrator` (C++) that owns fill/compact/match state, deterministic spawn pools, and exposes concise QML hooks for `GameGridElement`.
 - ✔️ TODO [Step 53]: Add pointer handlers that honour `interactionEnabled`, allowing the grid to toggle swap hit testing per turn.
-- TODO [Step 54]: On receipt of `beginFilling`, drive the grid into `fill` via a QuickPromise state gate that resolves once the fill controller begins (avoid direct signal-slot binds).
-- TODO [Step 55]: When `fill` activates, spin up a QuickPromise vacancy scan (replacing `fillTimer`) that inspects row 0 and resolves with the list of open cells.
-- TODO [Step 56]: Chain the vacancy promise to spawn row -1 blocks for each open column and expose a promise that settles after the component creations register.
-- TODO [Step 57]: Promote staged row -1 blocks into row 0 using drop animations wrapped in QuickPromise sequences so `inAnimation` flags flip only after `.then()` handlers run.
-- TODO [Step 58]: Wrap block Y animations in QuickPromise helpers that set `inAnimation = true` before movement and resolve to flip it off post-landing.
-- TODO [Step 59]: Keep the fill-chain promise pending whenever any block's animation promise is unresolved and exit early only once every drop promise settles.
-- TODO [Step 60]: When the fill-chain resolves, transition to `compact` by chaining a new QuickPromise instead of firing timers.
-- TODO [Step 61]: Implement compaction as a QuickPromise-driven column iterator that moves one cell per resolved step while honoring orientation.
-- TODO [Step 62]: After the compaction promise settles, branch with `.then()`; re-enter `fill` if gaps remain or advance into `match` otherwise.
-- TODO [Step 63]: In `match` state, guard against unresolved animation promises, detect empty rows, and populate `matchList` as the resolved payload.
+- ✔️ TODO [Step 54]: On receipt of `beginFilling`, drive the grid into `fill` via a QuickPromise state gate that resolves once the fill controller begins (avoid direct signal-slot binds).
+- ✔️ TODO [Step 55]: When `fill` activates, spin up a QuickPromise vacancy scan (replacing `fillTimer`) that inspects row 0 and resolves with the list of open cells.
+- ✔️ TODO [Step 56]: Chain the vacancy promise to spawn row -1 blocks for each open column and expose a promise that settles after the component creations register.
+- ✔️ TODO [Step 57]: Promote staged row -1 blocks into row 0 using drop animations wrapped in QuickPromise sequences so `inAnimation` flags flip only after `.then()` handlers run.
+- ✔️ TODO [Step 58]: Wrap block Y animations in QuickPromise helpers that set `inAnimation = true` before movement and resolve to flip it off post-landing.
+- ✔️ TODO [Step 59]: Keep the fill-chain promise pending whenever any block's animation promise is unresolved and exit early only once every drop promise settles.
+- ✔️ TODO [Step 60]: When the fill-chain resolves, transition to `compact` by chaining a new QuickPromise instead of firing timers.
+- ✔️ TODO [Step 61]: Implement compaction as a QuickPromise-driven column iterator that moves one cell per resolved step while honoring orientation.
+- ✔️ TODO [Step 62]: After the compaction promise settles, branch with `.then()`; re-enter `fill` if gaps remain or advance into `match` otherwise.
+- ✔️ TODO [Step 63]: In `match` state, guard against unresolved animation promises, detect empty rows, and populate `matchList` as the resolved payload.
 - TODO [Step 64]: Extend the detector promise to append vertical runs so every qualifying sequence enters `matchList` exactly once.
 - TODO [Step 65]: When the match detection promise resolves empty, return to `idle` and notify the turn manager by fulfilling a QuickPromise instead of emitting raw signals.
 - TODO [Step 66]: If `matchList` carries entries, enter `launch` by resolving a QuickPromise that triggers each block's `launch()` and aggregates launch promises with `Q.all`.
