@@ -130,7 +130,7 @@ C++ style abstraction OOP only when coding with QML.
 - ✔️ TODO [Step 63]: In `match` state, guard against unresolved animation promises, detect empty rows, and populate `matchList` as the resolved payload.
 - ✔️ TODO [Step 64]: Extend the detector promise to append vertical runs so every qualifying sequence enters `matchList` exactly once.
 - ✔️ TODO [Step 65]: When the match detection promise resolves empty, return to `idle` and notify the turn manager by fulfilling a QuickPromise instead of emitting raw signals.
-- TODO [Step 66]: If `matchList` carries entries, enter `launch` by resolving a QuickPromise that triggers each block's `launch()` and aggregates launch promises with `Q.all`.
+- ✔️ TODO [Step 66]: If `matchList` carries entries, enter `launch` by resolving a QuickPromise that triggers each block's `launch()` and aggregates launch promises with `Q.all`.
 - TODO [Step 67]: Await the aggregated launch promise before looping back into the compaction promise chain.
 - TODO [Step 68]: Wrap swap requests in QuickPromise guards so the grid snaps back to `match` only after the swap promise resolves.
 - TODO [Step 69]: Maintain the (`match`→`launch`→`compact`→`fill`) loop as a series of chained promises to guarantee deterministic cascades without signal races.

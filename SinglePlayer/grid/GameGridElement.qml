@@ -626,24 +626,35 @@ Item {
 
     function _launchMatches() {
         if (!matchList || matchList.length === 0)
-            return _resolvedPromise()
-        const promises = []
-        for (let i = 0; i < matchList.length; ++i) {
-            const block = matchList[i]
-            if (!block)
-                continue
-            const row = block.row
-            const column = block.column
-            if (row >= 0 && row < rowCount && column >= 0 && column < columnCount)
-                gridMatrix[row][column] = null
-            promises.push(block.launch().then(function() {
-                block.destroy()
-            }))
-        }
+            return _resolvedPromise(false)
+
+        const launchingBlocks = matchList.slice()
         matchList = []
-        if (!promises.length)
-            return _resolvedPromise()
-        return Q.all(promises)
+
+        return Q.promise(function(resolve) {
+            const launches = []
+            for (let i = 0; i < launchingBlocks.length; ++i) {
+                const block = launchingBlocks[i]
+                if (!block)
+                    continue
+                const row = block.row
+                const column = block.column
+                if (row >= 0 && row < rowCount && column >= 0 && column < columnCount)
+                    gridMatrix[row][column] = null
+                const launchPromise = block.launch().then(function() {
+                    block.destroy()
+                    return true
+                })
+                launches.push(launchPromise)
+            }
+
+            if (!launches.length) {
+                resolve(true)
+                return
+            }
+
+            resolve(Q.all(launches))
+        })
     }
 
     function _processMatches(matches) {
