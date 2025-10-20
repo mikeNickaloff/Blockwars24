@@ -441,9 +441,13 @@ GameScene {
                 const collapse = scene._collapseWaitingBanner()
                 if (collapse && typeof collapse.then === "function") {
                     collapse.then(function() {
+                        if (readinessLoggingEnabled)
+                            console.debug("MatchScene", "banner collapsed, starting turn", nextIndex)
                         _startTurnFor(nextIndex)
                     })
                 } else {
+                    if (readinessLoggingEnabled)
+                        console.debug("MatchScene", "starting turn immediately", nextIndex)
                     _startTurnFor(nextIndex)
                 }
             }, function(error) {
