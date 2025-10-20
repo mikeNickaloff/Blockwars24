@@ -5,6 +5,7 @@ import Blockwars24
 import "./components"
 import "./controllers"
 import "../Shared"
+import QuickPromise 1.0
 import "../lib/promise.js" as Q
 
 GameScene {
@@ -26,6 +27,26 @@ GameScene {
     property var readinessAggregate: null
     property var bannerCollapsePromise: null
     property bool readinessLoggingEnabled: true
+
+    Component {
+        id: promiseFactory
+        Promise {
+            onSettled: {
+                Qt.callLater(function() {
+                    destroy()
+                })
+            }
+        }
+    }
+
+    function _createPromise(label) {
+        const promise = promiseFactory.createObject(scene)
+        if (!promise)
+            return null
+        if (readinessLoggingEnabled && label)
+            console.debug("MatchScene", "promise created", label)
+        return promise
+    }
 
     signal exitRequested()
 
@@ -215,8 +236,10 @@ GameScene {
         _ensureReadinessAggregate()
     }
 
-    function _resolvedPromise(value) {
-        const promise = Q.promise()
+    function _resolvedPromise(value, label) {
+        const promise = _createPromise(label || "resolved")
+        if (!promise)
+            return null
         promise.resolve(value)
         return promise
     }
@@ -397,7 +420,7 @@ GameScene {
     function _collapseWaitingBanner() {
         if (bannerCollapsePromise)
             return bannerCollapsePromise
-        const collapse = Q.promise()
+        const collapse = _createPromise("bannerCollapse")
         if (!waitingBanner.visible) {
             if (readinessLoggingEnabled)
                 console.debug("MatchScene", "banner already collapsed")
@@ -463,7 +486,7 @@ GameScene {
             return initiativePromise
 
         initiativeResults = ({})
-        initiativePromise = Q.promise()
+        initiativePromise = _createPromise("initiative")
         if (readinessLoggingEnabled)
             console.debug("MatchScene", "requestInitiativeRoll")
 
