@@ -171,10 +171,10 @@ GameScene {
     }
 
     function _prepareHumanLoadout() {
-        if (!playerLoadout || playerLoadout.length === 0)
-            return null
-        const promise = humanController.prepareLoadout(playerLoadout)
-        _registerLoadoutPromise(1, promise)
+        const entries = Array.isArray(playerLoadout) ? playerLoadout : []
+        const promise = humanController.prepareLoadout(entries)
+        if (promise && typeof promise.then === "function")
+            _registerLoadoutPromise(1, promise)
         return promise
     }
 
