@@ -440,6 +440,8 @@ GameScene {
                 activeDashboardIndex = nextIndex
                 const collapse = scene._collapseWaitingBanner()
                 if (collapse && typeof collapse.then === "function") {
+                    if (readinessLoggingEnabled)
+                        console.debug("MatchScene", "collapse promise available")
                     collapse.then(function() {
                         if (readinessLoggingEnabled)
                             console.debug("MatchScene", "banner collapsed, starting turn", nextIndex)
