@@ -277,10 +277,18 @@ GameScene {
         const target = _dashboardFor(index)
         if (!target)
             return
-        const hydration = loadoutHydrationMap[String(index)] || null
+        const key = String(index)
+        let hydration = loadoutHydrationMap[key] || null
+        if (!hydration) {
+            const controller = _controllerFor(index)
+            if (controller && controller.hydrationPromise)
+                hydration = controller.hydrationPromise
+        }
         const result = target.applyPowerupLoadout(loadout, hydration)
         if (result && typeof result.then === "function" && result !== hydration)
             _registerLoadoutPromise(index, result)
+        else if (!loadoutHydrationMap[key] && hydration && typeof hydration.then === "function")
+            loadoutHydrationMap[key] = hydration
     }
 
     function _setSwapFor(index, enabled) {
