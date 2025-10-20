@@ -27,6 +27,7 @@ Item {
     property var _fillStateGate: null
     property var _cascadeCompletionGate: null
     property int compactionStepDurationMs: 110
+    property bool stateLoggingEnabled: false
 
     signal swapPerformed(bool success, int row1, int column1, int row2, int column2)
     signal turnEnded()
@@ -115,14 +116,14 @@ Item {
         swapPerformed(true, row1, column1, row2, column2)
         _consumeSwap()
         matchList = matches
-        gridState = "launch"
+        _setGridState("launch", "swapAccepted")
         _requestCascade()
         return true
     }
 
     function beginFilling() {
         if (gridState !== "fill")
-            gridState = "fill"
+            _setGridState("fill", "beginFilling")
 
         const gate = Q.promise()
         _fillStateGate = gate
@@ -155,12 +156,38 @@ Item {
                 row.push(null)
             gridMatrix.push(row)
         }
-        gridState = "fill"
+        _setGridState("fill", "initialize")
         seedingFill = true
         _configureSpawnSeed(spawnSeed)
         Qt.callLater(function() {
             beginFilling()
         })
+    }
+
+    function _setGridState(nextState, reason) {
+        if (gridState === nextState)
+            return
+        if (stateLoggingEnabled) {
+            const note = reason ? " (" + reason + ")" : ""
+            console.debug("GameGrid", objectName || "(grid)", "state", gridState, "->", nextState, note)
+        }
+        gridState = nextState
+    }
+
+    function _frontRowIndex() {
+        return fillDirection >= 0 ? 0 : rowCount - 1
+    }
+
+    function _spawnRowIndex() {
+        return _frontRowIndex() - (fillDirection >= 0 ? 1 : -1)
+    }
+
+    function _nextRowIndex(row) {
+        return row + (fillDirection >= 0 ? 1 : -1)
+    }
+
+    function _rowWithinBounds(row) {
+        return row >= 0 && row < rowCount
     }
 
     function _generateBlockSpec(row, column) {
@@ -275,8 +302,8 @@ Item {
         if (rowCount <= 0 || columnCount <= 0)
             return _resolvedPromise([])
 
-        const edgeRow = fillDirection >= 0 ? 0 : rowCount - 1
-        const spawnRow = fillDirection >= 0 ? -1 : rowCount
+        const edgeRow = _frontRowIndex()
+        const spawnRow = _spawnRowIndex()
         const matrix = _colorMatrix()
         const vacancies = []
 
@@ -373,7 +400,7 @@ Item {
     function _edgeVacanciesExist() {
         if (rowCount <= 0 || columnCount <= 0)
             return false
-        const edgeRow = fillDirection >= 0 ? 0 : rowCount - 1
+        const edgeRow = _frontRowIndex()
         for (let column = 0; column < columnCount; ++column) {
             if (!gridMatrix[edgeRow][column])
                 return true
@@ -663,15 +690,15 @@ Item {
             matchList = matches
             if (seedingFill) {
                 return _consumeSeedMatches().then(function() {
-                    gridState = "compact"
+                    _setGridState("compact", "seededMatchConsumed")
                     return _advanceStateMachine()
                 })
             }
-            gridState = "launch"
+            _setGridState("launch", "matchesReady")
             return _advanceStateMachine()
         }
         matchList = []
-        gridState = "idle"
+        _setGridState("idle", "noMatches")
         if (seedingFill)
             seedingFill = false
         _resolveCascadeCompletion({ state: "idle" })
@@ -685,7 +712,7 @@ Item {
     }
 
     function _blockAt(row, column) {
-        if (row < 0 || row >= rowCount || column < 0 || column >= columnCount)
+        if (!_rowWithinBounds(row) || column < 0 || column >= columnCount)
             return null
         return gridMatrix[row][column]
     }
@@ -934,7 +961,7 @@ Item {
         ctx.neighborRow = -1
         ctx.neighborColumn = -1
         ctx.currentDirection = ""
-        gridState = "launch"
+        _setGridState("launch", "previewSwapAccepted")
         _requestCascade()
         return true
     }
@@ -1072,31 +1099,34 @@ Item {
     }
 
     function _resolveFillState() {
+        _setGridState("fill", "resolveFillState")
         return _fillColumns().then(function() {
             return _enterCompactState()
         })
     }
 
     function _enterCompactState() {
-        gridState = "compact"
+        _setGridState("compact", "enterCompactState")
         return _resolveCompactState()
     }
 
     function _resolveCompactState() {
+        _setGridState("compact", "resolveCompactState")
         return _preCompressColumns().then(function() {
             if (_edgeVacanciesExist()) {
-                gridState = "fill"
+                _setGridState("fill", "edgeVacanciesExist")
                 return _advanceStateMachine()
             }
-            gridState = "match"
+            _setGridState("match", "compactionComplete")
             return _advanceStateMachine()
         })
     }
 
     function _resolveMatchState() {
+        _setGridState("match", "resolveMatchState")
         return _waitForAnimationsToSettle().then(function() {
             if (_gridHasEmptyRow()) {
-                gridState = "fill"
+                _setGridState("fill", "gridHasEmptyRow")
                 return _advanceStateMachine()
             }
             return _detectMatchesAsync().then(function(matches) {
@@ -1108,6 +1138,7 @@ Item {
     }
 
     function _resolveLaunchState() {
+        _setGridState("launch", "resolveLaunchState")
         return _launchMatches().then(function() {
             return _enterCompactState()
         })
