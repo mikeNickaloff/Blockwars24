@@ -35,9 +35,8 @@ Item {
         loadoutHydrationPromise = hydration
 
         Qt.callLater(function() {
-            const activePromise = loadoutHydrationPromise
-            if (activePromise && activePromise === hydration && typeof activePromise.resolve === "function")
-                activePromise.resolve({ index: dashboardIndex, loadout: loadout })
+            if (hydration && typeof hydration.resolve === "function" && !hydration.isSettled)
+                hydration.resolve({ index: dashboardIndex, loadout: loadout })
             dashboard.powerupDataLoaded(dashboard.dashboardIndex)
         })
 
@@ -55,9 +54,8 @@ Item {
         seedConfirmationPromise = confirmation
 
         Qt.callLater(function() {
-            const activePromise = seedConfirmationPromise
-            if (activePromise && activePromise === confirmation && typeof activePromise.resolve === "function")
-                activePromise.resolve({ index: dashboardIndex, seed: blockSeed })
+            if (confirmation && typeof confirmation.resolve === "function" && !confirmation.isSettled)
+                confirmation.resolve({ index: dashboardIndex, seed: blockSeed })
             dashboard.seedConfirmed(dashboard.dashboardIndex, blockSeed)
         })
 
