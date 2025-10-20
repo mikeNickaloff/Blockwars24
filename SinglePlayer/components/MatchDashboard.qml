@@ -148,6 +148,7 @@ Item {
                 Layout.minimumWidth: 0
                 Layout.minimumHeight: 0
                 fillDirection: dashboardIndex === 0 ? 1 : -1
+                stateLoggingEnabled: true
                 onFillCycleStarted: dashboard._handleFillCycleStarted()
                 onTurnEnded: dashboard._handleTurnFinished()
             }
