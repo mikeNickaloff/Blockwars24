@@ -25,6 +25,7 @@ GameScene {
     property var readinessResolved: ({})
     property var readinessAggregate: null
     property var bannerCollapsePromise: null
+    property bool readinessLoggingEnabled: true
 
     signal exitRequested()
 
@@ -193,6 +194,8 @@ GameScene {
         loadoutHydrationMap[key] = promise
         readinessPromiseMap[key] = promise
         readinessResolved[key] = false
+        if (readinessLoggingEnabled)
+            console.debug("MatchScene", "tracked loadout promise", index)
 
         promise.then(function() {
             readinessResolved[key] = true
@@ -203,6 +206,8 @@ GameScene {
             const controller = scene._controllerFor(index)
             if (controller)
                 controller.hydrationPromise = null
+            if (readinessLoggingEnabled)
+                console.debug("MatchScene", "loadout promise resolved", index)
         }, function(error) {
             console.error("Loadout hydration rejected", error)
         })
@@ -226,17 +231,25 @@ GameScene {
 
         const aggregate = Q.all([cpuPromise, humanPromise])
         readinessAggregate = aggregate
+        if (readinessLoggingEnabled)
+            console.debug("MatchScene", "readiness aggregate created")
 
         const self = scene
         aggregate.then(function() {
+            if (readinessLoggingEnabled)
+                console.debug("MatchScene", "readiness aggregate resolved")
             const seedPromise = self._assignSeeds()
             if (seedPromise && typeof seedPromise.then === "function")
                 return seedPromise
             return _resolvedPromise(true)
         }).then(function() {
+            if (readinessLoggingEnabled)
+                console.debug("MatchScene", "collapsing waiting banner")
             return self._collapseWaitingBanner()
         }).then(function() {
             self.readinessAggregate = null
+            if (readinessLoggingEnabled)
+                console.debug("MatchScene", "readiness pipeline finished")
         }, function(reason) {
             console.error("Readiness aggregate rejected", reason)
             self.readinessAggregate = null
@@ -289,6 +302,8 @@ GameScene {
             _registerLoadoutPromise(index, result)
         else if (!loadoutHydrationMap[key] && hydration && typeof hydration.then === "function")
             loadoutHydrationMap[key] = hydration
+
+        _ensureReadinessAggregate()
     }
 
     function _setSwapFor(index, enabled) {
@@ -301,6 +316,8 @@ GameScene {
         if (index < 0 || index > 1)
             return
         fillCycleRequests[index] = true
+        if (readinessLoggingEnabled)
+            console.debug("MatchScene", "fillCycleStarted", index, fillCycleRequests)
         if (fillCycleRequests[0] && fillCycleRequests[1]) {
             fillCycleRequests = [false, false]
             _activateFillingChain()
@@ -308,6 +325,8 @@ GameScene {
     }
 
     function _activateFillingChain() {
+        if (readinessLoggingEnabled)
+            console.debug("MatchScene", "activateFillingChain")
         const cpuBoard = _dashboardFor(0)
         const humanBoard = _dashboardFor(1)
         if (cpuBoard)
@@ -321,6 +340,8 @@ GameScene {
             return seedAggregate
 
         const seeds = [seedHelper.nextSeed(), seedHelper.nextSeed()]
+        if (readinessLoggingEnabled)
+            console.debug("MatchScene", "assigning seeds", seeds)
         const cpuBoard = _dashboardFor(0)
         const humanBoard = _dashboardFor(1)
 
@@ -355,6 +376,8 @@ GameScene {
         if (promises.length === 2) {
             seedAggregate = Q.all(promises)
             seedAggregate.then(function() {
+                if (readinessLoggingEnabled)
+                    console.debug("MatchScene", "seed aggregate resolved")
                 seedAggregate = null
                 seedPromiseMap = ({})
                 scene._initializeGame()
@@ -376,6 +399,8 @@ GameScene {
             return bannerCollapsePromise
         const collapse = Q.promise()
         if (!waitingBanner.visible) {
+            if (readinessLoggingEnabled)
+                console.debug("MatchScene", "banner already collapsed")
             collapse.resolve(true)
             return collapse
         }
@@ -385,6 +410,8 @@ GameScene {
         waitingBannerFadeOut.from = waitingBanner.opacity
         waitingBannerFadeOut.to = 0
         waitingBannerFadeOut.start()
+        if (readinessLoggingEnabled)
+            console.debug("MatchScene", "banner fade started")
         return collapse
     }
 
@@ -396,12 +423,16 @@ GameScene {
             bannerCollapsePromise.resolve(true)
             bannerCollapsePromise = null
         }
+        if (readinessLoggingEnabled)
+            console.debug("MatchScene", "banner collapse resolved")
     }
 
     function _initializeGame() {
         if (matchActive)
             return
         matchActive = true
+        if (readinessLoggingEnabled)
+            console.debug("MatchScene", "initializeGame")
         const initiative = _requestInitiativeRoll()
         if (initiative && typeof initiative.then === "function") {
             initiative.then(function(outcome) {
@@ -472,6 +503,8 @@ GameScene {
         humanCanSwap = false
         _setSwapFor(0, false)
         _setSwapFor(1, false)
+        if (readinessLoggingEnabled)
+            console.debug("MatchScene", "startTurn", index)
         const activeBoard = _dashboardFor(index)
         const passiveBoard = _dashboardFor(index === 0 ? 1 : 0)
         if (index === 0) {
@@ -493,6 +526,8 @@ GameScene {
             return
         if (awaitingCascade[index]) {
             awaitingCascade[index] = false
+            if (readinessLoggingEnabled)
+                console.debug("MatchScene", "cascade complete", index)
             _notifyTurnReady(index)
             return
         }
@@ -508,21 +543,29 @@ GameScene {
         if (index !== activeDashboardIndex)
             return
         const nextIndex = index === 0 ? 1 : 0
+        if (readinessLoggingEnabled)
+            console.debug("MatchScene", "turn completed", index, "->", nextIndex)
         _startTurnFor(nextIndex)
     }
 
     function _notifyTurnReady(index) {
         if (index === 0) {
+            if (readinessLoggingEnabled)
+                console.debug("MatchScene", "CPU ready")
             _triggerCpuMove()
         } else {
             humanCanSwap = true
             _setSwapFor(1, true)
+            if (readinessLoggingEnabled)
+                console.debug("MatchScene", "Human ready")
         }
     }
 
     function _triggerCpuMove() {
         if (cpuThinking)
             return
+        if (readinessLoggingEnabled)
+            console.debug("MatchScene", "triggerCpuMove")
         const controller = _controllerFor(0) || cpuController
         const board = _dashboardFor(0)
         const grid = board ? board.gridElement : null
