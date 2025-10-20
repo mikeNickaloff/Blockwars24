@@ -458,6 +458,8 @@ GameScene {
 
         initiativeResults = ({})
         initiativePromise = Q.promise()
+        if (readinessLoggingEnabled)
+            console.debug("MatchScene", "requestInitiativeRoll")
 
         cpuController.rollInitiative()
         humanController.rollInitiative()
@@ -470,10 +472,14 @@ GameScene {
             return
 
         initiativeResults[String(index)] = rollValue
+        if (readinessLoggingEnabled)
+            console.debug("MatchScene", "initiative roll", index, rollValue)
 
         if (initiativeResults["0"] !== undefined && initiativeResults["1"] !== undefined) {
             if (initiativeResults["0"] === initiativeResults["1"]) {
                 initiativeResults = ({})
+                if (readinessLoggingEnabled)
+                    console.debug("MatchScene", "initiative tie reroll")
                 cpuController.rollInitiative()
                 humanController.rollInitiative()
                 return
@@ -492,6 +498,8 @@ GameScene {
             initiativePromise = null
             if (promise && typeof promise.resolve === "function")
                 promise.resolve(payload)
+            if (readinessLoggingEnabled)
+                console.debug("MatchScene", "initiative winner", winner)
         }
     }
 
